@@ -155,9 +155,18 @@ hashtable_new()
     /* Initially there is no second bucket list */
     hash->bucketlist2= NULL;
     hash->bucketmask2= 0;
+    hash->comparator = &memcmp_comparator;
     return hash;
 }
 
+/* hashtable_new_custom */
+struct hashtable *
+hashtable_new_custom(int (* comparator)(void *, void *, int, int))
+{
+  struct hashtable * hash = hashtable_new();
+  hash->comparator = comparator;
+  return hash;
+}
 
 /* hashtable_store */
 int
@@ -182,8 +191,7 @@ hashtable_store(struct hashtable * hash, void * keypointer,
     for (bucketentry = bucket->list, entryindex = 0, i=bucket->size; --i >= 0; ++entryindex) {
         entry = entrylist + * bucketentry++;
         /* fprintf(stderr,"?'%*s'? ", -entry->keyint, (char *) entry->keypointer); */
-        if (entry->keyint==keylength && (memcmp(
-            entry->keypointer,keypointer,keylength)==0)) {
+        if ((hash->comparator)(entry->keypointer, keypointer, entry->keyint, keylength)) {
             i = -1; /* becomes -2, terminates bucket scan with found */
         }
     }
@@ -194,8 +202,7 @@ hashtable_store(struct hashtable * hash, void * keypointer,
         bucket = hash->bucketlist2 + (hashcode & hash->bucketmask2);
         for (bucketentry = bucket->list, entryindex = 0, i=bucket->size; --i >= 0; ++entryindex) {
             /* fprintf(stderr,"?'%*s'? ", -entry->keyint, (char *) entry->keypointer); */
-            if (entry->keyint==keylength && (memcmp(
-                entry->keypointer,keypointer,keylength)==0)) {
+            if ((hash->comparator)(entry->keypointer, keypointer, entry->keyint, keylength)) {
                 i = -1; /* becomes -2, terminates bucket scan with found */
             }
         }
@@ -292,8 +299,7 @@ hashtable_fetch(struct hashtable * hash, void * keypointer,
     for (bucketentry = bucket->list, entryindex = 0, i=bucket->size; --i >= 0; ++entryindex) {
         entry = entrylist + * bucketentry++;
         /* fprintf(stderr,"?'%*s'? ", -entry->keyint, (char *) entry->keypointer); */
-        if (entry->keyint==keylength && (memcmp(
-            entry->keypointer,keypointer,keylength)==0)) {
+        if ((hash->comparator)(entry->keypointer, keypointer, entry->keyint, keylength)) {
             i = -1; /* becomes -2, terminates bucket scan with found */
         }
     }
@@ -304,8 +310,7 @@ hashtable_fetch(struct hashtable * hash, void * keypointer,
         bucket = hash->bucketlist2 + (hashcode & hash->bucketmask2);
         for (bucketentry = bucket->list, entryindex = 0, i=bucket->size; --i >= 0; ++entryindex) {
             /* fprintf(stderr,"?'%*s'? ", -entry->keyint, (char *) entry->keypointer); */
-            if (entry->keyint==keylength && (memcmp(
-                entry->keypointer,keypointer,keylength)==0)) {
+            if ((hash->comparator)(entry->keypointer, keypointer, entry->keyint, keylength)) {
                 i = -1; /* becomes -2, terminates bucket scan with found */
             }
         }
@@ -355,8 +360,7 @@ hashtable_delete(struct hashtable * hash, void * keypointer,
     for (bucketentry = bucket->list, entryindex = 0, i=bucket->size; --i >= 0; ++entryindex) {
         entry = entrylist + * bucketentry++;
         /* fprintf(stderr,"?'%*s'? ", -entry->keyint, (char *) entry->keypointer); */
-        if (entry->keyint==keylength && (memcmp(
-            entry->keypointer,keypointer,keylength)==0)) {
+        if ((hash->comparator)(entry->keypointer, keypointer, entry->keyint, keylength)) {
             i = -1; /* becomes -2, terminates bucket scan with found */
         }
     }
@@ -367,8 +371,7 @@ hashtable_delete(struct hashtable * hash, void * keypointer,
         bucket = hash->bucketlist2 + (hashcode & hash->bucketmask2);
         for (bucketentry = bucket->list, entryindex = 0, i=bucket->size; --i >= 0; ++entryindex) {
             /* fprintf(stderr,"?'%*s'? ", -entry->keyint, (char *) entry->keypointer); */
-            if (entry->keyint==keylength && (memcmp(
-                entry->keypointer,keypointer,keylength)==0)) {
+            if ((hash->comparator)(entry->keypointer, keypointer, entry->keyint, keylength)) {
                 i = -1; /* becomes -2, terminates bucket scan with found */
             }
         }
@@ -460,6 +463,12 @@ hashtable_iterator_init(struct hashtable * hash,
     iter->nextentryindex = 0;
 }
 
+/* memcmp_comparator */
+int
+memcmp_comparator(void * key1, void * key2, int actual, int desired)
+{
+  return actual==desired && (memcmp(key1, key2, desired)==0);
+}
 
 #ifdef __cplusplus
 }

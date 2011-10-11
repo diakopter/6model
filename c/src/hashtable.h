@@ -54,6 +54,7 @@ struct hashtable {
     int bucketmask1;      /* eg 0x3f when there are 64 buckets */
     int bucketmask2;      /* eg 0x3f when there are 64 buckets */
     int emptybuckets;     /* to decide when to shorten bucket list */
+    int (* comparator)(void *, void *, int, int); /* comparator function pointer */
 };
 
 /* hashtable_iterator */
@@ -64,11 +65,13 @@ struct hashtable_iterator {
 
 /* Function declarations */
 struct hashtable * hashtable_new();
+struct hashtable * hashtable_new_custom(int (* comparator)(void *, void *, int, int));
 int  hashtable_store(struct hashtable * hash, void * keypointer, int keylength, void * valuepointer, int valueint);
 int  hashtable_fetch(struct hashtable * hash, void * keypointer, int keylength, void ** valuepointerpointer, int * valueintpointer);
 int  hashtable_delete(struct hashtable * hash, void * keypointer, int keylength);
 void hashtable_free(struct hashtable * hash);
 void hashtable_iterator_init(struct hashtable * hash, struct hashtable_iterator * iter);
 int  hashtable_iterator_next(struct hashtable_iterator * iter, struct hashtable_entry * entry);
+int  memcmp_comparator(void * key1, void * key2, int actual, int desired);
 
 /* end of hashtable.h */
