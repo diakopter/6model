@@ -23,7 +23,7 @@ function makeSharedTable ()
             return Obj.STable.VTable[Hint];
         
         -- Otherwise, try method cache.
-        elseif (self.MethodCache ~= nil and self.MethodCache[Name[ ~= nil) then
+        elseif (self.MethodCache ~= nil and self.MethodCache[Name] ~= nil) then
             return self.MethodCache[Name];
 
         -- Otherwise, go ask the meta-object.

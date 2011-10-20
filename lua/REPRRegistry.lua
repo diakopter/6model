@@ -1,7 +1,7 @@
 
 dofile('P6capture.lua');
 dofile('P6hash.lua');
---dofile('P6int.lua');
+dofile('P6int.lua');
 --dofile('P6list.lua');
 --dofile('P6mapping.lua');
 --dofile('P6num.lua');

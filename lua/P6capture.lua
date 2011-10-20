@@ -1,7 +1,7 @@
 
 function makeP6capture ()
     local P6capture = {};
-    local mt = {};
+    local mt = { __index = P6capture };
     
     local makeInstance = function ()
         local Instance = {};

@@ -1,6 +1,6 @@
 function makeDictionary ()
     local Dictionary = {};
-    local mt = {};
+    local mt = { __index = Dictionary };
     function Dictionary.new()
         return setmetatable({}, mt);
     end
