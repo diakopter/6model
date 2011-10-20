@@ -29,9 +29,9 @@ function makeInit ()
         CodeObjectUtility.LLCodeTypeObject = SettingContext.LexPad:GetByName("NQPCode");
 
         -- Create an execution domain and a thread context for it.
-        local ExecDom = ExecutionDomain:new();
+        local ExecDom = ExecutionDomain.new();
         ExecDom.Setting = SettingContext;
-        local Thread = ThreadContext:new();
+        local Thread = ThreadContext.new();
         Thread.Domain = ExecDom;
         Thread.CurrentContext = SettingContext;
         Thread.DefaultBoolBoxType = SettingContext.LexPad:GetByName("NQPInt");
