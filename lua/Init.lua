@@ -3,7 +3,12 @@ dofile('Dictionary.lua');
 dofile('REPRRegistry.lua');
 dofile('SharedTable.lua');
 dofile('KnowHOWBootstrapper.lua');
-bit = require("bit");
+dofile('CaptureHelper.lua');
+dofile('CodeObjectUtility.lua');
+dofile('Context.lua');
+dofile('ExecutionDomain.lua');
+dofile('Lexpad.lua');
+bit = require("bit"); -- in LuaJit only (yay)
 
 function makeInit ()
     local Init = {};
@@ -12,6 +17,7 @@ function makeInit ()
     function Init.new()
         return setmetatable({}, mt);
     end
+    
     function Init.Initialize(SettingName)
         Init.RegisterRepresentations();
         local KnowHOW = KnowHOWBootstrapper.Bootstrap();
@@ -45,6 +51,7 @@ function makeInit ()
 
         return Thread;
     end
+    
     function Init.RegisterRepresentations()
     if not REPRS_Registered then do
         REPRRegistry.register_REPR("KnowHOWREPR", KnowHOWREPR.new());
@@ -60,6 +67,7 @@ function makeInit ()
         REPRS_Registered = true;
         end end
     end
+
     return Init;
 end
 Init = makeInit();
