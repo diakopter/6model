@@ -2,6 +2,7 @@ dofile('List.lua');
 dofile('Dictionary.lua');
 dofile('REPRRegistry.lua');
 dofile('SharedTable.lua');
+dofile('KnowHOWBootstrapper.lua');
 bit = require("bit");
 
 function makeInit ()

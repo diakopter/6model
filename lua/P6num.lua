@@ -36,7 +36,7 @@ function makeP6num ()
         return not O.Undefined;
     end
     function P6num:hint_for(TC, ClassHandle, Name)
-        return Hnums.NO_Hnum;
+        return Hints.NO_Hint;
     end
     function P6num:set_num(TC, Object, Value)
         Object.Value = Value;
