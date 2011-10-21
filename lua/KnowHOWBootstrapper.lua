@@ -104,11 +104,34 @@ function KnowHOWBootstrapper.Bootstrap ()
     return KnowHOW;
 end
 
+function KnowHOWBootstrapper.SetupKnowHOWAttribute (KnowHOW)
+    local HOW = KnowHOW.STable.REPR:instance_of(nil, KnowHOW);
 
+    local KnowHOWAttribute = REPRRegistry.get_REPR_by_name("P6str"):type_object_for(null, HOW);
 
+    HOW.Methods.new = CodeObjectUtility.WrapNativeMethod(
+        function (TC, Code, Cap)
+            local WHAT = CaptureHelper.GetPositional(Cap, 0).STable.WHAT;
+            local Name = Ops.unbox_str(TC, CaptureHelper.GetNamed(Cap, "name"));
+            return Ops.box_str(TC, Name, WHAT);
+        end);
+    HOW.Methods.name = CodeObjectUtility.WrapNativeMethod(
+        function (TC, Code, Cap)
+            local self = CaptureHelper.GetPositional(Cap, 0);
+            return Ops.box_str(TC, Ops.unbox_str(TC, self), TC.DefaultStrBoxType);
+        end);
 
+    return KnowHOWAttribute;
+end
 
-
+function KnowHOWBootstrapper.MostDefinedListType (TC)
+    if (TC.DefaultListType.STable.HOW ~= nil) then
+        return TC.DefaultListType;
+    end
+    
+    TC.DefaultListType = Ops.get_lex(TC, "NQPList");
+    return TC.DefaultListType;
+end
 
 
 
