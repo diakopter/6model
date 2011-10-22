@@ -26,9 +26,9 @@ function makeInit ()
         -- See if we're to load a setting or use the fake bootstrapping one.
         local SettingContext;
         if (SettingName == nil) then
-            SettingContext = BootstrapSetting(KnowHOW, KnowHOWAttribute);
+            SettingContext = Init.BootstrapSetting(KnowHOW, KnowHOWAttribute);
         else
-            SettingContext = LoadSetting(SettingName, KnowHOW, KnowHOWAttribute);
+            SettingContext = Init.LoadSetting(SettingName, KnowHOW, KnowHOWAttribute);
         end
 
         -- Cache native capture and LLCode type object.
