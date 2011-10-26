@@ -1,13 +1,14 @@
 dofile('List.lua');
 dofile('Dictionary.lua');
-dofile('REPRRegistry.lua');
-dofile('SharedTable.lua');
-dofile('KnowHOWBootstrapper.lua');
-dofile('CaptureHelper.lua');
-dofile('CodeObjectUtility.lua');
-dofile('Context.lua');
-dofile('ExecutionDomain.lua');
-dofile('Lexpad.lua');
+dofile('Metamodel/REPRRegistry.lua');
+dofile('Metamodel/SharedTable.lua');
+dofile('Metamodel/KnowHOW/KnowHOWBootstrapper.lua');
+dofile('Runtime/CaptureHelper.lua');
+dofile('Runtime/CodeObjectUtility.lua');
+dofile('Runtime/Context.lua');
+dofile('Runtime/ExecutionDomain.lua');
+dofile('Runtime/Lexpad.lua');
+dofile('Runtime/Ops.lua');
 bit = require("bit"); -- in LuaJit only (yay)
 
 function makeInit ()
