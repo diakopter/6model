@@ -1,5 +1,6 @@
 dofile('List.lua');
 dofile('Dictionary.lua');
+dofile('Try.lua');
 dofile('Metamodel/REPRRegistry.lua');
 dofile('Metamodel/SharedTable.lua');
 dofile('Metamodel/KnowHOW/KnowHOWBootstrapper.lua');

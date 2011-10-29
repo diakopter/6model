@@ -13,6 +13,7 @@ function makeRakudoCodeRef ()
         end
     end
     local Instance = makeInstance();
+    RakudoCodeRef.Instance = Instance;
     
     function RakudoCodeRef.new()
         return setmetatable({}, mt);
