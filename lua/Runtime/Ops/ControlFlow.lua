@@ -15,7 +15,7 @@ function Ops.throw_dynamic(TC, ExceptionObject, ExceptionType)
             local Handlers = CurContext.StaticCodeObject.Handlers;
             if (Handlers ~= nil) then
                 for i = 1, Handlers.Length do
-                    if Handlers[i].Type == WantType) then
+                    if (Handlers[i].Type == WantType) then
                         return Exceptions.ExceptionDispatcher.CallHandler(TC,
                             Handlers[i].HandleBlock, ExceptionObject);
                     end
@@ -36,7 +36,7 @@ function Ops.throw_lexical(TC, ExceptionObject, ExceptionType)
             local Handlers = CurContext.StaticCodeObject.Handlers;
             if (Handlers ~= nil) then
                 for i = 1, Handlers.Length do
-                    if Handlers[i].Type == WantType) then
+                    if (Handlers[i].Type == WantType) then
                         return Exceptions.ExceptionDispatcher.CallHandler(TC,
                             Handlers[i].HandleBlock, ExceptionObject);
                     end
