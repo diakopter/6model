@@ -10,6 +10,8 @@ dofile('Runtime/Context.lua');
 dofile('Runtime/ExecutionDomain.lua');
 dofile('Runtime/Lexpad.lua');
 dofile('Runtime/Ops.lua');
+dofile('Runtime/Exceptions/ExceptionDispatcher.lua');
+dofile('Runtime/MultiDispatch/MultiDispatcher.lua');
 bit = require("bit"); -- in LuaJit only (yay)
 
 function makeInit ()

@@ -17,8 +17,32 @@ function Ops.llcap_bind_at_pos(TC, Capture, IndexObj, Value)
         Cap.Positionals = {};
         Storage = Cap.Positionals;
     end
-    if (Index >= #Storage) then
-        local newStorage = {};
-    -- XXX unfinished
+    Storage[Index] = Value;
+    return Value;
+end
+
+function Ops.llcap_get_at_key(TC, Capture, Key)
+    local Storage = Capture.Nameds;
+    if (Storage == nil) then
+        Capture.Nameds = {};
+        Storage = Capture.Nameds;
+    end
+    local StrKey = Ops.unbox_str(TC, Key);
+    if (Storage[StrKey] ~= nil) then
+        return Storage[StrKey];
+    else
+        return Ops.get_lex(TC, "Mu");
     end
 end
+
+function Ops.llcap_bind_at_key(TC, Capture, Key, Value)
+    local Storage = Capture.Nameds;
+    if (Storage == nil) then
+        Capture.Nameds = {};
+        Storage = Capture.Nameds;
+    end
+    local StrKey = Ops.unbox_str(TC, Key);
+    Storage[StrKey] = Value;
+    return Value;
+end
+
