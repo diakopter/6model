@@ -57,7 +57,7 @@ function makeInit ()
     end
     
     function Init.RegisterRepresentations()
-    if not REPRS_Registered then do
+    if not REPRS_Registered then
         REPRRegistry.register_REPR("KnowHOWREPR", KnowHOWREPR.new());
         REPRRegistry.register_REPR("P6opaque", P6opaque.new());
         REPRRegistry.register_REPR("P6hash", P6hash.new());
@@ -69,7 +69,7 @@ function makeInit ()
         REPRRegistry.register_REPR("P6list", P6list.new());
         REPRRegistry.register_REPR("P6mapping", P6mapping.new());
         REPRS_Registered = true;
-        end end
+        end
     end
 
     return Init;
