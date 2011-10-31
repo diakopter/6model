@@ -113,7 +113,7 @@ function makeMultiDispatcher ()
             local StartPoint = ResultPos;
             
             for i = 1, NumCandidates do
-                if (Graph[i].EdgesIn == 0) {
+                if (Graph[i].EdgesIn == 0) then
                     Result[ResultPos] = Graph[i].Candidate;
                     Graph[i].Candidate = nil;
                     ResultPos = ResultPos + 1;
@@ -138,6 +138,52 @@ function makeMultiDispatcher ()
         end
         
         return Result;
+    end
+    
+    function MultiDispatcher.IsNarrower(TC, a, b)
+        local Narrower = 0;
+        local Tied = 0;
+        local i, TypesToCheck;
+        
+        if (a.Sig.NumPositionals == b.Sig.NumPositionals) then
+            TypesToCheck = a.Sig.NumPositionals;
+        elseif (a.Sig.NumRequiredPositionals == b.Sig.NumRequiredPositionals) then
+            TypesToCheck = math.min(a.Sig.NumPositionals, b.Sig.NumPositionals);
+        else
+            return 0;
+        end
+        
+        for i = 1, TypesToCheck do
+            local TypeObjA = a.Sig.Parameters[i].Type;
+            local TypeObjB = b.Sig.Parameters[i].Type;
+            if (TypeObjA == TypeObjB) then
+                Tied = Tied + 1;
+            else
+                if (MultiDispatcher.IsNarrowerType(TC, TypeObjA, TypeObjB)) then
+                    Narrower = Narrower + 1;
+                elseif (not MultiDispatcher.IsNarrowerType(TC, TypeObjB, TypeObjA)) then
+                    Tied = Tied + 1;
+                end
+            end
+        end
+        
+        if (Narrower >= 1 and Narrower + Tied == TypesToCheck) then
+            return 1;
+        elseif (Tied ~= TypesToCheck) then
+            return 0;
+        end
+        
+        return not a.Sig:HasSlurpyPositional() and b.Sig:HasSlurpyPositional() and 1 or 0;
+    end
+    
+    function MultiDispatcher.IsNarrowerType(TC, A, B)
+        if (B == nil and A ~= nil) then
+            return true;
+        elseif (A == nil or B == nil) then
+            return false;
+        end
+        
+        return Ops.unbox_int(TC, Ops.type_check(TC, A, B)) ~= 0;
     end
 end
 
