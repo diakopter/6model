@@ -1,0 +1,117 @@
+Roadmap for NQP and Rakudo on .Net
+
+This document lays out the near-term and long-term things that need to be
+done to get NQP, and later Rakudo, running on .Net. The near-term things are
+good guesses. The more distant things are hand-waving. :-)
+
+Last Updated: 21st November 2010
+
+=== Add missing NQP features
+We support quite a few bits of NQP so far, but some important things are
+still missing. These are in rough priority order. There's no reason the
+regex step that follows this can't start before all of these are done; all
+the ones it depends on should be done.
+
+* Defaults on optional parameters
+
+* bless, CREATE with arg, BUILDALL, BUILD
+
+* Support PAST::Op with pasttype try
+
+* CATCH and CONTROL
+
+* viviself and vivibase review and updates
+
+* Review and make sure package scoped bits are really working
+
+* Other types of loop
+
+* Advanced loop flow control bits
+
+* Hash iteration
+
+
+=== Port PAST::Regex compilation
+This mostly involves getting regexes, then grammars to compile and run. This
+is mostly a guess at an ordering.
+
+* Stub in basic bits of Capture, Cursor, Match
+
+* pasttype concat, scan, literal and pass (should make /foo/ work)
+
+* pasttype quant
+
+* pasttype alt
+
+* Built-in character classes
+
+* Captures (named and positional)
+
+* Built-in rules
+
+* token/rule/regex declarations work
+
+* Protoregexen
+
+* User-defined character classes
+
+* Variable declarations, if they don't Just Work
+
+* Code blocks in regexes
+
+* Assertions (including lookahead)
+
+
+=== Pass NQP-RX test suite
+This is mostly tying up lose ends that have been missed so far.
+
+
+=== Bootstrapped NQP-RX implementation on .Net
+This step is about getting NQP to be able to compile itself on .Net. The
+thing that makes this a little tricky is that in a few places we depend
+on Parrot-isms, which will need to be eliminated. The proposed approach
+is:
+
+* Get DNST.pm building and us able to load it and make DNST nodes
+
+* Make a DNST to IL compiler
+
+* Build a test suite for DNST -> IL. Should be able to do it with some
+  kind of eval style primitive.
+
+* Get PAST node declarations translated into NQP and building
+
+* Get a version of PAST2DNST.pm to run
+
+* Build some test suite of PAST evaluation to get confidence that the
+  PAST2DNST.pm is actually working
+
+* Get Grammar.pm (modulo any needed tweaks) to compile and run
+
+* Get Actions.pm (modulo any needed tweaks) to compile and run
+
+* Tie it all together
+
+
+=== Serialization contexts supported and fully used by the bootstrap
+Once bootstrapped, do the same refactors that should already been in
+Parrot's NQP. Note that we'll snapshot the implementation before this
+point, as that will be what others will need to port first (e.g. all
+porting efforts will probably start with cross-compiling).
+
+
+=== Rakudo's parser and actions run on .Net
+At this stage, we should be able to parse many of the Rakudo spectests.
+
+
+=== Compiling Rakudo's setting and get a working Rakudo
+It'll be buggy, most likely, but this will be a real landmark: when we have
+a rakudo.exe that runs on .Net.
+
+
+=== Rakudo on .NET
+Hack hack hack towards spectest success. :-)
+
+
+=== Go for beer
+Mmm. Beer.
