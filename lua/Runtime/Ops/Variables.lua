@@ -3,7 +3,7 @@ function Ops.get_lex(TC, Name)
     while (CurContext ~= nil) do
         local Index;
         if (CurContext.LexPad.SlotMapping[Name] ~= nil) then
-            return CurContext.LexPad.Storage(CurContext.LexPad.SlotMapping[Name]);
+            return CurContext.LexPad.Storage[CurContext.LexPad.SlotMapping[Name]];
         end
         CurContext = CurContext.Outer;
     end
@@ -40,7 +40,7 @@ function Ops.get_dynamic(TC, Name)
     while (CurContext ~= nil) do
         local Index;
         if (CurContext.LexPad.SlotMapping[Name] ~= nil) then
-            return CurContext.LexPad.Storage(CurContext.LexPad.SlotMapping[Name]);
+            return CurContext.LexPad.Storage[CurContext.LexPad.SlotMapping[Name]];
         end
         CurContext = CurContext.Caller;
     end

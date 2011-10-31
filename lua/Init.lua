@@ -13,14 +13,20 @@ dofile('Runtime/Ops.lua');
 dofile('Runtime/Exceptions/ExceptionDispatcher.lua');
 dofile('Runtime/MultiDispatch/MultiDispatcher.lua');
 bit = require("bit"); -- in LuaJit only (yay)
+icu = require("icu"); -- requires icu4lua (and the icu library)
+
+function table_clone (target)
+    local dest = {};
+    for k,v in pairs(target) do
+        dest[k] = v;
+    end
+    return dest;
+end
 
 function makeInit ()
     local Init = {};
-    local mt = {};
+    -- mimic behavior of private static.
     local REPRS_Registered = false;
-    function Init.new()
-        return setmetatable({}, mt);
-    end
     
     function Init.Initialize(SettingName)
         Init.RegisterRepresentations();

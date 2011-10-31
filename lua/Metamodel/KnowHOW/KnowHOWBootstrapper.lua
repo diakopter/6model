@@ -64,7 +64,7 @@ function KnowHOWBootstrapper.Bootstrap ()
             local ListType = KnowHOWBootstrapper.MostDefinedListType(TC);
             local Result = ListType.STable.REPR:instance_of(TC, ListType);
             for key, value in pairs(HOW.Methods) do
-                Result.Storage.Add(value);
+                Result.Storage:Add(value);
             end
             return Result;
         end);

@@ -20,7 +20,7 @@ function makeREPRRegistry ()
     end
     function REPRRegistry.register_REPR(Name, REPR)
         Registry.Add(REPR);
-        local ID = Registry.Count; -- took out the - 1
+        local ID = Registry.Count + 1;
         NamedToIDMapper.Add(Name, ID);
         return ID;
     end

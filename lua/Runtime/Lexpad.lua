@@ -5,10 +5,10 @@ function makeLexpad ()
         local this = {};
         this.SlotMapping = {};
         for k,v in ipairs(SlotNames) do
-            this.SlotMapping[v] = k - 1;
+            this.SlotMapping[v] = k;
         end
         this.SlotCount = #SlotNames;
-        this.Storage = {}; -- zero-indexed...!
+        this.Storage = List.new(this.SlotCount);
         return setmetatable(this, mt);
     end
     
@@ -20,15 +20,19 @@ function makeLexpad ()
     end
     function Lexpad:Extend(Names)
         local SlotMapping = {};
-        local NewSlot = this.SlotCount;
+        for k,v in pairs(self.SlotMapping) do
+            SlotMapping[k] = v;
+        end
         for k,v in ipairs(Names) do
             SlotMapping[Name] = NewSlot + k - 1;
         end
-        local NewStorage = {};
-        for i = 0, this.SlotCount - 1 do
+        local new = self.SlotCount + #Names;
+        local NewStorage = List.new(new);
+        for i = 1, self.SlotCount do
             NewStorage[i] = this.Storage[i];
         end
-        Storage = NewStorage;
+        self.SlotCount = new;
+        self.Storage = NewStorage;
     end
     return Lexpad;
 end

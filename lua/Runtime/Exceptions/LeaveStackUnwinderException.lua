@@ -2,11 +2,11 @@ function makeLeaveStackUnwinderException ()
     local LeaveStackUnwinderException = {};
     local mt = { __index = LeaveStackUnwinderException };
     function LeaveStackUnwinderException.new(TargetBlock, PayLoad)
-        local LeaveStackUnwinderException = {};
-        LeaveStackUnwinderException.TargetBlock = TargetBlock;
-        LeaveStackUnwinderException.HandleBlock = PayLoad;
-        LeaveStackUnwinderException.class = "LeaveStackUnwinderException";
-        return setmetatable(LeaveStackUnwinderException, mt);
+        local this = {};
+        this.TargetBlock = TargetBlock;
+        this.HandleBlock = PayLoad;
+        this.class = "LeaveStackUnwinderException";
+        return setmetatable(this, mt);
     end
     return LeaveStackUnwinderException;
 end

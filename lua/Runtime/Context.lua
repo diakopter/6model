@@ -11,7 +11,7 @@ function makeContext ()
         
         this.LexPad = Lexpad.new();
         this.LexPad.SlotMapping = StaticCodeObject.StaticLexPad.SlotMapping;
-        this.LexPad.Storage = StaticCodeObject.StaticLexPad.Storage:Clone();
+        this.LexPad.Storage = table_clone(StaticCodeObject.StaticLexPad.Storage);
         
         if (StaticCodeObject.OuterForNextInvocation ~= nil) then
             this.Outer = StaticCodeObject.OuterForNextInvocation;

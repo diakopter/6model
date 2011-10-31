@@ -2,7 +2,7 @@ function Ops.box_int (TC, Value, To)
     if To ~= nil then
         local REPR = To.STable.REPR;
         local Result = REPR:instance_of(TC, To);
-        REPR.set_int(TC, Result, Value);
+        REPR:set_int(TC, Result, Value);
         return Result;
     else
         local Result = TC.DefaultIntBoxType.STable.REPR:instance_of(TC, TC.DefaultIntBoxType);
@@ -15,7 +15,7 @@ function Ops.box_num (TC, Value, To)
     if To ~= nil then
         local REPR = To.STable.REPR;
         local Result = REPR:instance_of(TC, To);
-        REPR.set_num(TC, Result, Value);
+        REPR:set_num(TC, Result, Value);
         return Result;
     else
         local Result = TC.DefaultNumBoxType.STable.REPR:instance_of(TC, TC.DefaultNumBoxType);
@@ -29,7 +29,7 @@ function Ops.box_num (TC, Value, To)
     if To ~= nil then
         local REPR = To.STable.REPR;
         local Result = REPR:instance_of(TC, To);
-        REPR.set_str(TC, Result, Value);
+        REPR:set_str(TC, Result, Value);
         return Result;
     else
         local Result = TC.DefaultStrBoxType.STable.REPR:instance_of(TC, TC.DefaultStrBoxType);

@@ -44,5 +44,3 @@ function makeSharedTable ()
     end
 end
 SharedTable = makeSharedTable();
-Hints = {};
-Hints.NO_HINT = -1;

@@ -23,7 +23,9 @@ end
 function CaptureHelper.NumPositionals (Capture)
     local Possies = Capture.Positionals;
     if (Possies ~= nil) then
-        return Possies.Length;
+        -- can use # here since it's always initialized using a literal
+        --   even in generated code, I think.
+        return #Possies;
     else
         return 0;
     end
