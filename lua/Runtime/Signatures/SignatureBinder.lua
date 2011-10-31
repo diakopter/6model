@@ -40,7 +40,7 @@ function makeSignatureBinder()
                 
                 CurPositional = CurPositional + 1;
             elseif (Param.Flags == Parameter.OPTIONAL_FLAG) then
-                if (CurPositional < Positionals.Length) then
+                if (CurPositional <= Positionals.Count) then
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
                 else do
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable.Invoke(TC, Param.DefaultValue, Capture);
@@ -82,6 +82,50 @@ function makeSignatureBinder()
                 -- error("wtf");
             end
         end
+        
+        local PossiesInCapture = Positionals.Count;
+        if (CurPositional > PossiesInCapture + 1) then
+            error("Too many positional arguments passed; expected " ..
+                NumRequiredPositionals(C.StaticCodeObject.Sig) ..
+                " but got " + PossiesInCapture);
+        end
+    end
+    
+    function MultiDispatcher.NumRequiredPositionals(Sig)
+        local Num = 0;
+        local breaking = false;
+        for unused, Param in ipairs(Sig.Parameters) do
+            if (not breaking) then
+            if (Param.Flags ~= 0 or Param.Name ~= nil) then
+                breaking = true;
+            else do
+                Num = Num + 1;
+            end
+            end -- breaking
+        end
+        return Num;
+    end
+    
+    function MultiDispatcher.Flatten(FlattenSpec, Positionals, Nameds)
+        local NewPositionals = List.new();
+        local NewNameds = {};
+        
+        for i = 1, Positionals.Count do
+            if (FlattenSpec[i] == CaptureHelper.FLATTEN_NONE) then
+                NewPositionals.Add(Positionals[i]);
+            elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_POS) then
+                local Flattenee = Positionals[i];
+                for unused, Pos in ipairs(Flattenee.Storage) do
+                    NewPositionals.Add(Pos);
+                end
+            elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_NAMED) then
+                local Flattenee = Positionals[i];
+                for k, v in pairs(Flattenee.Storage) do
+                    NewNameds[k] = v;
+                end
+            end
+        end
+        return NewPositionals, NewNameds;
     end
     
     return SignatureBinder;
