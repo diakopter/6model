@@ -28,6 +28,7 @@ function makeSignature ()
         end
         return false;
     end
+    return Signature;
 end
 Signature = makeSignature();
 
