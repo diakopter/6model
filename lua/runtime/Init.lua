@@ -1,19 +1,13 @@
-dofile('List.lua');
-dofile('Dictionary.lua');
-dofile('Try.lua');
-dofile('Metamodel/REPRRegistry.lua');
-dofile('Metamodel/SharedTable.lua');
-dofile('Metamodel/KnowHOW/KnowHOWBootstrapper.lua');
-dofile('Runtime/CaptureHelper.lua');
-dofile('Runtime/CodeObjectUtility.lua');
-dofile('Runtime/Context.lua');
-dofile('Runtime/ExecutionDomain.lua');
-dofile('Runtime/Lexpad.lua');
-dofile('Runtime/Ops.lua');
-dofile('Runtime/Exceptions/ExceptionDispatcher.lua');
-dofile('Runtime/MultiDispatch/MultiDispatcher.lua');
 bit = require("bit"); -- in LuaJit only (yay)
 icu = require("icu"); -- requires icu4lua (and the icu library)
+icu.collator = require('icu.collator');
+icu.idna = require('icu.idna');
+icu.normalizer = require('icu.normalizer');
+icu.regex = require('icu.regex');
+icu.stringprep = require('icu.stringprep');
+icu.ufile = require('icu.ufile');
+icu.ustring = require('icu.ustring');
+icu.utf8 = require('icu.utf8');
 
 function table_clone (target)
     local dest = {};

@@ -1,13 +1,1 @@
 Ops = {};
-dofile('Runtime/Ops/Boxing.lua');
-dofile('Runtime/Ops/Coercion.lua');
-dofile('Runtime/Ops/Comparison.lua');
-dofile('Runtime/Ops/ControlFlow.lua');
-dofile('Runtime/Ops/Dispatch.lua');
-dofile('Runtime/Ops/Introspection.lua');
-dofile('Runtime/Ops/Library.lua');
-dofile('Runtime/Ops/Metamodel.lua');
-dofile('Runtime/Ops/P6capture.lua');
-dofile('Runtime/Ops/P6list.lua');
-dofile('Runtime/Ops/Primitive.lua');
-dofile('Runtime/Ops/Variables.lua');

@@ -1,15 +1,4 @@
 
-dofile('Metamodel/Representations/P6capture.lua');
-dofile('Metamodel/Representations/P6hash.lua');
-dofile('Metamodel/Representations/P6int.lua');
-dofile('Metamodel/Representations/P6list.lua');
-dofile('Metamodel/Representations/P6mapping.lua');
-dofile('Metamodel/Representations/P6num.lua');
-dofile('Metamodel/Representations/P6opaque.lua');
-dofile('Metamodel/Representations/P6str.lua');
-dofile('Metamodel/Representations/RakudoCodeRef.lua');
-dofile('Metamodel/KnowHOW/KnowHOWREPR.lua');
-
 function makeREPRRegistry ()
     local REPRRegistry = {};
     local mt = { __index = REPRRegistry };

@@ -32,7 +32,7 @@ function makeSignatureBinder()
             if (Param.Flags == Parameter.POS_FLAG) then
                 if (CurPositional <= Positionals.Count) then
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
-                else do
+                else
                     error("Not enough positional parameters; got " ..
                         CurPositional .. " but needed " ..
                         SignatureBinder.NumRequiredPositionals(C.StaticCodeObject.Sig));
@@ -42,14 +42,14 @@ function makeSignatureBinder()
             elseif (Param.Flags == Parameter.OPTIONAL_FLAG) then
                 if (CurPositional <= Positionals.Count) then
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
-                else do
+                else
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable.Invoke(TC, Param.DefaultValue, Capture);
                 end
             elseif (band(Param.Flags, Parameter.NAMED_SLURPY_FLAG) ~= 0) then
                 local SlurpyHolder = TC.DefaultHashType.STable.REPR:instance_of(TC, TC.DefaultHashType);
                 C.LexPad.Storage[Param.VariableLexpadPosition] = SlurpyHolder;
                 for Name, unused in pairs(Nameds) do
-                    if (SeenNames == nil or SeenNames[Name] == nil)) then
+                    if (SeenNames == nil or SeenNames[Name] == nil) then
                         Ops.llmapping_bind_at_key(TC, SlurpyHolder,
                             Ops.box_str(TC, Name, TC.DefaultStrBoxType),
                             Nameds[Name]);
@@ -71,14 +71,14 @@ function makeSignatureBinder()
                         SeenNames = {};
                     end
                     SeenNames[Param.Name] = true;
-                else do
+                else
                     if (band(Param.Flags, Parameter.OPTIONAL_FLAG) == 0) then
                         error("Required named parameter " .. Param.Name .. " missing");
-                    else do
+                    else
                         C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable.Invoke(TC, Param.DefaultValue, Capture);
                     end
                 end
-            else do
+            else
                 -- error("wtf");
             end
         end
@@ -91,14 +91,14 @@ function makeSignatureBinder()
         end
     end
     
-    function MultiDispatcher.NumRequiredPositionals(Sig)
+    function SignatureBinder.NumRequiredPositionals(Sig)
         local Num = 0;
         local breaking = false;
         for unused, Param in ipairs(Sig.Parameters) do
             if (not breaking) then
             if (Param.Flags ~= 0 or Param.Name ~= nil) then
                 breaking = true;
-            else do
+            else
                 Num = Num + 1;
             end
             end -- breaking
@@ -106,7 +106,7 @@ function makeSignatureBinder()
         return Num;
     end
     
-    function MultiDispatcher.Flatten(FlattenSpec, Positionals, Nameds)
+    function SignatureBinder.Flatten(FlattenSpec, Positionals, Nameds)
         local NewPositionals = List.new();
         local NewNameds = {};
         

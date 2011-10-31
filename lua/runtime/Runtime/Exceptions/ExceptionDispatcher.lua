@@ -1,8 +1,4 @@
 Exceptions = {};
-dofile('Runtime/Exceptions/ExceptionType.lua');
-dofile('Runtime/Exceptions/Handler.lua');
-dofile('Runtime/Exceptions/LeaveStackUnwinderException.lua');
-
 
 function Exceptions.CallHandler(TC, Handler, ExceptionObject)
     local Returned = Handler.STable.Invoke(TC, Handler, CaptureHelper.FormWith({ ExceptionObject }));
