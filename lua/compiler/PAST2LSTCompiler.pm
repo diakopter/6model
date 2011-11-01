@@ -266,6 +266,9 @@ sub make_constants_init_method($name) {
 # Quick hack so we can get unique (for this compilation) IDs.
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
+    if ($prefix eq 'result' || $prefix eq 'inv' || $prefix eq 'callee' || $prefix eq 'list' || $prefix eq 'if_cond' || $prefix eq 'if_result' || $prefix eq 'new' || $prefix eq 'viv_attr' || $prefix eq 'expr_result' || $prefix eq 'if_result' || $prefix eq 'expr_result_negated') {
+        return 'locals[' ~ $*CUR_ID ~ ']';
+    }
     return $prefix ~ '_' ~ $*CUR_ID;
 }
 
@@ -521,7 +524,7 @@ sub compile_signature(@params) {
 
         # Flags.
         $param.push(
-            $_.viviself && $_.named ?? 'Parameter.OPTIONAL_FLAG | Parameter.NAMED_FLAG' !!
+            $_.viviself && $_.named ?? 'bor(Parameter.OPTIONAL_FLAG, Parameter.NAMED_FLAG)' !!
             $_.viviself             ?? 'Parameter.OPTIONAL_FLAG'                        !!
             $_.slurpy && $_.named   ?? 'Parameter.NAMED_SLURPY_FLAG'                    !!
             $_.slurpy               ?? 'Parameter.POS_SLURPY_FLAG'                      !!

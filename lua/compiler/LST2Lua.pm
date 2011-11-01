@@ -9,6 +9,9 @@ method compile(LST::Node $node) {
 # Quick hack so we can get unique (for this compilation) IDs.
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
+    if ($prefix eq 'result' || $prefix eq 'inv' || $prefix eq 'callee' || $prefix eq 'list' || $prefix eq 'try_result' || $prefix eq 'new' || $prefix eq 'viv_attr' || $prefix eq 'expr_result' || $prefix eq 'if_result' || $prefix eq 'expr_result_negated') {
+        return 'locals[' ~ $*CUR_ID ~ ']';
+    }
     return $prefix ~ '_' ~ $*CUR_ID;
 }
 
@@ -58,7 +61,7 @@ our multi sub cs_for(LST::Method $meth) {
         #$meth.return_type ~ ' ' ~ 
         $meth.name ~ '(' ~
         pir::join(', ', $meth.params) ~
-        ") \n          local locals = {};\n";
+        ")\n           local locals = \{\};\n";
 
     # Emit everything in the method.
     for @($meth) {
@@ -83,8 +86,7 @@ our multi sub cs_for(LST::Stmts $stmts) {
 our multi sub cs_for(LST::TryFinally $tf) {
     unless +@($tf) == 2 { pir::die('LST::TryFinally nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        local $try_result;\n" ~
-                "        try\{\n" ~
+    my $code := "        try\{\n" ~
                 "            function ()\n" ~
                 cs_for((@($tf))[0]);
     $code := $code ~
@@ -102,8 +104,7 @@ our multi sub cs_for(LST::TryFinally $tf) {
 our multi sub cs_for(LST::TryCatch $tc) {
     unless +@($tc) == 2 { pir::die('LST::TryCatch nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        local $try_result;\n" ~
-                "        try \{\n" ~
+    my $code := "        try\{\n" ~
                 "            function ()\n" ~
                 cs_for((@($tc))[0]);
     $code := $code ~
@@ -137,7 +138,7 @@ our multi sub cs_for(LST::MethodCall $mc) {
         my $ret_type := $mc.type;
         $*LAST_TEMP := get_unique_id('result');
         my $method_name := $invocant ~ '.' ~ $mc.name;
-        $code := $code ~ "local $*LAST_TEMP = ";
+        $code := $code ~ "$*LAST_TEMP = ";
     }
     $code := $code ~ "$invocant" ~ (($mc.name ~~ /":"/ || $invocant eq "Ops" || $invocant eq "SignatureBinder" || $invocant eq "CaptureHelper" || $invocant eq "CodeObjectUtility" || $invocant eq "Init" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder") ?? "." !! ":") ~ $mc.name ~
         "(" ~ pir::join(', ', @arg_names) ~ ");\n";
@@ -157,7 +158,7 @@ our multi sub cs_for(LST::Call $mc) {
     $code := $code ~ '        ';
     unless $mc.void {
         $*LAST_TEMP := get_unique_id('result');
-        $code := $code ~ "local $*LAST_TEMP = ";
+        $code := $code ~ "$*LAST_TEMP = ";
     }
     $code := $code ~ $mc.name ~
         "(" ~ pir::join(', ', @arg_names) ~ ");\n";
@@ -176,7 +177,7 @@ our multi sub cs_for(LST::New $new) {
 
     # Code-gen the constructor call.
     $*LAST_TEMP := get_unique_id('new');
-    $code := $code ~ "        local $*LAST_TEMP = " ~
+    $code := $code ~ "        $*LAST_TEMP = " ~
         $new.type ~ ".new(" ~ pir::join(', ', @arg_names) ~ ");\n";
 
     return $code;
@@ -191,22 +192,21 @@ our multi sub cs_for(LST::If $if) {
     # Get the conditional and emit if.
     my $code := cs_for((@($if))[0]);
     $code := $code ~
-             "        local $if_result = nil;\n" if $if.result;
+             "        $if_result = nil;\n" if $if.result;
     $code := $code ~
-             "        if ($*LAST_TEMP" ~ ($if.bool ?? "" !! " != 0") ~ ") then\n";
+             "        if ($*LAST_TEMP" ~ ($if.bool ?? "" !! " ~= 0") ~ ") then\n";
 
     # Compile branch(es).
     $*LAST_TEMP := 'nil';
     $code := $code ~ cs_for((@($if))[1]);
     $code := $code ~ "        $if_result = $*LAST_TEMP;\n" if $if.result;
-    $code := $code ~ "        end\n";
     if +@($if) == 3 {
         $*LAST_TEMP := 'nil';
         $code := $code ~ "        else \n";
         $code := $code ~ cs_for((@($if))[2]);
         $code := $code ~ "        $if_result = $*LAST_TEMP;\n" if $if.result;
-        $code := $code ~ "        end\n";
     }
+    $code := $code ~ "        end\n";
 
     $*LAST_TEMP := $if_result if $if.result;
     return $code;
@@ -217,10 +217,12 @@ our multi sub cs_for(LST::Return $ret) {
 }
 
 our multi sub cs_for(LST::Label $lab) {
+    return "";
     return "      " ~ $lab.name ~ ":\n";
 }
 
 our multi sub cs_for(LST::Goto $gt) {
+    return "";
     return "        goto " ~ $gt.label ~ ";\n";
 }
 
@@ -257,7 +259,7 @@ our multi sub cs_for(LST::Local $loc) {
             pir::die('LST::Local with isdecl requires type');
         }
         $code := cs_for((@($loc))[0]);
-        $code := $code ~ '        locals[' ~ $loc.name ~ "] = $*LAST_TEMP;\n";
+        $code := $code ~ '        ' ~ $loc.name ~ " = $*LAST_TEMP;\n";
     } elsif +@($loc) != 0 {
         pir::die('A LST::Local without isdecl set must have no children')
     }
@@ -287,7 +289,7 @@ sub lhs_rhs_op(@ops, $op) {
     my $rhs := $*LAST_TEMP;
     $*LAST_TEMP := get_unique_id('expr_result');
     # @ops[2] is the type
-    return "$code        " ~ @ops[2] ~ " $*LAST_TEMP = $lhs $op $rhs;\n";
+    return "$code        $*LAST_TEMP = $lhs $op $rhs;\n";
 }
 
 sub lhs_rhs_call(@ops, $op) {
@@ -297,7 +299,7 @@ sub lhs_rhs_call(@ops, $op) {
     my $rhs := $*LAST_TEMP;
     $*LAST_TEMP := get_unique_id('expr_result');
     # @ops[2] is the type
-    return "$code        " ~ @ops[2] ~ " $*LAST_TEMP = $op($lhs, $rhs);\n";
+    return "$code        $*LAST_TEMP = $op($lhs, $rhs);\n";
 }
 
 our multi sub cs_for(LST::Add $ops) {
@@ -356,7 +358,7 @@ our multi sub cs_for(LST::NOT $ops) {
     my $code := cs_for((@($ops))[0]);
     my $lhs := $*LAST_TEMP;
     $*LAST_TEMP := get_unique_id('expr_result_negated');
-    return "$code        local $*LAST_TEMP = not $lhs;\n";
+    return "$code        $*LAST_TEMP = not $lhs;\n";
 }
 
 our multi sub cs_for(LST::XOR $ops) {
@@ -365,7 +367,7 @@ our multi sub cs_for(LST::XOR $ops) {
     $code := $code ~ cs_for((@($ops))[1]);
     my $rhs := $*LAST_TEMP;
     $*LAST_TEMP := get_unique_id('expr_result');
-    return "$code        local $*LAST_TEMP = $lhs and not $rhs or $rhs and not $lhs;\n";
+    return "$code        $*LAST_TEMP = $lhs and not $rhs or $rhs and not $lhs;\n";
 }
 
 our multi sub cs_for(LST::Throw $throw) {
@@ -402,7 +404,7 @@ our multi sub cs_for(LST::DictionaryLiteral $dl) {
         my $key := $*LAST_TEMP;
         $code := $code ~ cs_for($v);
         my $value := $*LAST_TEMP;
-        @items.push(' ["' ~ $key ~ '"]=' ~ $value);
+        @items.push(' [' ~ $key ~ ']=' ~ $value);
     }
 
     # Code-gen the dictionary.
