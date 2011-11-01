@@ -87,23 +87,34 @@ function try(fn, ...)
 			return unpack(returns.values)
 		end
 	end
+	returns.finally = function(catch, _fn)
+		if not catch then return returns.finally("GenericError") end
+		if type(catch) == "string" and not _fn then return function(fn) return returns.finally(catch, fn) end end
+		if type(catch) == "table" then _fn = catch[1]; catch = "GenericError" end
+		if type(catch) == "function" then _fn = catch end
+		if type(_fn) == "table" then _fn = _fn[1] end
+		if not (_fn and type(_fn) == "function") then return end
+		local exps = E.resolve(exception)
+		setmetatable(exps, {__tostring = function(self)
+							local _r = "{";
+							for k,_ in pairs(exps) do
+								_r = _r .. k .. ", "
+							end;
+							return _r:sub(0,#_r-2).."}";
+						end})
+		_fn(catch, exps, exception)
+		if exception then
+			error(exception)
+		else
+			return unpack(returns.values)
+		end
+		if returns.values then
+			return unpack(returns.values)
+		end
+	end
 	setmetatable(returns, {__call = function(self) return self.values end})
 	return returns
 end
-
---~ E.TypeError = "TypeError"
---~ E.TableError = "TableError"
---~ E.TableArithmeticError = "TableArithmeticError"
---~ E.NilArithmeticError = "NilArithmeticError"
---~ E.ArithmeticError = "ArithmeticError"
---~ E.NilError = "NilError"
---~ E.ValueError = "ValueError"
---~ E.ConcatenationError = "ConcatenationError"
---~ E.NilConcatenationError = "NilConcatenationError"
---~ E.FunctionError = "FunctionError"
---~ E.ParameterError = "ParameterError"
---~ E.GeneratorError = "GeneratorError"
---~ ETC: Replaced by E.__index accessor
 
 __exceptions = {
 	["attempt to concatenate .+"] = {
