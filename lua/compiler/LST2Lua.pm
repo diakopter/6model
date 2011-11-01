@@ -212,6 +212,39 @@ our multi sub cs_for(LST::If $if) {
     return $code;
 }
 
+our multi sub cs_for(LST::While $while) {
+    unless +@($while) == 3 { pir::die('A LST::While node must have 3 children') }
+
+    # Need a variable to put the final result in.
+    my $while_result := get_unique_id('while_result') if $while.result;
+
+    # Get the conditional and emit while.
+    my $cond_code := cs_for((@($while))[0]) ~ cs_for((@($while))[1]);
+    # $*LAST_TEMP is set by the condition result cs_for regardless of 
+    #   whether the condition code is emitted at the beginning of the loop
+    
+    my $code := $while.repeat ?? "" !! $cond_code;
+    
+    $code := $code ~
+             "        $while_result = nil;\n" if $while.result;
+    if ($while.repeat) {
+        $code := $code ~
+             "        $*LAST_TEMP = " ~ ($while.bool ?? "true" !! 1) ~ ";\n";
+    }
+    $code := $code ~
+             "        while ($*LAST_TEMP" ~ ($while.bool ?? "" !! " ~= 0") ~ ") do\n";
+
+    # Compile branch.
+    $*LAST_TEMP := 'nil';
+    $code := $code ~ cs_for((@($while))[2]);
+    $code := $code ~ "        $while_result = $*LAST_TEMP;\n" if $while.result;
+    $code := $code ~ $cond_code;
+    $code := $code ~ "        end\n";
+
+    $*LAST_TEMP := $while_result if $while.result;
+    return $code;
+}
+
 our multi sub cs_for(LST::Return $ret) {
     return cs_for($ret.target) ~ "        return " ~ $*LAST_TEMP ~ ";\n";
 }

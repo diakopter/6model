@@ -299,6 +299,43 @@ class LST::If is LST::Node {
     }
 }
 
+class LST::While is LST::Node {
+    has $!type;
+    has $!bool;
+    has $!result;
+    has $!repeat;
+
+    method bool($set?) {
+        if $set { $!bool := $set }
+        $!bool
+    }
+
+    method type($set?) {
+        if $set { $!type := $set }
+        $!type
+    }
+
+    method result($set?) {
+        if $set { $!result := $set }
+        $!result
+    }
+
+    method repeat($set?) {
+        if pir::defined($set) { $!repeat := $set }
+        $!repeat
+    }
+
+    method new(:$bool, :$type, :$result, :$repeat, *@children) {
+        my $obj := self.CREATE;
+        $obj.set_children(@children);
+        $obj.bool($bool);
+        $obj.repeat($repeat);
+        $obj.type(pir::defined($type) ?? $type !! 'RakudoObject');
+        $obj.result(pir::defined($result) ?? $result !! 1);
+        $obj;
+    }
+}
+
 class LST::Return is LST::Node {
     has $!target;
 

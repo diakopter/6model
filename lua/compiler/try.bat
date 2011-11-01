@@ -1,8 +1,10 @@
 @if exist x.exe del /Q x.exe
 @if exist x.cs del /Q x.cs
 @nmake /nologo P6Objects.dll >NUL
-@parrot compile.pir %1 > x.cs
-@csc /nologo x.cs /reference:RakudoRuntime.dll /debug /warn:0
+echo --> x.lua
+rem @type RakudoRuntime.lua > x.lua
+rem @type NQPSetting.lua >> x.lua
+rem @type P6Objects.lua >> x.lua
+@parrot compile.pir %1 >> x.lua
 @echo ---
-@x
-
+@luajit x.lua

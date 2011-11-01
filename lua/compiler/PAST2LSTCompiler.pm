@@ -692,9 +692,6 @@ our multi sub lst_for(PAST::Op $op) {
     }
 
     elsif $op.pasttype eq 'while' || $op.pasttype eq 'until' {
-        # Need labels for start and end.
-        my $test_label := get_unique_id('while_lab');
-        my $end_label := get_unique_id('while_end_lab');
         my $cond_result := LST::Local.new( :name(get_unique_id('cond')) );
         
         # Compile the condition.
@@ -716,26 +713,15 @@ our multi sub lst_for(PAST::Op $op) {
         my $body := lst_for((@($op))[1]);
 
         # Build up result.
-        return LST::Stmts.new(
-            LST::Label.new( :name($test_label) ),
+        return LST::While.new(
+            :repeat(0),
             $cond,
-            LST::If.new(
-                unbox('int', $cond_result),
-                $body,
-                LST::Stmts.new(
-                    $cond_result,
-                    LST::Goto.new( :label($end_label) )
-                )
-            ),
-            LST::Goto.new( :label($test_label) ),
-            LST::Label.new( :name($end_label) )
+            unbox('int', $cond_result),
+            $body
         );
     }
 
     elsif $op.pasttype eq 'repeat_while' || $op.pasttype eq 'repeat_until' {
-        # Need labels for start and end.
-        my $test_label := get_unique_id('while_lab');
-        my $block_label := get_unique_id('block_lab');
         my $cond_result := LST::Local.new( :name(get_unique_id('cond')) );
         
         # Compile the condition.
@@ -757,17 +743,11 @@ our multi sub lst_for(PAST::Op $op) {
         my $body := lst_for((@($op))[1]);
 
         # Build up result.
-        return LST::Stmts.new(
-            LST::Label.new( :name($block_label) ),
-            $body,
+        return LST::While.new(
+            :repeat(1),
             $cond,
-            LST::If.new(
-                unbox('int', $cond_result),
-                LST::Stmts.new(
-                    $cond_result,
-                    LST::Goto.new( :label($block_label) )
-                )
-            )
+            unbox('int', $cond_result),
+            $body
         );
     }
 
