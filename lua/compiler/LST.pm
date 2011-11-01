@@ -3,11 +3,11 @@
 # written and used to generate C# for now, but later we can generate IL.
 # A tree must have the form:
 # 
-#    DNST::CompilationUnit
-#        DNST::Using
+#    LST::CompilationUnit
+#        LST::Using
 #        ...more usings...
-#        DNST::Class
-#            DNST::Method
+#        LST::Class
+#            LST::Method
 #                Binding and method call nodes
 #            ...more methods...
 #        ...more classes...
@@ -21,7 +21,7 @@ sub get_unique_id($prefix) {
     return $prefix ~ '_' ~ $*CUR_ID;
 }
 
-class DNST::Node {
+class LST::Node {
     has @!children;
     method set_children(@children) {
         @!children := @children;
@@ -46,7 +46,7 @@ class DNST::Node {
     }
 }
 
-class DNST::CompilationUnit is DNST::Node {
+class LST::CompilationUnit is LST::Node {
     method new(*@children) {
         my $obj := self.CREATE;
         $obj.set_children(@children);
@@ -54,7 +54,7 @@ class DNST::CompilationUnit is DNST::Node {
     }
 }
 
-class DNST::Stmts is DNST::Node {
+class LST::Stmts is LST::Node {
     method new(*@children) {
         my $obj := self.CREATE;
         $obj.set_children(@children);
@@ -62,7 +62,7 @@ class DNST::Stmts is DNST::Node {
     }
 }
 
-class DNST::Using is DNST::Node {
+class LST::Using is LST::Node {
     has $!namespace;
 
     method namespace($set?) {
@@ -77,7 +77,7 @@ class DNST::Using is DNST::Node {
     }
 }
 
-class DNST::Class is DNST::Node {
+class LST::Class is LST::Node {
     has $!namespace;
     has $!name;
 
@@ -100,7 +100,7 @@ class DNST::Class is DNST::Node {
     }
 }
 
-class DNST::Attribute is DNST::Node {
+class LST::Attribute is LST::Node {
     has $!name;
     has $!type;
 
@@ -122,7 +122,7 @@ class DNST::Attribute is DNST::Node {
     }
 }
 
-class DNST::Method is DNST::Node {
+class LST::Method is LST::Node {
     has $!name;
     has $!return_type;
     has @!params;
@@ -152,7 +152,7 @@ class DNST::Method is DNST::Node {
     }
 }
 
-class DNST::Call is DNST::Node {
+class LST::Call is LST::Node {
     has $!name;
     has $!void;
 
@@ -175,7 +175,7 @@ class DNST::Call is DNST::Node {
     }
 }
 
-class DNST::MethodCall is DNST::Node {
+class LST::MethodCall is LST::Node {
     has $!on;
     has $!name;
     has $!void;
@@ -205,7 +205,7 @@ class DNST::MethodCall is DNST::Node {
         my $obj := self.CREATE;
         if $on { $obj.on($on); }
         if !$void && !$type {
-            pir::die('Must supply a type for a DNST::MethodCall if it is not void');
+            pir::die('Must supply a type for a LST::MethodCall if it is not void');
         }
         $obj.name($name);
         $obj.void($void);
@@ -215,7 +215,7 @@ class DNST::MethodCall is DNST::Node {
     }
 }
 
-class DNST::New is DNST::Node {
+class LST::New is LST::Node {
     has $!type;
 
     method type($set?) {
@@ -231,7 +231,7 @@ class DNST::New is DNST::Node {
     }
 }
 
-class DNST::TryFinally is DNST::Node {
+class LST::TryFinally is LST::Node {
     method new(*@children) {
         my $obj := self.CREATE;
         $obj.set_children(@children);
@@ -239,7 +239,7 @@ class DNST::TryFinally is DNST::Node {
     }
 }
 
-class DNST::TryCatch is DNST::Node {
+class LST::TryCatch is LST::Node {
     has $!exception_type;
     has $!exception_var;
 
@@ -262,14 +262,14 @@ class DNST::TryCatch is DNST::Node {
     }
 }
 
-class DNST::Throw is DNST::Node {
+class LST::Throw is LST::Node {
     method new() {
         my $obj := self.CREATE;
         $obj;
     }
 }
 
-class DNST::If is DNST::Node {
+class LST::If is LST::Node {
     has $!type;
     has $!bool;
     has $!result;
@@ -299,7 +299,7 @@ class DNST::If is DNST::Node {
     }
 }
 
-class DNST::Return is DNST::Node {
+class LST::Return is LST::Node {
     has $!target;
 
     method target($set?) {
@@ -314,7 +314,7 @@ class DNST::Return is DNST::Node {
     }
 }
 
-class DNST::Label is DNST::Node {
+class LST::Label is LST::Node {
     has $!name;
 
     method name($set?) {
@@ -329,7 +329,7 @@ class DNST::Label is DNST::Node {
     }
 }
 
-class DNST::Goto is DNST::Node {
+class LST::Goto is LST::Node {
     has $!label;
 
     method label($set?) {
@@ -344,7 +344,7 @@ class DNST::Goto is DNST::Node {
     }
 }
 
-class DNST::Bind is DNST::Node {
+class LST::Bind is LST::Node {
     method new(*@children) {
         my $obj := self.CREATE;
         $obj.set_children(@children);
@@ -352,7 +352,7 @@ class DNST::Bind is DNST::Node {
     }
 }
 
-class DNST::Literal is DNST::Node {
+class LST::Literal is LST::Node {
     has $!value;
     has $!escape;
     has $!type;
@@ -381,13 +381,13 @@ class DNST::Literal is DNST::Node {
     }
 }
 
-class DNST::Null is DNST::Node {
+class LST::Null is LST::Node {
     method new() {
         self.CREATE
     }
 }
 
-class DNST::BinaryOp is DNST::Node {
+class LST::BinaryOp is LST::Node {
     method new(*@children) {
         my $obj := self.CREATE;
         $obj.set_children(@children);
@@ -395,25 +395,25 @@ class DNST::BinaryOp is DNST::Node {
     }
 }
 
-class DNST::Add is DNST::BinaryOp { }
-class DNST::Subtract is DNST::BinaryOp { }
-class DNST::GT is DNST::BinaryOp { }
-class DNST::LT is DNST::BinaryOp { }
-class DNST::GE is DNST::BinaryOp { }
-class DNST::LE is DNST::BinaryOp { }
-class DNST::EQ is DNST::BinaryOp { }
-class DNST::NE is DNST::BinaryOp { }
-class DNST::NOT is DNST::BinaryOp { } # not really BinaryOp, but whatever
+class LST::Add is LST::BinaryOp { }
+class LST::Subtract is LST::BinaryOp { }
+class LST::GT is LST::BinaryOp { }
+class LST::LT is LST::BinaryOp { }
+class LST::GE is LST::BinaryOp { }
+class LST::LE is LST::BinaryOp { }
+class LST::EQ is LST::BinaryOp { }
+class LST::NE is LST::BinaryOp { }
+class LST::NOT is LST::BinaryOp { } # not really BinaryOp, but whatever
 # no such thing as short-circuiting XOR, of course.
-class DNST::OR is DNST::BinaryOp { }
-class DNST::AND is DNST::BinaryOp { }
-class DNST::XOR is DNST::BinaryOp { }
-class DNST::BOR is DNST::BinaryOp { }
-class DNST::BAND is DNST::BinaryOp { }
-class DNST::BXOR is DNST::BinaryOp { }
+class LST::OR is LST::BinaryOp { }
+class LST::AND is LST::BinaryOp { }
+class LST::XOR is LST::BinaryOp { }
+class LST::BOR is LST::BinaryOp { }
+class LST::BAND is LST::BinaryOp { }
+class LST::BXOR is LST::BinaryOp { }
 
 # build/emit only one of these per method (if any)
-class DNST::JumpTable is DNST::Node {
+class LST::JumpTable is LST::Node {
     has %!names;
     has $!label;
     has $!register;
@@ -429,27 +429,27 @@ class DNST::JumpTable is DNST::Node {
         $!label
     }
     
-    # DNST::Local - int register in which to store the target
+    # LST::Local - int register in which to store the target
     #   branch's index in the jumptable
     method register($set?) {
         if pir::defined($set) { $!register := $set }
         $!register
     }
     
-    # returns DNST::Stmts node with code that ends up branching
+    # returns LST::Stmts node with code that ends up branching
     #   (indirectly through a jumptable with string gotos computed
     #   at compile-time) to the destination label with that $name
     method jump($name) {
-        DNST::Stmts.new(
-            DNST::Bind.new(DNST::Literal.new($!register.name, :escape(0)), $name),
-            DNST::Goto.new(:label($!label.name))
+        LST::Stmts.new(
+            LST::Bind.new(LST::Literal.new($!register.name, :escape(0)), $name),
+            LST::Goto.new(:label($!label.name))
         )
     }
     
     # accepts the name of a label; registers a label with this
     #   jumptable; returns the label.
     method mark($name) {
-        my $lbl := DNST::Label.new(:name($name));
+        my $lbl := LST::Label.new(:name($name));
         %!names{$name} := ~+@!children;
         #pir::say("marked $name as " ~ %!names{$name});
         @!children.push($lbl);
@@ -468,18 +468,18 @@ class DNST::JumpTable is DNST::Node {
     method new(*@children) {
         my $obj := self.CREATE;
         $obj.set_children(@children);
-        $obj.label(DNST::Label.new(:name(get_unique_id('jump_table'))));
-        $obj.register(DNST::Local.new(
+        $obj.label(LST::Label.new(:name(get_unique_id('jump_table'))));
+        $obj.register(LST::Local.new(
             :name(get_unique_id('jump_table_int_register')),
             :isdecl(1),
             :type('int'),
-            DNST::Literal.new( :value('0'), :escape(0))
+            LST::Literal.new( :value('0'), :escape(0))
         ));
         $obj
     }
 }
 
-class DNST::Local is DNST::Node {
+class LST::Local is LST::Node {
     has $!name;
     has $!type;
     has $!isdecl;
@@ -509,7 +509,7 @@ class DNST::Local is DNST::Node {
     }
 }
 
-class DNST::ArrayLiteral is DNST::Node {
+class LST::ArrayLiteral is LST::Node {
     has $!type;
 
     method type($set?) {
@@ -525,7 +525,7 @@ class DNST::ArrayLiteral is DNST::Node {
     }
 }
 
-class DNST::DictionaryLiteral is DNST::Node {
+class LST::DictionaryLiteral is LST::Node {
     has $!key_type;
     has $!value_type;
 

@@ -1,7 +1,7 @@
 # This compiles a .Net Syntax Tree down to C#.
 class DNST2CSharpCompiler;
 
-method compile(DNST::Node $node) {
+method compile(LST::Node $node) {
     my $*CUR_ID := 0;
     return cs_for($node);
 }
@@ -12,7 +12,7 @@ sub get_unique_id($prefix) {
     return $prefix ~ '_' ~ $*CUR_ID;
 }
 
-our multi sub cs_for(DNST::CompilationUnit $node) {
+our multi sub cs_for(LST::CompilationUnit $node) {
     my @*USINGS;
     my $main := '';
     for @($node) {
@@ -25,12 +25,12 @@ our multi sub cs_for(DNST::CompilationUnit $node) {
     return $code ~ $main;
 }
 
-our multi sub cs_for(DNST::Using $using) {
+our multi sub cs_for(LST::Using $using) {
     @*USINGS.push("using " ~ $using.namespace ~ ";\n");
     return '';
 }
 
-our multi sub cs_for(DNST::Class $class) {
+our multi sub cs_for(LST::Class $class) {
     my $code := '';
     if $class.namespace {
         $code := $code ~ 'namespace ' ~ $class.namespace ~ " \{\n";
@@ -46,11 +46,11 @@ our multi sub cs_for(DNST::Class $class) {
     return $code;
 }
 
-our multi sub cs_for(DNST::Attribute $attr) {
+our multi sub cs_for(LST::Attribute $attr) {
     return '    private static ' ~ $attr.type ~ ' ' ~ $attr.name ~ ";\n";
 }
 
-our multi sub cs_for(DNST::Method $meth) {
+our multi sub cs_for(LST::Method $meth) {
     my $*LAST_TEMP := '';
 
     # Method header.
@@ -72,7 +72,7 @@ our multi sub cs_for(DNST::Method $meth) {
     return $code ~ "    }\n\n";
 }
 
-our multi sub cs_for(DNST::Stmts $stmts) {
+our multi sub cs_for(LST::Stmts $stmts) {
     my $code := '';
     for @($stmts) {
         $code := $code ~ cs_for($_);
@@ -80,8 +80,8 @@ our multi sub cs_for(DNST::Stmts $stmts) {
     return $code;
 }
 
-our multi sub cs_for(DNST::TryFinally $tf) {
-    unless +@($tf) == 2 { pir::die('DNST::TryFinally nodes must have 2 children') }
+our multi sub cs_for(LST::TryFinally $tf) {
+    unless +@($tf) == 2 { pir::die('LST::TryFinally nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
     my $code := "        RakudoObject $try_result;\n" ~
                 "        try \{\n" ~
@@ -95,8 +95,8 @@ our multi sub cs_for(DNST::TryFinally $tf) {
     return $code;
 }
 
-our multi sub cs_for(DNST::TryCatch $tc) {
-    unless +@($tc) == 2 { pir::die('DNST::TryCatch nodes must have 2 children') }
+our multi sub cs_for(LST::TryCatch $tc) {
+    unless +@($tc) == 2 { pir::die('LST::TryCatch nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
     my $code := "        RakudoObject $try_result;\n" ~
                 "        try \{\n" ~
@@ -111,7 +111,7 @@ our multi sub cs_for(DNST::TryCatch $tc) {
     return $code;
 }
 
-our multi sub cs_for(DNST::MethodCall $mc) {
+our multi sub cs_for(LST::MethodCall $mc) {
     # Code generate all the arguments.
     my @arg_names;
     my $code := '';
@@ -136,7 +136,7 @@ our multi sub cs_for(DNST::MethodCall $mc) {
     return $code;
 }
 
-our multi sub cs_for(DNST::Call $mc) {
+our multi sub cs_for(LST::Call $mc) {
     # Code generate all the arguments.
     my @arg_names;
     my $code := '';
@@ -157,7 +157,7 @@ our multi sub cs_for(DNST::Call $mc) {
     return $code;
 }
 
-our multi sub cs_for(DNST::New $new) {
+our multi sub cs_for(LST::New $new) {
     # Code generate all the arguments.
     my @arg_names;
     my $code := '';
@@ -174,8 +174,8 @@ our multi sub cs_for(DNST::New $new) {
     return $code;
 }
 
-our multi sub cs_for(DNST::If $if) {
-    unless +@($if) >= 2 { pir::die('A DNST::If node must have at least 2 children') }
+our multi sub cs_for(LST::If $if) {
+    unless +@($if) >= 2 { pir::die('A LST::If node must have at least 2 children') }
 
     # Need a variable to put the final result in.
     my $if_result := get_unique_id('if_result') if $if.result;
@@ -204,20 +204,20 @@ our multi sub cs_for(DNST::If $if) {
     return $code;
 }
 
-our multi sub cs_for(DNST::Return $ret) {
+our multi sub cs_for(LST::Return $ret) {
     return cs_for($ret.target) ~ "        return " ~ $*LAST_TEMP ~ ";\n";
 }
 
-our multi sub cs_for(DNST::Label $lab) {
+our multi sub cs_for(LST::Label $lab) {
     return "      " ~ $lab.name ~ ":\n";
 }
 
-our multi sub cs_for(DNST::Goto $gt) {
+our multi sub cs_for(LST::Goto $gt) {
     return "        goto " ~ $gt.label ~ ";\n";
 }
 
-our multi sub cs_for(DNST::Bind $bind) {
-    unless +@($bind) == 2 { pir::die('DNST::Bind nodes must have 2 children') }
+our multi sub cs_for(LST::Bind $bind) {
+    unless +@($bind) == 2 { pir::die('LST::Bind nodes must have 2 children') }
     my $code := cs_for((@($bind))[0]);
     my $lhs := $*LAST_TEMP;
     $code := $code ~ cs_for((@($bind))[1]);
@@ -227,40 +227,40 @@ our multi sub cs_for(DNST::Bind $bind) {
     return $code;
 }
 
-our multi sub cs_for(DNST::Literal $lit) {
+our multi sub cs_for(LST::Literal $lit) {
     $*LAST_TEMP := $lit.escape ??
         ('@"' ~ pir::join__ssp('""', pir::split__pss('"', ~$lit.value)) ~ '"') !!
         $lit.value;
     return '';
 }
 
-our multi sub cs_for(DNST::Null $null) {
+our multi sub cs_for(LST::Null $null) {
     $*LAST_TEMP := 'null';
     return '';
 }
 
-our multi sub cs_for(DNST::Local $loc) {
+our multi sub cs_for(LST::Local $loc) {
     my $code := '';
     if $loc.isdecl {
         unless +@($loc) == 1 {
-            pir::die('A DNST::Local with isdecl set must have exactly one child')
+            pir::die('A LST::Local with isdecl set must have exactly one child')
         }
         unless $loc.type {
-            pir::die('DNST::Local with isdecl requires type');
+            pir::die('LST::Local with isdecl requires type');
         }
         $code := cs_for((@($loc))[0]);
         $code := $code ~ '        ' ~ $loc.type ~ ' ' ~ $loc.name ~ " = $*LAST_TEMP;\n";
     } elsif +@($loc) != 0 {
-        pir::die('A DNST::Local without isdecl set must have no children')
+        pir::die('A LST::Local without isdecl set must have no children')
     }
     $*LAST_TEMP := $loc.name;
     return $code;
 }
 
-our multi sub cs_for(DNST::JumpTable $jt) {
+our multi sub cs_for(LST::JumpTable $jt) {
     my $reg := $jt.register;
-    my $skip_label := DNST::Label.new(:name('skip_jumptable_for_' ~ $reg.name));
-    my $code := cs_for(DNST::Goto.new(:label($skip_label.name)));
+    my $skip_label := LST::Label.new(:name('skip_jumptable_for_' ~ $reg.name));
+    my $code := cs_for(LST::Goto.new(:label($skip_label.name)));
     $code := $code ~ cs_for($jt.label);
     $code := $code ~ '        switch( ' ~ $reg.name ~ " ) \{\n";
     my $i := 0;
@@ -282,66 +282,66 @@ sub lhs_rhs_op(@ops, $op) {
     return "$code        " ~ @ops[2] ~ " $*LAST_TEMP = $lhs $op $rhs;\n";
 }
 
-our multi sub cs_for(DNST::Add $ops) {
+our multi sub cs_for(LST::Add $ops) {
     lhs_rhs_op(@($ops), '+')
 }
 
-our multi sub cs_for(DNST::Subtract $ops) {
+our multi sub cs_for(LST::Subtract $ops) {
     lhs_rhs_op(@($ops), '-')
 }
 
-our multi sub cs_for(DNST::GT $ops) {
+our multi sub cs_for(LST::GT $ops) {
     lhs_rhs_op(@($ops), '>')
 }
 
-our multi sub cs_for(DNST::LT $ops) {
+our multi sub cs_for(LST::LT $ops) {
     lhs_rhs_op(@($ops), '<')
 }
 
-our multi sub cs_for(DNST::GE $ops) {
+our multi sub cs_for(LST::GE $ops) {
     lhs_rhs_op(@($ops), '>=')
 }
 
-our multi sub cs_for(DNST::LE $ops) {
+our multi sub cs_for(LST::LE $ops) {
     lhs_rhs_op(@($ops), '<=')
 }
 
-our multi sub cs_for(DNST::EQ $ops) {
+our multi sub cs_for(LST::EQ $ops) {
     lhs_rhs_op(@($ops), '==')
 }
 
-our multi sub cs_for(DNST::NE $ops) {
+our multi sub cs_for(LST::NE $ops) {
     lhs_rhs_op(@($ops), '!=')
 }
 
-our multi sub cs_for(DNST::OR $ops) {
+our multi sub cs_for(LST::OR $ops) {
     lhs_rhs_op(@($ops), '||')
 }
 
-our multi sub cs_for(DNST::AND $ops) {
+our multi sub cs_for(LST::AND $ops) {
     lhs_rhs_op(@($ops), '&&')
 }
 
-our multi sub cs_for(DNST::BOR $ops) {
+our multi sub cs_for(LST::BOR $ops) {
     lhs_rhs_op(@($ops), '|')
 }
 
-our multi sub cs_for(DNST::BAND $ops) {
+our multi sub cs_for(LST::BAND $ops) {
     lhs_rhs_op(@($ops), '&')
 }
 
-our multi sub cs_for(DNST::BXOR $ops) {
+our multi sub cs_for(LST::BXOR $ops) {
     lhs_rhs_op(@($ops), '^')
 }
 
-our multi sub cs_for(DNST::NOT $ops) {
+our multi sub cs_for(LST::NOT $ops) {
     my $code := cs_for((@($ops))[0]);
     my $lhs := $*LAST_TEMP;
     $*LAST_TEMP := get_unique_id('expr_result_negated');
     return "$code        bool $*LAST_TEMP = !$lhs;\n";
 }
 
-our multi sub cs_for(DNST::XOR $ops) {
+our multi sub cs_for(LST::XOR $ops) {
     my $code := cs_for((@($ops))[0]);
     my $lhs := $*LAST_TEMP;
     $code := $code ~ cs_for((@($ops))[1]);
@@ -350,7 +350,7 @@ our multi sub cs_for(DNST::XOR $ops) {
     return "$code        bool $*LAST_TEMP = $lhs ? ! $rhs : $rhs;\n";
 }
 
-our multi sub cs_for(DNST::Throw $throw) {
+our multi sub cs_for(LST::Throw $throw) {
     $*LAST_TEMP := 'null';
     return '        throw;';
 }
@@ -360,7 +360,7 @@ our multi sub cs_for(String $s) {
     return '';
 }
 
-our multi sub cs_for(DNST::ArrayLiteral $al) {
+our multi sub cs_for(LST::ArrayLiteral $al) {
     # Code-gen all the things to go in the array.
     my @item_names;
     my $code := '';
@@ -374,7 +374,7 @@ our multi sub cs_for(DNST::ArrayLiteral $al) {
     return $code;
 }
 
-our multi sub cs_for(DNST::DictionaryLiteral $dl) {
+our multi sub cs_for(LST::DictionaryLiteral $dl) {
     # Code-gen all the pieces that will go into the dictionary. The
     # list is key,value,key,value.
     my @items;
@@ -394,5 +394,5 @@ our multi sub cs_for(DNST::DictionaryLiteral $dl) {
 }
 
 our multi sub cs_for($any) {
-    pir::die("DNST to C# compiler doesn't know how to compile a " ~ pir::typeof__SP($any));
+    pir::die("LST to C# compiler doesn't know how to compile a " ~ pir::typeof__SP($any));
 }

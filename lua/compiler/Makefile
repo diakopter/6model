@@ -16,7 +16,7 @@ gen_grammar.pir: Grammar.pm
 gen_nqpoptimizer.pir: NQPOptimizer.pm
 	parrot-nqp --target=pir NQPOptimizer.pm > gen_nqpoptimizer.pir
 
-gen_lst.pir: DNST.pm
+gen_lst.pir: LST.pm
 	parrot-nqp --target=pir LST.pm > gen_lst.pir
 
 gen_past2lst.pir: PAST2DNSTCompiler.pm
