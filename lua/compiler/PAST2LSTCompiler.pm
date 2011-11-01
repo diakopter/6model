@@ -1,7 +1,7 @@
 # This is the beginnings of a PAST to Dotnet Syntax Tree translator. It'll
 # no doubt evolve somewhat over time, and get filled out as we support more
 # and more of PAST.
-class PAST2DNSTCompiler;
+class PAST2LSTCompiler;
 
 # Set up a hash of operator signatures. Only needed for those that do not
 # return and take just RakudoObject instances. First type is return type,
@@ -54,7 +54,7 @@ method compile(PAST::Node $node) {
 
     # Compile the node; ensure it is an immediate block.
     $node.blocktype('immediate');
-    my $main_block_call := dnst_for($node);
+    my $main_block_call := lst_for($node);
 
     # Build a class node and add the inner code blocks.
     my $class := LST::Class.new(
@@ -99,7 +99,7 @@ method compile(PAST::Node $node) {
             :return_type('Context'),
             LST::Local.new( :name('TC'), :isdecl(1), :type('ThreadContext'),
                 LST::MethodCall.new(
-                    :on('Rakudo.Init'), :name('Initialize'),
+                    :on('Init'), :name('Initialize'),
                     :type('ThreadContext'),
                     LST::Null.new()
                 )
@@ -126,7 +126,7 @@ method compile(PAST::Node $node) {
         # Commonalities for no matter how we start running (be it from the
         # command line or loaded as a library).
         my @params;
-        @params.push('ThreadContext TC');
+        @params.push('TC');
         $class.push(LST::Method.new(
             :name('Init'),
             :params(@params),
@@ -153,7 +153,7 @@ method compile(PAST::Node $node) {
         # Code for when it's being loaded as a library.
         $class.push(LST::Method.new(
             :name('Load'),
-            :params('ThreadContext TC', 'Context Setting'),
+            :params('TC', 'Setting'),
             :return_type('RakudoObject'),
             LST::Call.new( :name('Init'), :void(1), TC() ),
             $main_block_call
@@ -184,7 +184,7 @@ sub unique_name_for_module() {
 # this will do.
 sub make_blocks_init_method($name) {
     my @params;
-    @params.push('ThreadContext TC');
+    @params.push('TC');
     return LST::Method.new(
         :name($name),
         :params(@params),
@@ -193,7 +193,7 @@ sub make_blocks_init_method($name) {
         # Create array for storing these.
         LST::Bind.new(
             loc('StaticBlockInfo', 'RakudoCodeRef.Instance[]'),
-            'new RakudoCodeRef.Instance[' ~ $*SBI_POS ~ ']'
+            '{}'
         ),
 
         # Fake up outermost one for now.
@@ -220,7 +220,7 @@ sub make_blocks_init_method($name) {
 sub make_constants_init_method($name) {
     # Build init method.
     my @params;
-    @params.push('ThreadContext TC');
+    @params.push('TC');
     my $result := LST::Method.new(
         :name($name),
         :params(@params),
@@ -246,7 +246,7 @@ sub make_constants_init_method($name) {
         # Create array for storing these.
         LST::Bind.new(
             loc('ConstantsTable', 'RakudoObject[]'),
-            'new RakudoObject[' ~ +@*CONSTANTS ~ ']'
+            'List.new(' ~ +@*CONSTANTS ~ ')'
         )
     );
 
@@ -270,7 +270,7 @@ sub get_unique_id($prefix) {
 }
 
 # Compiles a block.
-our multi sub dnst_for(PAST::Block $block) {
+our multi sub lst_for(PAST::Block $block) {
     # Unshift this PAST::Block onto the block list.
     @*PAST_BLOCKS.unshift($block);
     
@@ -312,7 +312,7 @@ our multi sub dnst_for(PAST::Block $block) {
     # Make start of block.
     my $result := LST::Method.new(
         :name(get_unique_id('block')),
-        :params('ThreadContext TC', 'RakudoObject Block', 'RakudoObject Capture'),
+        :params('TC', 'Block', 'Capture'),
         :return_type('RakudoObject')
     );
     
@@ -322,7 +322,7 @@ our multi sub dnst_for(PAST::Block $block) {
     for @($block) {
         my $*OUTER_SBI := $our_sbi;
         my @*INNER_BLOCKS;
-        $stmts.push(dnst_for($_));
+        $stmts.push(lst_for($_));
         for @*INNER_BLOCKS {
             @inner_blocks.push($_);
         }
@@ -335,7 +335,7 @@ our multi sub dnst_for(PAST::Block $block) {
 
         # We'll fake this as an inner block to compile.
         my $*IN_LOADINIT := 1;
-        @*LOADINITS.push(dnst_for(PAST::Block.new(
+        @*LOADINITS.push(lst_for(PAST::Block.new(
             :blocktype('immediate'), $block.loadinit
         )));
 
@@ -352,11 +352,11 @@ our multi sub dnst_for(PAST::Block $block) {
         my @*INNER_BLOCKS;
         my %handler;
         %handler<type> := 57;
-        %handler<code> := dnst_for(PAST::Block.new(PAST::Stmts.new(
+        %handler<code> := lst_for(PAST::Block.new(PAST::Stmts.new(
             PAST::Var.new( :name('$!'), :scope('parameter') ),
             emit_op('leave_block',
                 LST::Literal.new( :value('TC.CurrentContext.Outer.StaticCodeObject') ),
-                dnst_for(PAST::Var.new( :name('$!'), :scope('lexical') ))
+                lst_for(PAST::Var.new( :name('$!'), :scope('lexical') ))
             )
         )));
         $stmts.unshift(%handler<code>); # To get the right lexical context.
@@ -372,7 +372,7 @@ our multi sub dnst_for(PAST::Block $block) {
     my $handlers_setup_placeholder := LST::Stmts.new();
     my $sig_setup_block := get_unique_id('block');
     my @params;
-    @params.push('ThreadContext TC');
+    @params.push('TC');
     @inner_blocks.push(LST::Method.new(
         :return_type('void'),
         :name($sig_setup_block),
@@ -422,7 +422,7 @@ our multi sub dnst_for(PAST::Block $block) {
             LST::Stmts.new(
                 LST::If.new(
                     LST::Literal.new(
-                        :value("(exc.TargetBlock != Block ? 1 : 0)")
+                        :value("(exc.TargetBlock ~= Block and 1 or 0)")
                     ),
                     LST::Throw.new()
                 ),
@@ -440,9 +440,8 @@ our multi sub dnst_for(PAST::Block $block) {
     }
 
     # Set up body, static outer and lexicals in the code setup block call.
-    $our_sbi_setup.push(LST::New.new(
-        :type('Func<ThreadContext, RakudoObject, RakudoObject, RakudoObject>'),
-        $result.name
+    $our_sbi_setup.push(LST::Local.new(
+            :name($result.name)
     ));
     $our_sbi_setup.push("StaticBlockInfo[$outer_sbi]");
     my $lex_setup := LST::ArrayLiteral.new( :type('string') );
@@ -453,10 +452,10 @@ our multi sub dnst_for(PAST::Block $block) {
 
     # Add handlers.
     if +@*HANDLERS {
-        my $handler_node := LST::ArrayLiteral.new( :type('Rakudo.Runtime.Exceptions.Handler') );
+        my $handler_node := LST::ArrayLiteral.new( :type('Exceptions.Handler') );
         for @*HANDLERS {
             $handler_node.push(LST::New.new(
-                :type('Rakudo.Runtime.Exceptions.Handler'),
+                :type('Exceptions.Handler'),
                 LST::Literal.new( :value($_<type>) ),
                 $_<code>
             ));
@@ -475,7 +474,7 @@ our multi sub dnst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('STable.Invoke'), :type('RakudoObject'),
+            :name('STable:Invoke'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
@@ -503,7 +502,7 @@ sub compile_signature(@params) {
 
         # Type.
         if $_.multitype {
-            $param.push(dnst_for($_.multitype));
+            $param.push(lst_for($_.multitype));
         }
         else {
             $param.push(LST::Null.new());
@@ -536,7 +535,7 @@ sub compile_signature(@params) {
         
         # viviself.
         $param.push($_.viviself ~~ PAST::Node
-            ?? dnst_for(PAST::Block.new(:closure(1), $_.viviself))
+            ?? lst_for(PAST::Block.new(:closure(1), $_.viviself))
             !! LST::Null.new());
 
         $params.push($param);
@@ -547,16 +546,16 @@ sub compile_signature(@params) {
 }
 
 # Compiles a statements node - really just all the stuff in it.
-our multi sub dnst_for(PAST::Stmts $stmts) {
+our multi sub lst_for(PAST::Stmts $stmts) {
     my $result := LST::Stmts.new();
     for @($stmts) {
-        $result.push(dnst_for($_));
+        $result.push(lst_for($_));
     }
     return $result;
 }
 
 # Compiles the various forms of PAST::Op.
-our multi sub dnst_for(PAST::Op $op) {
+our multi sub lst_for(PAST::Op $op) {
     if $op.pasttype eq 'callmethod' {
         # We want to emit code for the args, but also need the
         # invocant to hand specially.
@@ -566,14 +565,14 @@ our multi sub dnst_for(PAST::Op $op) {
         # Invocant.
         my $inv := LST::Local.new(
             :name(get_unique_id('inv')), :isdecl(1), :type('RakudoObject'),
-            dnst_for(@args.shift)
+            lst_for(@args.shift)
         );
 
         # Method name, for indirectly named dotty calls
         my $name := $op.name ~~ PAST::Node
           ?? unbox('str', PAST::Op.new(
                  :pasttype('callmethod'), :name('Str'),
-                 dnst_for($op.name)
+                 lst_for($op.name)
              ))
           !! LST::Literal.new( :value($op.name), :escape(1) );
         
@@ -581,7 +580,7 @@ our multi sub dnst_for(PAST::Op $op) {
         my $callee := LST::Local.new(
             :name(get_unique_id('callee')), :isdecl(1), :type('RakudoObject'),
             LST::MethodCall.new(
-                :on($inv.name), :name('STable.FindMethod'), :type('RakudoObject'),
+                :on($inv.name), :name('STable:FindMethod'), :type('RakudoObject'),
                 TC(),
                 $inv.name,
                 $name,
@@ -593,7 +592,7 @@ our multi sub dnst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('STable.Invoke'), :type('RakudoObject'),
+                :name('STable:Invoke'), :type('RakudoObject'),
                 $callee,
                 TC(),
                 $callee.name,
@@ -614,13 +613,13 @@ our multi sub dnst_for(PAST::Op $op) {
             unless +@args {
                 pir::die("PAST::Op call nodes with no name must have at least one child");
             }
-            $callee := dnst_for(@args.shift);
+            $callee := lst_for(@args.shift);
         }
         $callee := LST::Local.new( :name(get_unique_id('callee')), :isdecl(1), :type('RakudoObject'), $callee );
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('STable.Invoke'), :type('RakudoObject'),
+            :name('STable:Invoke'), :type('RakudoObject'),
             $callee,
             TC(),
             $callee.name,
@@ -633,9 +632,9 @@ our multi sub dnst_for(PAST::Op $op) {
         my $*BIND_VALUE;
         {
             my $*BIND_CONTEXT := 0;
-            $*BIND_VALUE := dnst_for((@($op))[1]);
+            $*BIND_VALUE := lst_for((@($op))[1]);
         }
-        return dnst_for((@($op))[0]);
+        return lst_for((@($op))[0]);
     }
 
     elsif $op.pasttype eq 'nqpop' {
@@ -650,15 +649,15 @@ our multi sub dnst_for(PAST::Op $op) {
         return LST::Stmts.new(
             LST::Local.new(
                 :name($cond_evaluated.name), :isdecl(1), :type('RakudoObject'),
-                dnst_for(PAST::Op.new(
+                lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name('Bool'),
                     (@($op))[0]
                 ))
             ),
             LST::If.new(
                 unbox('int', $cond_evaluated),
-                dnst_for((@($op))[1]),
-                (+@($op) == 3 ?? dnst_for((@($op))[2]) !! $cond_evaluated)
+                lst_for((@($op))[1]),
+                (+@($op) == 3 ?? lst_for((@($op))[2]) !! $cond_evaluated)
             )
         );
     }
@@ -672,9 +671,9 @@ our multi sub dnst_for(PAST::Op $op) {
             )),
             LST::Local.new(
                 :name($cond_evaluated), :isdecl(1), :type('RakudoObject'),
-                dnst_for(PAST::Op.new(
+                lst_for(PAST::Op.new(
                     :pasttype('call'), :name('&prefix:<!>'),
-                    LST::Bind.new(lit($temp.name), dnst_for((@($op))[0]))
+                    LST::Bind.new(lit($temp.name), lst_for((@($op))[0]))
                 ))
             ),
             LST::If.new(
@@ -682,8 +681,8 @@ our multi sub dnst_for(PAST::Op $op) {
                     :on('Ops'), :name('unbox_int'), :type('int'),
                     TC(), $cond_evaluated
                 ),
-                LST::Bind.new(lit($temp.name), dnst_for((@($op))[1])),
-                LST::Bind.new(lit($temp.name), dnst_for($cond_evaluated)),
+                LST::Bind.new(lit($temp.name), lst_for((@($op))[1])),
+                LST::Bind.new(lit($temp.name), lst_for($cond_evaluated)),
             ),
             lit($temp.name)
         );
@@ -707,11 +706,11 @@ our multi sub dnst_for(PAST::Op $op) {
             );
         my $cond := LST::Local.new(
             :name($cond_result.name), :isdecl(1), :type('RakudoObject'),
-            dnst_for($cop)
+            lst_for($cop)
         );
 
         # Compile the body.
-        my $body := dnst_for((@($op))[1]);
+        my $body := lst_for((@($op))[1]);
 
         # Build up result.
         return LST::Stmts.new(
@@ -748,11 +747,11 @@ our multi sub dnst_for(PAST::Op $op) {
             );
         my $cond := LST::Local.new(
             :name($cond_result.name), :isdecl(1), :type('RakudoObject'),
-            dnst_for($cop)
+            lst_for($cop)
         );
 
         # Compile the body.
-        my $body := dnst_for((@($op))[1]);
+        my $body := lst_for((@($op))[1]);
 
         # Build up result.
         return LST::Stmts.new(
@@ -774,7 +773,7 @@ our multi sub dnst_for(PAST::Op $op) {
         my $result := LST::Stmts.new(
             LST::Local.new(
                 :name($tmp_name), :isdecl(1), :type('RakudoObject'),
-                dnst_for(PAST::Op.new(
+                lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name('new'),
                     PAST::Var.new( :name('NQPArray'), :scope('lexical') )
                 ))
@@ -786,8 +785,8 @@ our multi sub dnst_for(PAST::Op $op) {
                 :on('Ops'), :name('lllist_bind_at_pos'), :void(1), :type('RakudoObject'),
                 TC(),
                 $tmp_name,
-                dnst_for(PAST::Val.new( :value($i) )),
-                dnst_for($_)
+                lst_for(PAST::Val.new( :value($i) )),
+                lst_for($_)
             ));
             $i := $i + 1;
         }
@@ -804,14 +803,14 @@ our multi sub dnst_for(PAST::Op $op) {
         my $first_name := get_unique_id('def_or_first_');
         my $first := LST::Local.new(
             :name($first_name), :isdecl(1), :type('RakudoObject'),
-            dnst_for((@($op))[0])
+            lst_for((@($op))[0])
         );
 
         # Compile it as an if node that checks definedness.
         my $first_var := LST::Local.new( :name($first_name) );
         return LST::Stmts.new(
             $first,
-            dnst_for(PAST::Op.new( :pasttype('if'),
+            lst_for(PAST::Op.new( :pasttype('if'),
                 PAST::Op.new( :pasttype('callmethod'), :name('defined'), $first_var ),
                 $first_var,
                 (@($op))[1]
@@ -845,22 +844,22 @@ sub form_capture(@args, $inv?) {
     for @args {
         if $_ ~~ PAST::Node && $_.named {
             if $_.flat {
-                $pos_part.push(dnst_for($_));
+                $pos_part.push(lst_for($_));
                 $flatten_flags.push('CaptureHelper.FLATTEN_NAMED');
                 $has_flats := 1;
             }
             else {
                 $named_part.push(LST::Literal.new( :value($_.named), :escape(1) ));
-                $named_part.push(dnst_for($_));
+                $named_part.push(lst_for($_));
             }
         }
         elsif $_ ~~ PAST::Node && $_.flat {
-            $pos_part.push(dnst_for($_));
+            $pos_part.push(lst_for($_));
             $flatten_flags.push('CaptureHelper.FLATTEN_POS');
             $has_flats := 1;
         }
         else {
-            $pos_part.push(dnst_for($_));
+            $pos_part.push(lst_for($_));
             $flatten_flags.push('CaptureHelper.FLATTEN_NONE');
         }
     }
@@ -874,7 +873,7 @@ sub form_capture(@args, $inv?) {
 }
 
 # Emits a value.
-our multi sub dnst_for(PAST::Val $val) {
+our multi sub lst_for(PAST::Val $val) {
     # If it's a block reference, hand back the SBI.
     if $val.value ~~ PAST::Block {
         unless $val.value<SBI> {
@@ -921,7 +920,7 @@ our multi sub dnst_for(PAST::Val $val) {
 }
 
 # Emits code for a variable node.
-our multi sub dnst_for(PAST::Var $var) {
+our multi sub lst_for(PAST::Var $var) {
     # See if we have a scope provided. If not, work one out.
     my $scope := $var.scope;
     unless $scope {
@@ -993,7 +992,7 @@ our multi sub dnst_for(PAST::Var $var) {
 
         # Now chase down the rest.
         for @parts {
-            $lookup := dnst_for(PAST::Op.new(
+            $lookup := lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('get_namespace'),
                 $lookup,
                 PAST::Val.new( :value(~$_) )
@@ -1003,7 +1002,7 @@ our multi sub dnst_for(PAST::Var $var) {
         # Binding, if needed.
         if $*BIND_CONTEXT {
             my $*BIND_CONTEXT := 0;
-            $lookup := dnst_for(PAST::Op.new(
+            $lookup := lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('bind_key'),
                 $lookup,
                 PAST::Val.new( :value(~$target) ),
@@ -1011,7 +1010,7 @@ our multi sub dnst_for(PAST::Var $var) {
             ));
         }
         else {
-            $lookup := dnst_for(PAST::Op.new(
+            $lookup := lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('at_key'),
                 $lookup,
                 PAST::Val.new( :value(~$target) )
@@ -1027,7 +1026,7 @@ our multi sub dnst_for(PAST::Var $var) {
                 $result.push($*BIND_VALUE);
             }
             elsif $var.viviself {
-                $result.push(dnst_for($var.viviself));
+                $result.push(lst_for($var.viviself));
             }
             else {
                 $result.push(LST::Null.new());
@@ -1068,7 +1067,7 @@ our multi sub dnst_for(PAST::Var $var) {
                 $temp,
                 LST::If.new( :bool(1),
                     eq(LST::Local.new( :name($viv_name) ), LST::Null.new()),
-                    dnst_for($var.viviself),
+                    lst_for($var.viviself),
                     LST::Local.new( :name($viv_name) )
                 )
             );
@@ -1081,13 +1080,13 @@ our multi sub dnst_for(PAST::Var $var) {
             # Get thing to do lookup in without bind context applied - we simply
             # want to look it up.
             my $*BIND_CONTEXT := 0;
-            return dnst_for(PAST::Op.new(
+            return lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('bind_pos'),
                 @($var)[0], @($var)[1], $*BIND_VALUE
             ));
         }
         else {
-            return dnst_for(PAST::Op.new(
+            return lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('at_pos'),
                 @($var)[0], @($var)[1]
             ));
@@ -1099,13 +1098,13 @@ our multi sub dnst_for(PAST::Var $var) {
             # Get thing to do lookup in without bind context applied - we simply
             # want to look it up.
             my $*BIND_CONTEXT := 0;
-            return dnst_for(PAST::Op.new(
+            return lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('bind_key'),
                 @($var)[0], @($var)[1], $*BIND_VALUE
             ));
         }
         else {
-            return dnst_for(PAST::Op.new(
+            return lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('at_key'),
                 @($var)[0], @($var)[1]
             ));
@@ -1127,7 +1126,7 @@ sub declare_lexical($var) {
         my $*BIND_VALUE;
         {
             my $*BIND_CONTEXT := 0;
-            $*BIND_VALUE := dnst_for($var.viviself);
+            $*BIND_VALUE := lst_for($var.viviself);
         }
         return emit_lexical_lookup($var.name);
     }
@@ -1137,14 +1136,14 @@ sub declare_lexical($var) {
 }
 
 # Catch-all for values and error detection.
-our multi sub dnst_for($any) {
+our multi sub lst_for($any) {
     if $any ~~ LST::Node {
         # LST of something already in LST is itself.
         return $any;
     }
     elsif pir::isa($any, 'String') || pir::isa($any, 'Integer') || pir::isa($any, 'Float') {
         # Literals - wrap up in a value node and compile that.
-        return dnst_for(PAST::Val.new( :value($any) ));
+        return lst_for(PAST::Val.new( :value($any) ));
     }
     else {
         pir::die("Don't know how to compile a " ~ pir::typeof__SP($any) ~ "(" ~ $any ~ ")");
@@ -1152,12 +1151,12 @@ our multi sub dnst_for($any) {
 }
 
 # Non-regex nodes reached inside a regex
-our multi sub dnst_regex($r) {
-    dnst_for($r)
+our multi sub lst_regex($r) {
+    lst_for($r)
 }
 
 # Regex nodes reached from non-regex nodes
-our multi sub dnst_for(PAST::Regex $r, :$rtype) {
+our multi sub lst_for(PAST::Regex $r, :$rtype) {
     my $rb; # regex block
     my $pasttype := $r.pasttype;
     #pir::die("Don't know how to compile toplevel regex pasttype $pasttype.") if $pasttype ne 'concat';
@@ -1171,7 +1170,7 @@ our multi sub dnst_for(PAST::Regex $r, :$rtype) {
     # cursor register
     my $re_cur_tmp := LST::Local.new(
         :name(get_unique_id('re_cur')), :isdecl(1), :type('RakudoObject'),
-        dnst_for(PAST::Var.new( :name('self'), :scope('lexical')))
+        lst_for(PAST::Var.new( :name('self'), :scope('lexical')))
     );
     my $*re_cur := LST::Local.new( :name($re_cur_tmp.name) );
     my $*re_cur_name := $re_cur_tmp.name;
@@ -1264,7 +1263,7 @@ our multi sub dnst_for(PAST::Regex $r, :$rtype) {
     }
     
     $stmts.push(returns_array(
-        dnst_for(PAST::Op.new( :pasttype('callmethod'),
+        lst_for(PAST::Op.new( :pasttype('callmethod'),
             :name('cursor_start'), $*re_cur_self)),
         $*re_cur, 'RakudoObject',
         $*re_pos_lit, 'int',
@@ -1273,18 +1272,18 @@ our multi sub dnst_for(PAST::Regex $r, :$rtype) {
     ));
     
     $stmts.push(
-        dnst_for(PAST::Op.new( :pasttype('callmethod'),
-            :name('cursor_caparray'), $*re_cur, dnst_for(val(0)), |@caparray)))
+        lst_for(PAST::Op.new( :pasttype('callmethod'),
+            :name('cursor_caparray'), $*re_cur, lst_for(val(0)), |@caparray)))
                 if +@caparray;
     
     unless pir::defined($rtype) {
         $stmts.push(declare_lexical(PAST::Var.new( :name('$¢'), :scope('lexical') )));
-        $stmts.push(dnst_for(LST::Bind.new(
+        $stmts.push(lst_for(LST::Bind.new(
             emit_lexical_lookup( '$¢'),
             $*re_cur
         )));
         $stmts.push(declare_lexical(PAST::Var.new( :name('$/'), :scope('lexical') )));
-        $stmts.push(dnst_for(LST::Bind.new(
+        $stmts.push(lst_for(LST::Bind.new(
             emit_lexical_lookup( '$/'),
             $*re_cur
         )));
@@ -1297,21 +1296,21 @@ our multi sub dnst_for(PAST::Regex $r, :$rtype) {
     #$stmts.push(emit_say($*re_pos_lit));
     $stmts.push(if_then(eq($*I10_lit, lit("1")), $re_restart));
     
-    $stmts.push(dnst_for(PAST::Op.new(
+    $stmts.push(lst_for(PAST::Op.new(
         :pasttype('callmethod'), :name('cursor_debug'),
         $*re_cur, "START"
     )));
     
     for @($r) {
         #$stmts.push(emit_say(lits("gh " ~ $_.pasttype)));
-        $stmts.push(dnst_regex($_));
+        $stmts.push(lst_regex($_));
     }
     
     $stmts.push(LST::Label.new(:name($re_restart_label)));
     #$stmts.push(emit_say(lits("re restartlabel at position ")));
     #$stmts.push(emit_say($*re_pos_lit));
     
-    $stmts.push(dnst_for(PAST::Op.new(
+    $stmts.push(lst_for(PAST::Op.new(
         :pasttype('callmethod'), :name('cursor_debug'),
         $*re_cur, "NEXT"
     )));
@@ -1320,7 +1319,7 @@ our multi sub dnst_for(PAST::Regex $r, :$rtype) {
     #$stmts.push(emit_say(lits("re faillabel at position ")));
     #$stmts.push(emit_say($*re_pos_lit));
     # self.'!cursorop'(ops, '!mark_fail', 4, rep, pos, '$I10', '$P10', 0)
-    $stmts.push(returns_array(dnst_for(PAST::Op.new(
+    $stmts.push(returns_array(lst_for(PAST::Op.new(
         :pasttype('callmethod'), :name('mark_fail'), $*re_cur, val(0))),
         $*re_rep_lit, 'int',
         $*re_pos_lit, 'int',
@@ -1340,29 +1339,29 @@ our multi sub dnst_for(PAST::Regex $r, :$rtype) {
     #$stmts.push(emit_say(lits("re donelabel at position ")));
     #$stmts.push(emit_say($*re_pos_lit));
     
-    $stmts.push(dnst_for(PAST::Op.new(
+    $stmts.push(lst_for(PAST::Op.new(
         :pasttype('callmethod'), :name('cursor_fail'),
         $*re_cur, val(0)
     )));
     
-    $stmts.push(dnst_for(PAST::Op.new(
+    $stmts.push(lst_for(PAST::Op.new(
         :pasttype('callmethod'), :name('cursor_debug'),
         $*re_cur, "FAIL"
     )));
     
     $stmts.push(LST::Return.new($*re_cur));
 
-    dnst_for($stmts);
+    lst_for($stmts);
 }
 
 # Regex nodes reached inside a regex
-our multi sub dnst_regex(PAST::Regex $r) {
+our multi sub lst_regex(PAST::Regex $r) {
     my $pasttype := $r.pasttype;
     my $stmts := PAST::Stmts.new;
     if $pasttype eq 'concat' {
         # Handle a concatenation of regexes.
         for @($r) {
-            $stmts.push(dnst_regex($_));
+            $stmts.push(lst_regex($_));
         }
     }
     elsif $pasttype eq 'scan' {
@@ -1376,11 +1375,11 @@ our multi sub dnst_regex(PAST::Regex $r) {
         
         #$stmts.push(emit_say(lits("scan from returned ")));
         #$stmts.push(emit_say(
-        #unbox('int', dnst_for(PAST::Op.new(
+        #unbox('int', lst_for(PAST::Op.new(
         #        :pasttype('callmethod'), :name('special'), $*re_cur_self
         #    )))));
         
-        $stmts.push(if_then(ne(unbox('int', dnst_for(PAST::Op.new(
+        $stmts.push(if_then(ne(unbox('int', lst_for(PAST::Op.new(
                 :pasttype('callmethod'), :name('special'), $*re_cur_self
             ))), lit("-1")), LST::Goto.new(:label($donelabel.name))));
         $stmts.push(LST::Goto.new(:label($scanlabel.name)));
@@ -1390,11 +1389,11 @@ our multi sub dnst_regex(PAST::Regex $r) {
         # self.'!cursorop'(ops, 'from', 1, '$P10')
         # ops.'push_pirop'('inc', '$P10')
         # ops.'push_pirop'('set', pos, '$P10')
-        $stmts.push(LST::Bind.new($*re_pos_lit, plus(unbox('int', dnst_for(PAST::Op.new(
+        $stmts.push(LST::Bind.new($*re_pos_lit, plus(unbox('int', lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('from'),
             $*re_cur
         ))), lit("1"))));
-        $stmts.push(dnst_for(PAST::Op.new(
+        $stmts.push(lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('from'),
             $*re_cur, box('int', $*re_pos_lit)
         )));
@@ -1402,7 +1401,7 @@ our multi sub dnst_regex(PAST::Regex $r) {
         $stmts.push($scanlabel);
         #$stmts.push(emit_say(lits("scan scanlabel at position ")));
         #$stmts.push(emit_say($*re_pos_lit));
-        $stmts.push(dnst_for(PAST::Op.new(
+        $stmts.push(lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('mark_push'),
             $*re_cur, val(0),
             box('int', $*re_pos_lit), box('int', lit($*re_jt.get_index($s0 ~ '_loop')))
@@ -1429,17 +1428,17 @@ our multi sub dnst_regex(PAST::Regex $r) {
         #$stmts.push(emit_say($*re_pos_lit));
         $stmts.push(LST::Label.new(:name(get_unique_id("rx_pass"))));
         
-        $stmts.push(dnst_for(PAST::Op.new(
+        $stmts.push(lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('cursor_pass'),
             $*re_cur, box('int', $*re_pos_lit), "" # XXX TODO regexname
         )));
         
-        $stmts.push(dnst_for(PAST::Op.new(
+        $stmts.push(lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('cursor_debug'),
             $*re_cur, "PASS"
         )));
         
-        $stmts.push(dnst_for(PAST::Op.new(
+        $stmts.push(lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('cursor_backtrack'),
             $*re_cur,
         )));
@@ -1488,20 +1487,20 @@ our multi sub dnst_regex(PAST::Regex $r) {
             my $acount := 0;
             my $alabel := LST::Label.new(:name($name ~ $acount));
             my $endlabel := LST::Label.new(:name($name ~ 'end'));
-            my $adnst;
+            my $alst;
             $stmts.push($alabel);
             for @($r) {
-                $adnst := dnst_regex($_);
+                $alst := lst_regex($_);
                 if ($acount := $acount + 1) <= $total {
                     $alabel := $*re_jt.mark($name ~ $acount);
-                    $stmts.push(dnst_for(PAST::Op.new(
+                    $stmts.push(lst_for(PAST::Op.new(
                         :pasttype('callmethod'), :name('mark_push'),
                         $*re_cur, val(0),
                         box('int', $*re_pos_lit),
                         box('int', lit($*re_jt.get_index($name ~ $acount)))
                     )));
                 }
-                $stmts.push($adnst);
+                $stmts.push($alst);
                 $stmts.push($alabel);
             }
             $stmts.push($endlabel);
@@ -1528,10 +1527,10 @@ our multi sub dnst_regex(PAST::Regex $r) {
         my $q2idx := box('int', lit($*re_jt.get_index($q2label.name)));
         my $q1goto := LST::Goto.new(:label($q1label.name));
         my $q2goto := LST::Goto.new(:label($q2label.name));
-        my $cdnst := dnst_regex(PAST::Regex.new(:pasttype('concat'), |@($r)));
-        my $sepdnst;
+        my $clst := lst_regex(PAST::Regex.new(:pasttype('concat'), |@($r)));
+        my $seplst;
         my $seppast := $r.sep;
-        $sepdnst := dnst_regex($seppast) if $seppast;
+        $seplst := lst_regex($seppast) if $seppast;
         my $seplabel;
         
         #my $s0 := $max;
@@ -1547,16 +1546,16 @@ our multi sub dnst_regex(PAST::Regex $r) {
                 $peekcut := 'mark_commit';
             }
             if $min == 0 || $needmark {
-                $stmts.push(dnst_for(PAST::Op.new(
+                $stmts.push(lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name('mark_push'),
                     $*re_cur, val(0), val($min == 0 ?? 0 !! -1),
                     $q2idx
                 )));
             }
             $stmts.push($q1label);
-            $stmts.push($cdnst);
+            $stmts.push($clst);
             if $needmark {
-                $stmts.push(dnst_for(PAST::Op.new(
+                $stmts.push(lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name($peekcut),
                     $*re_cur, val(1), box('int', $*re_rep_lit),
                     $q2idx
@@ -1568,12 +1567,12 @@ our multi sub dnst_regex(PAST::Regex $r) {
             }
             $stmts.push(if_then(ge($*re_rep_lit, lit($max)), $q2goto)) if $max > 1;
             if $max != 1 {
-                $stmts.push(dnst_for(PAST::Op.new(
+                $stmts.push(lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name('mark_push'),
                     $*re_cur, box('int', $*re_rep_lit), box('int', $*re_pos_lit),
                     $q2idx
                 )));
-                $stmts.push($sepdnst) if pir::defined($sepdnst);
+                $stmts.push($seplst) if pir::defined($seplst);
                 $stmts.push($q1goto);
             }
             $stmts.push($q2label);
@@ -1582,7 +1581,7 @@ our multi sub dnst_regex(PAST::Regex $r) {
             my $ireg := temp_int(:name($qname ~ '_frugal'));
             $stmts.push($ireg);
             if $min == 0 {
-                $stmts.push(dnst_for(PAST::Op.new(
+                $stmts.push(lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name('mark_push'),
                     $*re_cur, val(0), box('int', $*re_pos_lit),
                     $q1idx
@@ -1590,14 +1589,14 @@ our multi sub dnst_regex(PAST::Regex $r) {
                 $stmts.push($q2goto);
             } else {
                 $stmts.push(LST::Bind.new($*re_rep_lit, lit('0'))) if $needrep;
-                if pir::defined($sepdnst) {
+                if pir::defined($seplst) {
                     $seplabel := LST::Label.new(:name(get_unique_id($qname ~ '_frugal_sep')));
                     $stmts.push(LST::Goto.new(:label($seplabel)));
                 }
             }
             $stmts.push($q1label);
-            if pir::defined($sepdnst) {
-                $stmts.push($sepdnst);
+            if pir::defined($seplst) {
+                $stmts.push($seplst);
                 $stmts.push($seplabel);
             }
             if $needrep {
@@ -1609,12 +1608,12 @@ our multi sub dnst_regex(PAST::Regex $r) {
                     ));
                 }
             }
-            $stmts.push($cdnst);
+            $stmts.push($clst);
             $stmts.push(LST::Bind.new($*re_rep_lit, plus(lit($ireg.name),
                 lit('1')))) if $needrep;
             $stmts.push(if_then(lt($*re_rep_lit, lit($min)), $q1goto)) if $max > 1;
             if $max != 1 {
-                $stmts.push(dnst_for(PAST::Op.new(
+                $stmts.push(lst_for(PAST::Op.new(
                     :pasttype('callmethod'), :name('mark_push'),
                     $*re_cur, box('int', $*re_rep_lit), box('int', $*re_pos_lit),
                     $q1idx
@@ -1624,10 +1623,10 @@ our multi sub dnst_regex(PAST::Regex $r) {
         }
     } elsif $pasttype eq 'subrule' {
         my $name := $r.name;
-        my $cdnst := dnst_for((@($r))[0]);
-        my $posargs := dnst_for((@($r))[1]);
+        my $clst := lst_for((@($r))[0]);
+        my $posargs := lst_for((@($r))[1]);
         
-        #my $subdnst := $posargs.shift;
+        #my $sublst := $posargs.shift;
         
         my $negate := $r.negate;
         
@@ -1636,15 +1635,15 @@ our multi sub dnst_regex(PAST::Regex $r) {
         
         $stmts.push(cursorop('pos', box('int', $*re_pos_lit)));
         
-        $stmts.push($cdnst);
+        $stmts.push($clst);
         
-        my $call := dnst_for(PAST::Op.new(
+        my $call := lst_for(PAST::Op.new(
             :pasttype('callmethod'), :name('Bool'),
             cursorop($name, $posargs)
         ));
         
         # the logic here *appears* inverted because of the if_then.
-        $call := dnst_for(PAST::Op.new(
+        $call := lst_for(PAST::Op.new(
             :pasttype('call'), :name('&prefix:<!>'),
             $call
         )) unless $negate;
@@ -1663,12 +1662,12 @@ our multi sub dnst_regex(PAST::Regex $r) {
     else {
         pir::die("Don't know how to compile regex pasttype $pasttype.");
     }
-    dnst_for($stmts)
+    lst_for($stmts)
 }
 
 # Emits a cursor operation
 sub cursorop($name, *@args) {
-    dnst_for(PAST::Op.new(
+    lst_for(PAST::Op.new(
         :pasttype('callmethod'), :name($name),
         $*re_cur, |@args
     ))
@@ -1713,21 +1712,21 @@ sub emit_say($arg) {
     LST::Stmts.new(LST::MethodCall.new(
         :on('Console'), :name('WriteLine'),
         :void(1),
-        dnst_for($arg)
-    ), dnst_for(PAST::Val.new( :value("") )))
+        lst_for($arg)
+    ), lst_for(PAST::Val.new( :value("") )))
 }
 
 sub temp_int($arg?, :$name) {
     LST::Local.new(
         :name(get_unique_id('int_' ~ ($name || ''))), :isdecl(1), :type('int'),
-        pir::defined($arg) ?? dnst_for($arg) !! lit(0)
+        pir::defined($arg) ?? lst_for($arg) !! lit(0)
     )
 }
 
 sub temp_str($arg?, :$name) {
     LST::Local.new(
         :name(get_unique_id('string_' ~ ($name || ''))), :isdecl(1), :type('string'),
-        pir::defined($arg) ?? dnst_for($arg) !! lits("")
+        pir::defined($arg) ?? lst_for($arg) !! lits("")
     )
 }
 
@@ -1735,7 +1734,7 @@ sub temp_str($arg?, :$name) {
 sub box($type, $arg) {
     LST::MethodCall.new(
         :on('Ops'), :name("box_$type"), :type('RakudoObject'),
-        TC(), dnst_for($arg)
+        TC(), lst_for($arg)
     )
 }
 
@@ -1744,7 +1743,7 @@ sub unbox($type, $arg) {
     LST::MethodCall.new(
         :on('Ops'), :name("unbox_$type"),
         :type(vm_type_for($type)),
-        TC(), dnst_for($arg)
+        TC(), lst_for($arg)
     )
 }
 
@@ -1758,51 +1757,51 @@ sub vm_type_for($type) {
 }
 
 sub plus($l, $r, $type?) {
-    LST::Add.new(dnst_for($l), dnst_for($r), pir::defined($type) ?? $type !! 'int')
+    LST::Add.new(lst_for($l), lst_for($r), pir::defined($type) ?? $type !! 'int')
 }
 
 sub minus($l, $r, $type?) {
-    LST::Subtract.new(dnst_for($l), dnst_for($r), pir::defined($type) ?? $type !! 'int')
+    LST::Subtract.new(lst_for($l), lst_for($r), pir::defined($type) ?? $type !! 'int')
 }
 
 sub bitwise_or($l, $r, $type?) {
-    LST::BOR.new(dnst_for($l), dnst_for($r), pir::defined($type) ?? $type !! 'int')
+    LST::BOR.new(lst_for($l), lst_for($r), pir::defined($type) ?? $type !! 'int')
 }
 
 sub bitwise_and($l, $r, $type?) {
-    LST::BAND.new(dnst_for($l), dnst_for($r), pir::defined($type) ?? $type !! 'int')
+    LST::BAND.new(lst_for($l), lst_for($r), pir::defined($type) ?? $type !! 'int')
 }
 
 sub bitwise_xor($l, $r, $type?) {
-    LST::BXOR.new(dnst_for($l), dnst_for($r), pir::defined($type) ?? $type !! 'int')
+    LST::BXOR.new(lst_for($l), lst_for($r), pir::defined($type) ?? $type !! 'int')
 }
 
 sub gt($l, $r) {
-    LST::GT.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::GT.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub lt($l, $r) {
-    LST::LT.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::LT.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub ge($l, $r) {
-    LST::GE.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::GE.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub le($l, $r) {
-    LST::LE.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::LE.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub eq($l, $r) {
-    LST::EQ.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::EQ.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub ne($l, $r) {
-    LST::NE.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::NE.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub not($operand) {
-    LST::NOT.new(dnst_for($operand), 'bool')
+    LST::NOT.new(lst_for($operand), 'bool')
 }
 
 # short-circuiting logical AND
@@ -1813,9 +1812,9 @@ sub log_and($l, $r) {
         :name(get_unique_id('log_and')), :isdecl(1), :type('bool'), lit('false')
     )),
     if_then(LST::Local.new(
-        :name(get_unique_id('left_bool')), :isdecl(1), :type('bool'), dnst_for($l)
+        :name(get_unique_id('left_bool')), :isdecl(1), :type('bool'), lst_for($l)
     ), if_then(LST::Local.new(
-        :name(get_unique_id('right_bool')), :isdecl(1), :type('bool'), dnst_for($r)
+        :name(get_unique_id('right_bool')), :isdecl(1), :type('bool'), lst_for($r)
     ), LST::Bind.new(
     ### XXX The next line works only with the C# backend (so far)
     ###   b/c the Bind causes the Temp to be redeclared without the lit(___.name)
@@ -1831,18 +1830,18 @@ sub log_or($l, $r) {
         :name(get_unique_id('log_or')), :isdecl(1), :type('bool'), lit('false')
     )),
     if_then(LST::Local.new(
-        :name(get_unique_id('left_bool')), :isdecl(1), :type('bool'), dnst_for($l)
+        :name(get_unique_id('left_bool')), :isdecl(1), :type('bool'), lst_for($l)
     ),
     LST::Bind.new(lit($temp.name), lit('true')),
     if_then(LST::Local.new(
-        :name(get_unique_id('right_bool')), :isdecl(1), :type('bool'), dnst_for($r)
+        :name(get_unique_id('right_bool')), :isdecl(1), :type('bool'), lst_for($r)
     ),
     LST::Bind.new(lit($temp.name), lit('true')),
     )));
 }
 
 sub log_xor($l, $r) {
-    LST::XOR.new(dnst_for($l), dnst_for($r), 'bool')
+    LST::XOR.new(lst_for($l), lst_for($r), 'bool')
 }
 
 sub if_then($cond, $pred, $oth?, :$bool?) {
@@ -1864,7 +1863,7 @@ sub lit($str) {
 sub val($val) {
     $val ~~ LST::Node
         ?? $val
-        !! dnst_for(PAST::Val.new( :value($val) ))
+        !! lst_for(PAST::Val.new( :value($val) ))
 }
 
 sub emit_op($name, *@args) {
@@ -1876,31 +1875,31 @@ sub emit_op($name, *@args) {
     }
     
     # Compile the args.
-    my @dnst_args;
+    my @lst_args;
     my $i := 1;
     for @args {
         # Set the type context that is desired.
         my $*TYPE_CONTEXT := pir::defined($sig) ?? $sig[$i] !! 'obj';
-        my $arg_dnst := dnst_for($_);
+        my $arg_lst := lst_for($_);
         
         # We may need to auto-unbox it if we don't have the desired type
         # of thing.
         if $*TYPE_CONTEXT ne 'obj' {
-            unless ($arg_dnst ~~ LST::MethodCall || $arg_dnst ~~ LST::Call || $arg_dnst ~~ LST::Literal)
-              && $arg_dnst.type eq vm_type_for($*TYPE_CONTEXT) {
-                $arg_dnst := unbox($*TYPE_CONTEXT, $arg_dnst);
+            unless ($arg_lst ~~ LST::MethodCall || $arg_lst ~~ LST::Call || $arg_lst ~~ LST::Literal)
+              && $arg_lst.type eq vm_type_for($*TYPE_CONTEXT) {
+                $arg_lst := unbox($*TYPE_CONTEXT, $arg_lst);
             }
         }
 
-        @dnst_args.push($arg_dnst);
+        @lst_args.push($arg_lst);
     }
 
     # Build op call.
-    #pir::say("name is $name; type is $type; dnst_arg count is " ~ +@dnst_args);
+    #pir::say("name is $name; type is $type; lst_arg count is " ~ +@lst_args);
     my $call := LST::MethodCall.new(
         :on('Ops'), :name($name),
         :type(vm_type_for($type)),
-        TC(), |@dnst_args
+        TC(), |@lst_args
     );
 
     # We may need to auto-box it.
@@ -1910,14 +1909,14 @@ sub emit_op($name, *@args) {
 }
 
 sub emit_call($on, $name, $type, *@args) {
-    my @dnst_args;
+    my @lst_args;
     for @args {
-        @dnst_args.push(dnst_for($_))
+        @lst_args.push(lst_for($_))
     }
     LST::MethodCall.new(
         :on($on), :name($name),
         :type($type),
-        |@dnst_args
+        |@lst_args
     )
 }
 

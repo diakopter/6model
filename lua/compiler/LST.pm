@@ -1,6 +1,6 @@
-# The Dotnet Syntax Tree set of nodes is designed to represent fundamental
-# .Net concepts. This allows most of a PAST compiler for .Net to be
-# written and used to generate C# for now, but later we can generate IL.
+# The Lua Syntax Tree set of nodes is designed to represent fundamental
+# .Net concepts. This allows most of a PAST compiler for Lua to be
+# written and used to generate Lua for now.
 # A tree must have the form:
 # 
 #    LST::CompilationUnit
@@ -495,7 +495,7 @@ class LST::Local is LST::Node {
     }
 
     method isdecl($set?) {
-        if $set { $!isdecl := $set }
+        if pir::defined($set) { $!isdecl := $set }
         $!isdecl
     }
 

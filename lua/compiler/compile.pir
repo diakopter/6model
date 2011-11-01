@@ -5,9 +5,9 @@
 
 .include 'gen_grammar.pir'
 .include 'gen_actions.pir'
-.include 'gen_dnst.pir'
-.include 'gen_past2dnst.pir'
-.include 'gen_dnst2csharp.pir'
+.include 'gen_lst.pir'
+.include 'gen_past2lst.pir'
+.include 'gen_lst2lua.pir'
 .loadlib 'io_ops'
 #.include 'gen_nqpoptimizer.pir'
 
@@ -29,12 +29,12 @@
     $P1 = 1
   not_ncl:
     
-    .local pmc g, a, opt, pastcomp, dnstcomp
+    .local pmc g, a, opt, pastcomp, lstcomp
     g = get_hll_global ['JnthnNQP'], 'Grammar'
     a = get_hll_global ['JnthnNQP'], 'Actions'
 #    opt = get_hll_global 'NQPOptimizer'
-    pastcomp = get_hll_global 'PAST2DNSTCompiler'
-    dnstcomp = get_hll_global 'DNST2CSharpCompiler'
+    pastcomp = get_hll_global 'PAST2LSTCompiler'
+    lstcomp = get_hll_global 'LST2LuaCompiler'
     
     .local string filename, file
     .local pmc fh
@@ -44,11 +44,11 @@
     file = fh.'readall'()
     fh.'close'()
     
-    .local pmc match, ast, dnst, compiled
+    .local pmc match, ast, lst, compiled
     match = g.'parse'(file, 'actions'=>a)
     ast = match.'ast'()
 #    opt.'optimize'(ast)
-    dnst = pastcomp.'compile'(ast)
-    compiled = dnstcomp.'compile'(dnst)
+    lst = pastcomp.'compile'(ast)
+    compiled = lstcomp.'compile'(lst)
     say compiled
 .end

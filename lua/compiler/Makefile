@@ -1,11 +1,12 @@
-# This works provided you have a parrot-nqp and csc somewhere in your path.
+# This works provided you have a parrot-nqp and luajit (or lua) somewhere in your path.
 
 CAT = perl -MExtUtils::Command -e cat
 CP = perl -MExtUtils::Command -e cp
 RM_RF = perl -MExtUtils::Command -e rm_f
 RT_SRC = ../runtime/*.lua ../runtime/Metamodel/*.lua ../runtime/Metamodel/KnowHOW/*.lua  ../runtime/Metamodel/Representations/*.lua ../runtime/Runtime/*.lua ../runtime/Runtime/Exceptions/*.lua ../runtime/Runtime/MultiDispatch/*.lua ../runtime/Runtime/Ops/*.lua ../runtime/Runtime/Signatures/*.lua
+LUA = luajit
 
-all: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_dnst.pir gen_past2dnst.pir gen_dnst2csharp.pir NQPSetting.dll P6Objects.dll
+all: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir NQPSetting.lua P6Objects.lua
 
 gen_actions.pir: Actions.pm
 	parrot-nqp --target=pir Actions.pm > gen_actions.pir
@@ -19,7 +20,7 @@ gen_nqpoptimizer.pir: NQPOptimizer.pm
 gen_lst.pir: LST.pm
 	parrot-nqp --target=pir LST.pm > gen_lst.pir
 
-gen_past2lst.pir: PAST2DNSTCompiler.pm
+gen_past2lst.pir: PAST2LSTCompiler.pm
 	parrot-nqp --target=pir PAST2LSTCompiler.pm > gen_past2lst.pir
 
 gen_lst2lua.pir: LST2Lua.pm
@@ -28,7 +29,7 @@ gen_lst2lua.pir: LST2Lua.pm
 RakudoRuntime.lua: $(RT_SRC)
 	$(CAT) $(RT_SRC) > RakudoRuntime.lua
 
-NQPSetting.lua: ../../common/NQP/NQPSetting.pm RakudoRuntime.lua
+NQPSetting.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/NQPSetting.pm RakudoRuntime.lua
 	parrot compile.pir ../../common/NQP/NQPSetting.pm --setting > NQPSetting.lua
 
 P6Objects.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/P6Objects.pm NQPSetting.lua
