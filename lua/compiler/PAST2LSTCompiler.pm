@@ -111,7 +111,7 @@ method compile(PAST::Node $node) {
             LST::MethodCall.new(
                 :on('StaticBlockInfo[1].StaticLexPad'), :name('SetByName'), :void(1), :type('RakudoObject'),
                 LST::Literal.new( :value('NQPStr'), :escape(1) ),
-                'REPRRegistry.get_REPR_by_name("P6str").type_object_for(null, null)'
+                'REPRRegistry.get_REPR_by_name("P6str"):type_object_for(nil, nil)'
             ),
 
             # We do the loadinit calls before building the constants, as we
@@ -266,7 +266,7 @@ sub make_constants_init_method($name) {
 # Quick hack so we can get unique (for this compilation) IDs.
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
-    if ($prefix eq 'result' || $prefix eq 'inv' || $prefix eq 'callee' || $prefix eq 'list' || $prefix eq 'if_cond' || $prefix eq 'if_result' || $prefix eq 'new' || $prefix eq 'viv_attr' || $prefix eq 'expr_result' || $prefix eq 'if_result' || $prefix eq 'expr_result_negated') {
+    if ($prefix ne 'block') {
         return 'locals[' ~ $*CUR_ID ~ ']';
     }
     return $prefix ~ '_' ~ $*CUR_ID;

@@ -9,7 +9,7 @@ method compile(LST::Node $node) {
 # Quick hack so we can get unique (for this compilation) IDs.
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
-    if ($prefix eq 'result' || $prefix eq 'inv' || $prefix eq 'callee' || $prefix eq 'list' || $prefix eq 'try_result' || $prefix eq 'new' || $prefix eq 'viv_attr' || $prefix eq 'expr_result' || $prefix eq 'if_result' || $prefix eq 'expr_result_negated') {
+    if ($prefix ne 'block') {
         return 'locals[' ~ $*CUR_ID ~ ']';
     }
     return $prefix ~ '_' ~ $*CUR_ID;

@@ -12,5 +12,6 @@ java/compiler/x.*
 java/compiler/NQPSetting.*
 java/compiler/RakudoOutput.*
 lua/compiler/*.lua
+lua/compiler/*.lbc
 lua/compiler/*.dll
 lua/compiler/icu
