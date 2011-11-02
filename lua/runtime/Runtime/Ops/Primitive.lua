@@ -39,11 +39,11 @@ function Ops.div_num(TC, x, y)
 end
 
 function Ops.bitwise_or_int(TC, x, y)
-    return Ops.box_int(TC, bor(Ops.unbox_int(TC, x), Ops.unbox_int(TC, y)), TC.DefaultIntBoxType);
+    return Ops.box_int(TC, bit.bor(Ops.unbox_int(TC, x), Ops.unbox_int(TC, y)), TC.DefaultIntBoxType);
 end
 
 function Ops.bitwise_and_int(TC, x, y)
-    return Ops.box_int(TC, band(Ops.unbox_int(TC, x), Ops.unbox_int(TC, y)), TC.DefaultIntBoxType);
+    return Ops.box_int(TC, bit.band(Ops.unbox_int(TC, x), Ops.unbox_int(TC, y)), TC.DefaultIntBoxType);
 end
 
 -- skip num bitwise

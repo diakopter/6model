@@ -5,7 +5,12 @@ CaptureHelper.FLATTEN_NAMED = 2;
 
 function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
     local C = CaptureHelper.CaptureTypeObject.STable.REPR:instance_of(nil, CaptureHelper.CaptureTypeObject);
-    if PosArgs ~= nil then C.Positionals = PosArgs end;
+    if PosArgs ~= nil then
+        C.Positionals = List.new();
+        for k,v in ipairs(PosArgs) do
+            C.Positionals:Add(v);
+        end
+    end;
     if NamedArgs ~= nil then C.Nameds = NamedArgs end;
     if FlattenSpec ~= nil then C.FlattenSpec = FlattenSpec; end;
     return C;

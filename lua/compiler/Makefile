@@ -6,7 +6,7 @@ RM_RF = perl -MExtUtils::Command -e rm_f
 RT_SRC = ../runtime/*.lua ../runtime/Metamodel/*.lua ../runtime/Metamodel/KnowHOW/*.lua  ../runtime/Metamodel/Representations/*.lua ../runtime/Runtime/*.lua ../runtime/Runtime/Exceptions/*.lua ../runtime/Runtime/MultiDispatch/*.lua ../runtime/Runtime/Ops/*.lua ../runtime/Runtime/Signatures/*.lua
 LUA = luajit
 
-all: P6Objects.lbc
+all: RakudoRuntime.lbc NQPSetting.lbc P6Objects.lbc
 
 gen_actions.pir: Actions.pm
 	parrot-nqp --target=pir Actions.pm > gen_actions.pir
@@ -32,13 +32,13 @@ RakudoRuntime.lua: $(RT_SRC)
 RakudoRuntime.lbc:	RakudoRuntime.lua
 	luajit -b RakudoRuntime.lua RakudoRuntime.lbc
 
-NQPSetting.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/NQPSetting.pm RakudoRuntime.lbc
+NQPSetting.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/NQPSetting.pm
 	parrot compile.pir ../../common/NQP/NQPSetting.pm --setting > NQPSetting.lua
 
 NQPSetting.lbc:	NQPSetting.lua
 	luajit -b NQPSetting.lua NQPSetting.lbc
 
-P6Objects.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/P6Objects.pm NQPSetting.lbc
+P6Objects.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/P6Objects.pm
 	parrot compile.pir ../../common/NQP/P6Objects.pm --no-core-libs > P6Objects.lua
 
 P6Objects.lbc:	P6Objects.lua

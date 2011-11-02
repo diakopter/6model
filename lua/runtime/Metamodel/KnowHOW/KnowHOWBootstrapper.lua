@@ -111,13 +111,13 @@ function KnowHOWBootstrapper.SetupKnowHOWAttribute (KnowHOW)
 
     HOW.Methods.new = CodeObjectUtility.WrapNativeMethod(
         function (TC, Code, Cap)
-            local WHAT = CaptureHelper.GetPositional(Cap, 2).STable.WHAT;
+            local WHAT = CaptureHelper.GetPositional(Cap, 1).STable.WHAT;
             local Name = Ops.unbox_str(TC, CaptureHelper.GetNamed(Cap, "name"));
             return Ops.box_str(TC, Name, WHAT);
         end);
     HOW.Methods.name = CodeObjectUtility.WrapNativeMethod(
         function (TC, Code, Cap)
-            local self = CaptureHelper.GetPositional(Cap, 2);
+            local self = CaptureHelper.GetPositional(Cap, 1);
             return Ops.box_str(TC, Ops.unbox_str(TC, self), TC.DefaultStrBoxType);
         end);
 

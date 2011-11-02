@@ -3,18 +3,21 @@ function makeSignature ()
     local mt = { __index = Signature };
     function Signature.new(Parameters)
         local this = {};
-        this.Parameters = Parameters;
+        this.Parameters = List.new();
+        for k,v in ipairs(Parameters) do
+            this.Parameters:Add(v);
+        end
         this.NumRequiredPositionals = 0;
         this.NumPositionals = 0;
         
-        for i = 1, Parameters.Count do
-            if (Parameters[i].Flags == Parameter.POS_FLAG) then
+        for i = 1, this.Parameters.Count do
+            if (this.Parameters[i].Flags == Parameter.POS_FLAG) then
                 this.NumRequiredPositionals = this.NumRequiredPositionals + 1;
                 this.NumPositionals = this.NumPositionals + 1;
             elseif (Parameters[i].Flags == Parameter.OPTIONAL_FLAG) then
                 this.NumPositionals = this.NumPositionals + 1;
             else
-                i = Parameters.Count + 1; -- fake break
+                i = this.Parameters.Count + 1; -- fake break
             end
         end
         return setmetatable(this, mt);

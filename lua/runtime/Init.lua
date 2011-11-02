@@ -124,7 +124,7 @@ function makeInit ()
                 end
                 return CaptureHelper.Nil();
             end));
-        SettingContext.LexPad.SetByName("say",
+        SettingContext.LexPad:SetByName("say",
         CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
                 for i = 1, CaptureHelper.NumPositionals(C) do
                     local Value = CaptureHelper.GetPositional(C, i);

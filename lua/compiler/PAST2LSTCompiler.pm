@@ -526,7 +526,7 @@ sub compile_signature(@params) {
 
         # Flags.
         $param.push(
-            $_.viviself && $_.named ?? 'bor(Parameter.OPTIONAL_FLAG, Parameter.NAMED_FLAG)' !!
+            $_.viviself && $_.named ?? 'bit.bor(Parameter.OPTIONAL_FLAG, Parameter.NAMED_FLAG)' !!
             $_.viviself             ?? 'Parameter.OPTIONAL_FLAG'                        !!
             $_.slurpy && $_.named   ?? 'Parameter.NAMED_SLURPY_FLAG'                    !!
             $_.slurpy               ?? 'Parameter.POS_SLURPY_FLAG'                      !!
