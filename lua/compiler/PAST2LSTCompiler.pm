@@ -128,7 +128,7 @@ method compile(PAST::Node $node) {
         my @params;
         @params.push('TC');
         $class.push(LST::Method.new(
-            :name('Init'),
+            :name('Initialize'),
             :params(@params),
             :return_type('void'),
             LST::Call.new( :name('blocks_init'), :void(1), TC() ),
@@ -146,7 +146,7 @@ method compile(PAST::Node $node) {
                     LST::Literal.new( :value('NQPSetting'), :escape(1) )
                 )
             ),
-            LST::Call.new( :name('Init'), :void(1), TC() ),
+            LST::Call.new( :name('Initialize'), :void(1), TC() ),
             $main_block_call
         ));
 
@@ -155,7 +155,7 @@ method compile(PAST::Node $node) {
             :name('Load'),
             :params('TC', 'Setting'),
             :return_type('RakudoObject'),
-            LST::Call.new( :name('Init'), :void(1), TC() ),
+            LST::Call.new( :name('Initialize'), :void(1), TC() ),
             $main_block_call
         ));
     }
@@ -477,7 +477,7 @@ our multi sub lst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('STable:Invoke'), :type('RakudoObject'),
+            :name('STable.Invoke'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
@@ -595,7 +595,7 @@ our multi sub lst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('STable:Invoke'), :type('RakudoObject'),
+                :name('STable.Invoke'), :type('RakudoObject'),
                 $callee,
                 TC(),
                 $callee.name,
@@ -622,7 +622,7 @@ our multi sub lst_for(PAST::Op $op) {
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('STable:Invoke'), :type('RakudoObject'),
+            :name('STable.Invoke'), :type('RakudoObject'),
             $callee,
             TC(),
             $callee.name,

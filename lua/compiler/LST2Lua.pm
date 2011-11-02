@@ -34,15 +34,11 @@ our multi sub cs_for(LST::Using $using) {
 }
 
 our multi sub cs_for(LST::Class $class) {
-    my $code := '';
-    #if $class.namespace {
-    #    $code := $code ~ 'namespace ' ~ $class.namespace ~ " \{\n";
-    #}
-    $code := $code ~ $class.name ~ "= (function ()\n";
+    my $code := "return (function ()\n";
     for @($class) {
         $code := $code ~ cs_for($_);
     }
-    $code := $code ~ "return Main or LoadSetting;\nend)();\n";
+    $code := $code ~ "return LoadSetting or Main;\nend)()();\n";
     #if $class.namespace {
     #    $code := $code ~ "}\n";
     #}
@@ -140,7 +136,7 @@ our multi sub cs_for(LST::MethodCall $mc) {
         my $method_name := $invocant ~ '.' ~ $mc.name;
         $code := $code ~ "$*LAST_TEMP = ";
     }
-    $code := $code ~ "$invocant" ~ (($mc.name ~~ /":"/ || $invocant eq "Ops" || $invocant eq "SignatureBinder" || $invocant eq "CaptureHelper" || $invocant eq "CodeObjectUtility" || $invocant eq "Init") ?? "." !! ":") ~ $mc.name ~
+    $code := $code ~ "$invocant" ~ (($mc.name eq 'STable.Invoke' || $mc.name ~~ /":"/ || $invocant eq "Ops" || $invocant eq "SignatureBinder" || $invocant eq "CaptureHelper" || $invocant eq "CodeObjectUtility" || $invocant eq "Init") ?? "." !! ":") ~ $mc.name ~
         "(" ~ pir::join(', ', @arg_names) ~ ");\n";
     return $code;
 }

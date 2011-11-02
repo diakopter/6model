@@ -73,8 +73,8 @@ function makeInit ()
     end
     
     function Init.BootstrapSetting(KnowHOW, KnowHOWAttribute)
-        local SettingContext = Context.new();
-        SettingContext.LexPad = new Lexpad(
+        local SettingContext = Context.newplain();
+        SettingContext.LexPad = Lexpad.new(
             { "KnowHOW", "KnowHOWAttribute", "capture", "NQPInt", "NQPNum", "NQPStr", "NQPList", "NQPCode", "list", "NQPArray", "NQPHash" });
         SettingContext.LexPad.Storage = 
             {
@@ -85,10 +85,10 @@ function makeInit ()
                 REPRRegistry.get_REPR_by_name("P6num"):type_object_for(nil, nil),
                 REPRRegistry.get_REPR_by_name("P6str"):type_object_for(nil, nil),
                 REPRRegistry.get_REPR_by_name("P6list"):type_object_for(nil, nil),
-                REPRRegistry.get_REPR_by_name("RakudoCodeRef"):type_object_for(nil, KnowHOW.STable.REPR.instance_of(nil, KnowHOW)),
+                REPRRegistry.get_REPR_by_name("RakudoCodeRef"):type_object_for(nil, KnowHOW.STable.REPR:instance_of(nil, KnowHOW)),
                 CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
                     local NQPList = Ops.get_lex(TC, "NQPList");
-                    local List = NQPList.STable.REPR.instance_of(TC, NQPList);
+                    local List = NQPList.STable.REPR:instance_of(TC, NQPList);
                     local NativeCapture = C;
                     for unused, Obj in ipairs(NativeCapture.Positionals) do
                         List.Storage:Add(Obj);
@@ -103,9 +103,9 @@ function makeInit ()
     
     function Init.LoadSetting(Name, KnowHOW, KnowHOWAttribute)
         local success, SettingContext;
-        success, SettingContext = pcall(function ()
-            dofile(Name .. '.lbc')
-        end);
+        --success, SettingContext = pcall(function ()
+        --    dofile(Name .. '.lbc')
+        --end);
         if not success then
             SettingContext = dofile(Name .. '.lua');
         end

@@ -1,6 +1,10 @@
 function makeContext ()
     local Context = {};
     local mt = { __index = Context };
+    function Context.newplain()
+        local this = {};
+        return setmetatable(this, mt);
+    end
     function Context.new(StaticCodeObject, Caller, Capture)
         local this = {};
         this.StaticCodeObject = StaticCodeObject;
@@ -26,7 +30,7 @@ function makeContext ()
                     break;
                 end
                 
-                local OuterContext = Context.new();
+                local OuterContext = Context.newplain();
                 OuterContext.StaticCodeObject = OuterBlock;
                 OuterContext.LexPad = OuterBlock.StaticLexPad;
                 CurContext.Outer = OuterContext;
