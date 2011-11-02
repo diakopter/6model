@@ -1,7 +1,7 @@
 
-function makeKnowHowREPR ()
-    local KnowHowREPR = {};
-    local mt = { __index = KnowHowREPR };
+function makeKnowHOWREPR ()
+    local KnowHOWREPR = {};
+    local mt = { __index = KnowHOWREPR };
     
     local makeInstance = function ()
         local Instance = {};
@@ -9,37 +9,39 @@ function makeKnowHowREPR ()
         function Instance.new(STable)
             local instance = {};
             instance.STable = STable;
+            instance.class = "KnowHOWREPR";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     
-    function KnowHowREPR.new()
+    function KnowHOWREPR.new()
         return setmetatable({}, mt);
     end
-    function KnowHowREPR:type_object_for(TC, MetaPackage)
+    function KnowHOWREPR:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();
         STable.HOW = MetaPackage;
         STable.REPR = self;
         STable.WHAT = Instance.new(STable);
         return STable.WHAT;
     end
-    function KnowHowREPR:instance_of(TC, WHAT)
+    function KnowHOWREPR:instance_of(TC, WHAT)
         local Object = Instance.new(WHAT.STable);
         Object.Methods = {};
         Object.Attributes = List.new();
         return Object;
     end
-    function KnowHowREPR:defined(TC, Obj)
+    function KnowHOWREPR:defined(TC, Obj)
         if (Obj.Methods ~= nil) then
             return true;
         else
             return false;
         end
     end
-    function KnowHowREPR:hint_for(TC, ClassHandle, Name)
+    function KnowHOWREPR:hint_for(TC, ClassHandle, Name)
         return Hints.NO_Hint;
     end
-    return KnowHowREPR;
+    return KnowHOWREPR;
 end
-KnowHowREPR = makeKnowHowREPR();
+KnowHOWREPR = makeKnowHOWREPR();

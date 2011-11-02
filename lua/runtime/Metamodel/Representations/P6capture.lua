@@ -9,8 +9,10 @@ function makeP6capture ()
         function Instance.new(STable)
             local instance = {};
             instance.STable = STable;
+            instance.class = "P6capture";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     

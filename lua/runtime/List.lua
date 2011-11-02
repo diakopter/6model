@@ -18,9 +18,16 @@ function makeList ()
             error("Cannot pop from an empty list");
         end
         local item = self[idx];
-        self[idx] = nil;
+        table.remove(self, idx);
         self.Count = self.Count - 1;
         return item;
+    end
+    function List:Peek()
+        local idx = self.Count;
+        if (idx < 1) then
+            error("Cannot peek into an empty list");
+        end
+        return self[idx];
     end
     function List:Truncate(length)
         local count = self.Count;

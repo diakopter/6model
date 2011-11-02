@@ -42,5 +42,6 @@ function makeSharedTable ()
             return Meth.STable.Invoke(TC, Meth, Cap);
         end
     end
+    return SharedTable;
 end
 SharedTable = makeSharedTable();

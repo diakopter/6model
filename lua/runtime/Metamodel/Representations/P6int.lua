@@ -12,8 +12,10 @@ function makeP6int ()
             instance.STable = STable;
             instance.Undefined = false;
             instance.Value = 0;
+            instance.class = "P6int";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     

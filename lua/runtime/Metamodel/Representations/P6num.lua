@@ -12,8 +12,10 @@ function makeP6num ()
             instance.STable = STable;
             instance.Undefined = false;
             instance.Value = 0.0;
+            instance.class = "P6num";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     

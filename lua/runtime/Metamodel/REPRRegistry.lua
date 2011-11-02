@@ -8,15 +8,15 @@ function makeREPRRegistry ()
         return setmetatable({}, mt);
     end
     function REPRRegistry.register_REPR(Name, REPR)
-        Registry.Add(REPR);
+        Registry:Add(REPR);
         local ID = Registry.Count + 1;
-        NamedToIDMapper.Add(Name, ID);
+        NamedToIDMapper:Add(Name, ID);
         return ID;
     end
-    function get_REPR_by_id(ID)
+    function REPRRegistry.get_REPR_by_id(ID)
         return Registry[ID];
     end
-    function get_REPR_by_name(Name)
+    function REPRRegistry.get_REPR_by_name(Name)
         return Registry[NamedToIDMapper[Name]];
     end
     return REPRRegistry;

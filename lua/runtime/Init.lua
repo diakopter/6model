@@ -71,7 +71,75 @@ function makeInit ()
         REPRS_Registered = true;
         end
     end
-
+    
+    function Init.BootstrapSetting(KnowHOW, KnowHOWAttribute)
+        local SettingContext = Context.new();
+        SettingContext.LexPad = new Lexpad(
+            { "KnowHOW", "KnowHOWAttribute", "capture", "NQPInt", "NQPNum", "NQPStr", "NQPList", "NQPCode", "list", "NQPArray", "NQPHash" });
+        SettingContext.LexPad.Storage = 
+            {
+                KnowHOW,
+                KnowHOWAttribute,
+                REPRRegistry.get_REPR_by_name("P6capture"):type_object_for(nil, nil),
+                REPRRegistry.get_REPR_by_name("P6int"):type_object_for(nil, nil),
+                REPRRegistry.get_REPR_by_name("P6num"):type_object_for(nil, nil),
+                REPRRegistry.get_REPR_by_name("P6str"):type_object_for(nil, nil),
+                REPRRegistry.get_REPR_by_name("P6list"):type_object_for(nil, nil),
+                REPRRegistry.get_REPR_by_name("RakudoCodeRef"):type_object_for(nil, KnowHOW.STable.REPR.instance_of(nil, KnowHOW)),
+                CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
+                    local NQPList = Ops.get_lex(TC, "NQPList");
+                    local List = NQPList.STable.REPR.instance_of(TC, NQPList);
+                    local NativeCapture = C;
+                    for unused, Obj in ipairs(NativeCapture.Positionals) do
+                        List.Storage:Add(Obj);
+                    end
+                    return List;
+                end),
+                nil,
+                nil
+            };
+        return SettingContext;
+    end
+    
+    function Init.LoadSetting(Name, KnowHOW, KnowHOWAttribute)
+        local success, SettingContext;
+        success, SettingContext = pcall(function ()
+            dofile(Name .. '.lbc')
+        end);
+        if not success then
+            SettingContext = dofile(Name .. '.lua');
+        end
+        SettingContext.LexPad:Extend(
+            { "KnowHOW", "KnowHOWAttribute", "print", "say", "capture" });
+        SettingContext.LexPad:SetByName("KnowHOW", KnowHOW);
+        SettingContext.LexPad:SetByName("KnowHOWAttribute", KnowHOWAttribute);
+        SettingContext.LexPad:SetByName("print",
+        CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
+                for i = 1, CaptureHelper.NumPositionals(C) do
+                    local Value = CaptureHelper.GetPositional(C, i);
+                    local StrMeth = self.STable:FindMethod(TC, Value, "Str", 0);
+                    local StrVal = StrMeth.STable:Invoke(TC, StrMeth,
+                        CaptureHelper.FormWith( { Value }));
+                    io.write(Ops.unbox_str(nil, StrVal));
+                end
+                return CaptureHelper.Nil();
+            end));
+        SettingContext.LexPad.SetByName("say",
+        CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
+                for i = 1, CaptureHelper.NumPositionals(C) do
+                    local Value = CaptureHelper.GetPositional(C, i);
+                    local StrMeth = self.STable:FindMethod(TC, Value, "Str", 0);
+                    local StrVal = StrMeth.STable:Invoke(TC, StrMeth,
+                        CaptureHelper.FormWith( { Value }));
+                    io.write(Ops.unbox_str(nil, StrVal), "\n");
+                end
+                return CaptureHelper.Nil();
+            end));
+        SettingContext.LexPad:SetByName("capture", REPRRegistry.get_REPR_by_name("P6capture"):type_object_for(nil, nil));
+        
+        return SettingContext;
+    end
+    
     return Init;
 end
 Init = makeInit();

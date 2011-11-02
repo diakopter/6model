@@ -142,7 +142,7 @@ method compile(PAST::Node $node) {
             :return_type('void'),
             LST::Local.new( :name('TC'), :isdecl(1), :type('ThreadContext'),
                 LST::MethodCall.new(
-                    :on('Rakudo.Init'), :name('Initialize'), :type('ThreadContext'),
+                    :on('Init'), :name('Initialize'), :type('ThreadContext'),
                     LST::Literal.new( :value('NQPSetting'), :escape(1) )
                 )
             ),

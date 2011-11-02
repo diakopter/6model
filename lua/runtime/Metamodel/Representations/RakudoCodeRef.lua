@@ -9,8 +9,10 @@ function makeRakudoCodeRef ()
         function Instance.new(STable)
             local instance = {};
             instance.STable = STable;
+            instance.class = "RakudoCodeRef";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     RakudoCodeRef.Instance = Instance;

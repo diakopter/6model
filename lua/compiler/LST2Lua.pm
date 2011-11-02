@@ -140,7 +140,7 @@ our multi sub cs_for(LST::MethodCall $mc) {
         my $method_name := $invocant ~ '.' ~ $mc.name;
         $code := $code ~ "$*LAST_TEMP = ";
     }
-    $code := $code ~ "$invocant" ~ (($mc.name ~~ /":"/ || $invocant eq "Ops" || $invocant eq "SignatureBinder" || $invocant eq "CaptureHelper" || $invocant eq "CodeObjectUtility" || $invocant eq "Init" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder" || $invocant eq "SignatureBinder") ?? "." !! ":") ~ $mc.name ~
+    $code := $code ~ "$invocant" ~ (($mc.name ~~ /":"/ || $invocant eq "Ops" || $invocant eq "SignatureBinder" || $invocant eq "CaptureHelper" || $invocant eq "CodeObjectUtility" || $invocant eq "Init") ?? "." !! ":") ~ $mc.name ~
         "(" ~ pir::join(', ', @arg_names) ~ ");\n";
     return $code;
 }

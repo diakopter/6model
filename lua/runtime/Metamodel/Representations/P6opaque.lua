@@ -10,8 +10,10 @@ function makeP6opaque ()
         function Instance.new(STable)
             local instance = {};
             instance.STable = STable;
+            instance.class = "P6opaque";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     

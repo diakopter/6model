@@ -9,8 +9,10 @@ function makeP6mapping ()
         function Instance.new(STable)
             local instance = {};
             instance.STable = STable;
+            instance.class = "P6mapping";
             return setmetatable(instance, mt);
         end
+        return Instance;
     end
     local Instance = makeInstance();
     
