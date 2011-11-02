@@ -25,7 +25,7 @@ function Ops.box_num (TC, Value, To)
 end
 
 
-function Ops.box_num (TC, Value, To)
+function Ops.box_str (TC, Value, To)
     if To ~= nil then
         local REPR = To.STable.REPR;
         local Result = REPR:instance_of(TC, To);

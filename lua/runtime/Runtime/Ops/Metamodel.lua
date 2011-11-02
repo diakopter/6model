@@ -48,7 +48,7 @@ function Ops.find_method_with_hint(TC, Object, Name, Hint)
 end
 
 function Ops.invoke(TC, Invokee, Capture)
-    return Invokee.STable.Invoke(TC, Invokee, Capture);
+    return Invokee.STable:Invoke(TC, Invokee, Capture);
 end
 
 function Ops.get_how(TC, Obj)

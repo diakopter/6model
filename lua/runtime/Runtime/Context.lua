@@ -13,7 +13,7 @@ function makeContext ()
         
         StaticCodeObject.CurrentContext = this;
         
-        this.LexPad = Lexpad.new();
+        this.LexPad = Lexpad.new({});
         this.LexPad.SlotMapping = StaticCodeObject.StaticLexPad.SlotMapping;
         this.LexPad.Storage = table_clone(StaticCodeObject.StaticLexPad.Storage);
         

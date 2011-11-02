@@ -43,7 +43,7 @@ function makeSignatureBinder()
                 if (CurPositional <= Positionals.Count) then
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
                 else
-                    C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable.Invoke(TC, Param.DefaultValue, Capture);
+                    C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable:Invoke(TC, Param.DefaultValue, Capture);
                 end
             elseif (band(Param.Flags, Parameter.NAMED_SLURPY_FLAG) ~= 0) then
                 local SlurpyHolder = TC.DefaultHashType.STable.REPR:instance_of(TC, TC.DefaultHashType);
@@ -75,7 +75,7 @@ function makeSignatureBinder()
                     if (band(Param.Flags, Parameter.OPTIONAL_FLAG) == 0) then
                         error("Required named parameter " .. Param.Name .. " missing");
                     else
-                        C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable.Invoke(TC, Param.DefaultValue, Capture);
+                        C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable:Invoke(TC, Param.DefaultValue, Capture);
                     end
                 end
             else

@@ -60,6 +60,10 @@ method compile(PAST::Node $node) {
     my $class := LST::Class.new(
         :name($*COMPILING_NQP_SETTING ?? 'NQPSetting' !! unique_name_for_module())
     );
+    
+    $class.push(LST::Attribute.new( :name('StaticBlockInfo'), :type('RakudoCodeRef.Instance[]') ));
+    $class.push(LST::Attribute.new( :name('ConstantsTable'), :type('RakudoObject[]') ));
+    
     for @*INNER_BLOCKS {
         $class.push($_);
     }
@@ -78,8 +82,6 @@ method compile(PAST::Node $node) {
     }
 
     # Also need to include setup of static block info.
-    $class.push(LST::Attribute.new( :name('StaticBlockInfo'), :type('RakudoCodeRef.Instance[]') ));
-    $class.push(LST::Attribute.new( :name('ConstantsTable'), :type('RakudoObject[]') ));
     $class.push(make_blocks_init_method('blocks_init'));
     $class.push(make_constants_init_method('constants_init'));
 
@@ -477,7 +479,7 @@ our multi sub lst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('STable.Invoke'), :type('RakudoObject'),
+            :name('STable:Invoke'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
@@ -595,7 +597,7 @@ our multi sub lst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('STable.Invoke'), :type('RakudoObject'),
+                :name('STable:Invoke'), :type('RakudoObject'),
                 $callee,
                 TC(),
                 $callee.name,
@@ -622,7 +624,7 @@ our multi sub lst_for(PAST::Op $op) {
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('STable.Invoke'), :type('RakudoObject'),
+            :name('STable:Invoke'), :type('RakudoObject'),
             $callee,
             TC(),
             $callee.name,
