@@ -9,7 +9,8 @@ function makeREPRRegistry ()
     end
     function REPRRegistry.register_REPR(Name, REPR)
         Registry:Add(REPR);
-        local ID = Registry.Count + 1;
+        REPR.class = Name;
+        local ID = Registry.Count;
         NamedToIDMapper:Add(Name, ID);
         return ID;
     end

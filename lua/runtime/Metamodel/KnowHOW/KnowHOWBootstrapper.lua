@@ -82,7 +82,7 @@ function KnowHOWBootstrapper.Bootstrap ()
     
     local KnowHOWHOW = REPR:instance_of(nil, KnowHOW);
     for key, value in pairs(KnowHOWMeths) do
-        KnowHOWHOW[key] = value;
+        KnowHOWHOW.Methods[key] = value;
     end
     
     local STableCopy = SharedTable.new();
