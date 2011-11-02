@@ -5,7 +5,7 @@ function makeParameter ()
         local this = {};
         this.Type = Type;
         this.VariableName = VariableName;
-        this.VariableLexpadPosition = VariableLexpadPosition;
+        this.VariableLexpadPosition = VariableLexpadPosition + 1; -- very evil hack :(
         this.Name = Name;
         this.DefaultValue = DefaultValue;
         this.Flags = Flags;
