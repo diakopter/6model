@@ -401,7 +401,7 @@ our multi sub cs_for(LST::XOR $ops) {
 
 our multi sub cs_for(LST::Throw $throw) {
     $*LAST_TEMP := 'nil';
-    return '        error(exc);';
+    return "        error(exc);\n";
 }
 
 our multi sub cs_for(String $s) {

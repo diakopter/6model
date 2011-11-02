@@ -7,7 +7,7 @@ function KnowHOWBootstrapper.Bootstrap ()
     local KnowHOWMeths = {};
     KnowHOWMeths.new_type = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            local KnowHOWTypeObj = CaptureHelper.GetPositional(Cap, 0);
+            local KnowHOWTypeObj = CaptureHelper.GetPositional(Cap, 1);
             local HOW = KnowHOWTypeObj.STable.REPR:instance_of(TC, KnowHOWTypeObj.STable.WHAT);
             
             local TypeName = CaptureHelper.GetNamed(Cap, "name");
@@ -22,24 +22,24 @@ function KnowHOWBootstrapper.Bootstrap ()
         end);
     KnowHOWMeths.add_attribute = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            local HOW = CaptureHelper.GetPositional(Cap, 0);
-            local Attr = CaptureHelper.GetPositional(Cap, 2);
+            local HOW = CaptureHelper.GetPositional(Cap, 1);
+            local Attr = CaptureHelper.GetPositional(Cap, 3);
             HOW.Attributes:Add(Attr);
             return CaptureHelper.Nil();
         end);
     KnowHOWMeths.add_method = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            local HOW = CaptureHelper.GetPositional(Cap, 0);
-            local Name = CaptureHelper.GetPositionalAsString(Cap, 2);
-            local Method = CaptureHelper.GetPositional(Cap, 3);
+            local HOW = CaptureHelper.GetPositional(Cap, 1);
+            local Name = CaptureHelper.GetPositionalAsString(Cap, 3);
+            local Method = CaptureHelper.GetPositional(Cap, 4);
             HOW.Methods[Name] = Method;
             return CaptureHelper.Nil();
         end);
     KnowHOWMeths.find_method = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
             local Positionals = Cap.Positionals;
-            local HOW = Positionals[0];
-            local name = Ops.unbox_str(TC, Positionals[2]);
+            local HOW = Positionals[1];
+            local name = Ops.unbox_str(TC, Positionals[3]);
             if (HOW.Methods[name] ~= nil) then
                 return HOW.Methods[name];
             else
@@ -48,11 +48,11 @@ function KnowHOWBootstrapper.Bootstrap ()
         end);
     KnowHOWMeths.compose = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            return CaptureHelper.GetPositional(Cap, 1);
+            return CaptureHelper.GetPositional(Cap, 2);
         end);
     KnowHOWMeths.attributes = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            local HOW = CaptureHelper.GetPositional(Cap, 0);
+            local HOW = CaptureHelper.GetPositional(Cap, 1);
             local ListType = KnowHOWBootstrapper.MostDefinedListType(TC);
             local Result = ListType.STable.REPR:instance_of(TC, ListType);
             Result.Storage = HOW.Attributes;
@@ -60,7 +60,7 @@ function KnowHOWBootstrapper.Bootstrap ()
         end);
     KnowHOWMeths.methods = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            local HOW = CaptureHelper.GetPositional(Cap, 0);
+            local HOW = CaptureHelper.GetPositional(Cap, 1);
             local ListType = KnowHOWBootstrapper.MostDefinedListType(TC);
             local Result = ListType.STable.REPR:instance_of(TC, ListType);
             for key, value in pairs(HOW.Methods) do
@@ -75,8 +75,8 @@ function KnowHOWBootstrapper.Bootstrap ()
         end);
     KnowHOWMeths.type_check = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            local self = CaptureHelper.GetPositional(Cap, 1);
-            local check = CaptureHelper.GetPositional(Cap, 2);
+            local self = CaptureHelper.GetPositional(Cap, 2);
+            local check = CaptureHelper.GetPositional(Cap, 3);
             return Ops.box_int(TC, self.STable.WHAT == check.STable.WHAT and 1 or 0, TC.DefaultBoolBoxType);
         end);
     
@@ -111,13 +111,13 @@ function KnowHOWBootstrapper.SetupKnowHOWAttribute (KnowHOW)
 
     HOW.Methods.new = CodeObjectUtility.WrapNativeMethod(
         function (TC, Code, Cap)
-            local WHAT = CaptureHelper.GetPositional(Cap, 1).STable.WHAT;
+            local WHAT = CaptureHelper.GetPositional(Cap, 2).STable.WHAT;
             local Name = Ops.unbox_str(TC, CaptureHelper.GetNamed(Cap, "name"));
             return Ops.box_str(TC, Name, WHAT);
         end);
     HOW.Methods.name = CodeObjectUtility.WrapNativeMethod(
         function (TC, Code, Cap)
-            local self = CaptureHelper.GetPositional(Cap, 1);
+            local self = CaptureHelper.GetPositional(Cap, 2);
             return Ops.box_str(TC, Ops.unbox_str(TC, self), TC.DefaultStrBoxType);
         end);
 

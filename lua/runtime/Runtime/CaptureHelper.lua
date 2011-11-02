@@ -13,7 +13,7 @@ end
 
 function CaptureHelper.GetPositional (Capture, Pos)
     local Possies = Capture.Positionals;
-    if (Possies ~= nil and Pos < Possies.Length) then
+    if (Possies ~= nil and Pos <= #Possies) then
         return Possies[Pos];
     else
         return nil;
