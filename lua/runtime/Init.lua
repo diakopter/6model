@@ -17,6 +17,17 @@ function table_clone (target)
     return dest;
 end
 
+function table_desc (target)
+    if (type(target) == "nil") then
+        print("table_desc target was nil");
+    elseif (type(target) ~= "table") then
+        print("table_desc target wasn't a table; it was a " .. type(target));
+    else
+        print("table_desc : " .. tostring(target));
+        for k,v in pairs(target) do print(k .. " : " .. tostring(v)) end
+    end
+end
+
 function makeInit ()
     local Init = {};
     -- mimic behavior of private static.

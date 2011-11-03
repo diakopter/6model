@@ -269,6 +269,7 @@ sub make_constants_init_method($name) {
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
     if ($prefix ne 'block') {
+        if ($prefix eq 'list_') { $*CUR_ID := $*CUR_ID + 1; } #workaround strange bug
         return 'locals[' ~ $*CUR_ID ~ ']';
     }
     return $prefix ~ '_' ~ $*CUR_ID;
