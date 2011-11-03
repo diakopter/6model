@@ -18,7 +18,9 @@ function makeP6hash ()
     local Instance = makeInstance();
     
     function P6hash.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "P6hashREPR";
+        return setmetatable(this, mt);
     end
     function P6hash:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

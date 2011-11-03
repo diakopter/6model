@@ -32,7 +32,7 @@ function makeSharedTable ()
             local HOW = Obj.STable.HOW;
             local Meth = Obj.STable.CachedFindMethod;
             if (Meth == nil) then
-                Meth = self.HOW.STable:FindMethod(
+                Meth = HOW.STable:FindMethod(
                     TC, HOW, "find_method", Hints.NO_HINT);
                 Obj.STable.CachedFindMethod = Meth;
             end
@@ -51,7 +51,7 @@ function makeSharedTable ()
         if (STable.CachedInvoke == nil) then
             STable.CachedInvoke = Obj.STable:FindMethod(TC, Obj, "postcircumfix:<( )>", Hints.NO_HINT);
         end
-        STable.CachedInvoke.STable:Invoke(TC, Obj, Cap);
+        return STable.CachedInvoke.STable:Invoke(TC, Obj, Cap);
     end
     
     function SharedTable:TypeCheck(TC, Obj, Checkee)

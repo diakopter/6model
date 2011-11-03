@@ -18,7 +18,9 @@ function makeRakudoCodeRef ()
     RakudoCodeRef.Instance = Instance;
     
     function RakudoCodeRef.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "RakudoCodeRefREPR";
+        return setmetatable(this, mt);
     end
     function RakudoCodeRef:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

@@ -17,7 +17,9 @@ function makeKnowHOWREPR ()
     local Instance = makeInstance();
     
     function KnowHOWREPR.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "KnowHOWREPR";
+        return setmetatable(this, mt);
     end
     function KnowHOWREPR:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

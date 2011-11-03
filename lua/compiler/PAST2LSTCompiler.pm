@@ -23,7 +23,7 @@ INIT {
 # Entry point for the compiler.
 method compile(PAST::Node $node) {
     # This tracks the unique IDs we generate in this compilation unit.
-    my $*CUR_ID := 0;
+    #my $*CUR_ID := 0;
 
     # The nested blocks, flattened out.
     my @*INNER_BLOCKS;
@@ -268,8 +268,8 @@ sub make_constants_init_method($name) {
 # Quick hack so we can get unique (for this compilation) IDs.
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
+    #pir::say("--  " ~ $prefix ~ "  " ~ $*CUR_ID);
     if ($prefix ne 'block') {
-        if ($prefix eq 'list_') { $*CUR_ID := $*CUR_ID + 1; } #workaround strange bug
         return 'locals[' ~ $*CUR_ID ~ ']';
     }
     return $prefix ~ '_' ~ $*CUR_ID;

@@ -20,7 +20,9 @@ function makeP6int ()
     local Instance = makeInstance();
     
     function P6int.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "P6intREPR";
+        return setmetatable(this, mt);
     end
     function P6int:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

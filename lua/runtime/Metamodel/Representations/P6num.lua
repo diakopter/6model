@@ -20,7 +20,9 @@ function makeP6num ()
     local Instance = makeInstance();
     
     function P6num.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "P6numREPR";
+        return setmetatable(this, mt);
     end
     function P6num:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

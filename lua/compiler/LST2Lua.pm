@@ -2,13 +2,14 @@
 class LST2LuaCompiler;
 
 method compile(LST::Node $node) {
-    my $*CUR_ID := 0;
+    #my $*CUR_ID := 0;
     return cs_for($node);
 }
 
 # Quick hack so we can get unique (for this compilation) IDs.
 sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
+    #pir::say("--  " ~ $prefix ~ "  " ~ $*CUR_ID);
     if ($prefix ne 'block') {
         return 'locals[' ~ $*CUR_ID ~ ']';
     }

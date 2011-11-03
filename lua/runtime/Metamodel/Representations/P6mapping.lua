@@ -17,7 +17,9 @@ function makeP6mapping ()
     local Instance = makeInstance();
     
     function P6mapping.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "P6mappingREPR";
+        return setmetatable(this, mt);
     end
     function P6mapping:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

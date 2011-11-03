@@ -18,7 +18,9 @@ function makeP6str ()
     local Instance = makeInstance();
     
     function P6str.new()
-        return setmetatable({}, mt);
+        local this = {};
+        this.class = "P6strREPR";
+        return setmetatable(this, mt);
     end
     function P6str:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();

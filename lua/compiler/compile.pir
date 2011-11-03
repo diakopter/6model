@@ -48,6 +48,8 @@
     match = g.'parse'(file, 'actions'=>a)
     ast = match.'ast'()
 #    opt.'optimize'(ast)
+    $P2 = box 0
+    .lex '$*CUR_ID', $P2
     lst = pastcomp.'compile'(ast)
     compiled = lstcomp.'compile'(lst)
     say compiled
