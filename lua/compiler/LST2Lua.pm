@@ -13,7 +13,7 @@ sub get_unique_id($prefix) {
     if ($prefix ne 'block') {
         return 'locals[' ~ $*CUR_ID ~ ']';
     }
-    return $prefix ~ '_' ~ $*CUR_ID;
+    return 'blocks[' ~ $*CUR_ID ~ ']';
 }
 
 our multi sub cs_for(LST::CompilationUnit $node) {
@@ -54,9 +54,7 @@ our multi sub cs_for(LST::Method $meth) {
     my $*LAST_TEMP := '';
 
     # Method header.
-    my $code := '    function ' ~
-        #$meth.return_type ~ ' ' ~ 
-        $meth.name ~ '(' ~
+    my $code := '    ' ~ ($meth.name ~~ /\[/ ?? "" !! "local ") ~ $meth.name ~ ' = function (' ~
         pir::join(', ', $meth.params) ~
         ")\n           local locals = \{\};\n";
 
@@ -69,7 +67,7 @@ our multi sub cs_for(LST::Method $meth) {
     unless $meth.return_type eq 'void' {
         $code := $code ~ "        return $*LAST_TEMP;\n";
     }
-    return $code ~ "    end\n\n";
+    return $code ~ "    end;\n\n";
 }
 
 our multi sub cs_for(LST::Stmts $stmts) {
@@ -289,7 +287,7 @@ our multi sub cs_for(LST::Local $loc) {
             pir::die('LST::Local with isdecl requires type');
         }
         $code := cs_for((@($loc))[0]);
-        $code := $code ~ '        ' ~ $loc.name ~ " = $*LAST_TEMP;\n";
+        $code := $code ~ '        ' ~ ($loc.name eq 'type_obj' || $loc.name eq 'TC' ?? 'local ' ~ $loc.name !! $loc.name) ~ " = $*LAST_TEMP;\n";
     } elsif +@($loc) != 0 {
         pir::die('A LST::Local without isdecl set must have no children')
     }

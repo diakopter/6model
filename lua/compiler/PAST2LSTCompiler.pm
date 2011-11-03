@@ -63,6 +63,7 @@ method compile(PAST::Node $node) {
     
     $class.push(LST::Attribute.new( :name('StaticBlockInfo'), :type('RakudoCodeRef.Instance[]') ));
     $class.push(LST::Attribute.new( :name('ConstantsTable'), :type('RakudoObject[]') ));
+    $class.push(LST::Attribute.new( :name('blocks = {}'), :type('RakudoObject[]') ));
     
     for @*INNER_BLOCKS {
         $class.push($_);
@@ -272,7 +273,7 @@ sub get_unique_id($prefix) {
     if ($prefix ne 'block') {
         return 'locals[' ~ $*CUR_ID ~ ']';
     }
-    return $prefix ~ '_' ~ $*CUR_ID;
+    return 'blocks[' ~ $*CUR_ID ~ ']';
 }
 
 # Compiles a block.
