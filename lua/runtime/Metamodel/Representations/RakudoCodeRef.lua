@@ -26,7 +26,7 @@ function makeRakudoCodeRef ()
         STable.REPR = self;
         STable.WHAT = Instance.new(STable);
         STable.SpecialInvoke = function (TCi, Obj, Cap)
-            Obj.Body(TCi, Obj, Cap);
+            return Obj.Body(TCi, Obj, Cap);
         end;
         return STable.WHAT;
     end

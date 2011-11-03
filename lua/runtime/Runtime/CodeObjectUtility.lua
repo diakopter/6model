@@ -6,10 +6,11 @@ function CodeObjectUtility.WrapNativeMethod (Code)
     return Wrapper;
 end
 
-function CodeObjectUtility.BuildStaticBlockInfo (Code, Outer, LexNames)
+function CodeObjectUtility.BuildStaticBlockInfo (Code, Outer, LexNames, BlockName)
     local Result = CodeObjectUtility.LLCodeTypeObject.STable.REPR:instance_of(nil, CodeObjectUtility.LLCodeTypeObject);
     Result.Body = Code;
     Result.OuterBlock = Outer;
+    Result.BlockName = BlockName;
     Result.StaticLexPad = Lexpad.new(LexNames);
     return Result;
 end

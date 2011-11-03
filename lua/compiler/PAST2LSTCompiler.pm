@@ -454,7 +454,9 @@ our multi sub lst_for(PAST::Block $block) {
         $lex_setup.push(LST::Literal.new( :value($_), :escape(1) ));
     }
     $our_sbi_setup.push($lex_setup);
-
+    $our_sbi_setup.push(LST::Literal.new(
+            :value('"' ~ $result.name ~ '"')
+    ));
     # Add handlers.
     if +@*HANDLERS {
         my $handler_node := LST::ArrayLiteral.new( :type('Exceptions.Handler') );
