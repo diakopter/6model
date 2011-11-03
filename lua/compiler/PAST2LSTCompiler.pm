@@ -230,7 +230,7 @@ sub make_constants_init_method($name) {
 
         # Fake up a context with the outer being the main block.
         LST::Local.new(
-            :name('C'), :isdecl(1), :type('Context'),
+            :name('local C'), :isdecl(1), :type('Context'),
             LST::New.new(
                 :type('Context'),
                 LST::MethodCall.new(
@@ -384,7 +384,7 @@ our multi sub lst_for(PAST::Block $block) {
         :name($sig_setup_block),
         :params(@params),
         LST::Local.new(
-            :type('Context'), :name('C'), :isdecl(1),
+            :type('Context'), :name('local C'), :isdecl(1),
             LST::New.new(
                 :type('Context'),
                 LST::MethodCall.new(
@@ -416,7 +416,7 @@ our multi sub lst_for(PAST::Block $block) {
 
     # Wrap in block prelude/postlude.
     $result.push(LST::Local.new(
-        :name('C'), :isdecl(1), :type('Context'),
+        :name('local C'), :isdecl(1), :type('Context'),
         LST::New.new( :type('Context'), "Block", "TC.CurrentContext", loc("Capture") )
     ));
     $result.push(LST::Bind.new( 'TC.CurrentContext', loc('C', 'Context') ));
