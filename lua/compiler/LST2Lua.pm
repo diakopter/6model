@@ -50,6 +50,45 @@ our multi sub cs_for(LST::Attribute $attr) {
     return '    local ' ~ $attr.name ~ ";\n";
 }
 
+# yanked from nqp setting
+sub match ($text, $regex, :$global?) {
+    my $match := $text ~~ $regex;
+    if $global {
+        my @matches;
+        while $match {
+            @matches.push($match);
+            $match := $match.CURSOR.parse($text, :rule($regex), :c($match.to));
+        }
+        @matches;
+    }
+    else {
+        $match;
+    }
+}
+
+sub subst ($text, $regex, $repl, :$global?) {
+    my @matches := $global ?? match($text, $regex, :global)
+                           !! [ $text ~~ $regex ];
+    my $is_code := pir::isa($repl, 'Sub');
+    my $offset  := 0;
+    my $result  := pir::new__Ps('StringBuilder');
+
+    for @matches -> $match {
+        if $match {
+            pir::push($result, pir::substr($text, $offset, $match.from - $offset))
+                if $match.from > $offset;
+            pir::push($result, $is_code ?? $repl($match) !! $repl);
+            $offset := $match.to;
+        }
+    }
+
+    my $chars := pir::length($text);
+    pir::push($result, pir::substr($text, $offset, $chars))
+        if $chars > $offset;
+
+    ~$result;
+}
+
 our multi sub cs_for(LST::Method $meth) {
     my $*LAST_TEMP := '';
 
@@ -57,17 +96,58 @@ our multi sub cs_for(LST::Method $meth) {
     my $code := '    ' ~ ($meth.name ~~ /\[/ ?? "" !! "local ") ~ $meth.name ~ ' = function (' ~
         pir::join(', ', $meth.params) ~
         ")\n           local locals = \{\};\n";
+    
+    my $body := "";
 
     # Emit everything in the method.
     for @($meth) {
-        $code := $code ~ cs_for($_);
+        $body := $body ~ cs_for($_);
     }
-
+    
+    my $header := "";
+    
+    if 0 { # TODO XXX: make this a flag to compiler.pir
+        my $e := pir::getstderr__p();
+        # optimize locals array so it's not so stupidly sparse.
+        my $scan := 0;
+        my $replace := 0;
+        while $scan < 8000 { # unfortunately so high
+            pir::print__vPS($e, "$scan ") unless $scan % 100;
+            if $body ~~ /locals\[$scan\]/ {
+                $replace := $replace + 1;
+                if $replace < 190 { # lua allows only 200 locals per routine; gah
+                    pir::print__vPS($e, "s/locals[$scan]/l$replace/g ");
+                    $body := subst($body, /locals\[$scan\]/, "l$replace", :global);
+                } else {
+                    pir::print__vPS($e, "s/locals[$scan]/locals[$replace]/g ");
+                    $body := subst($body, /locals\[$scan\]/, "locals[$replace]", :global);
+                }
+            }
+            $scan := $scan + 1;
+        }
+        $header := $header ~ "local ";
+        my $first := 1;
+        while $replace {
+            if $first {
+                $first := 0;
+            } else {
+                $header := $header ~ ",";
+            }
+            $header := $header ~ "l" ~ $replace;
+            $replace := $replace - 1;
+        }
+        $header := $header ~ ";\n";
+        pir::print__vPS($e, "finished localizing " ~ $meth.name ~ "\n");
+    }
+    
+    $code := $code ~ $header ~ $body;
+    
     # Return statement if needed, and block ending.
     unless $meth.return_type eq 'void' {
         $code := $code ~ "        return $*LAST_TEMP;\n";
     }
-    return $code ~ "    end;\n\n";
+    $code := $code ~ "    end;\n\n";
+    return $code;
 }
 
 our multi sub cs_for(LST::Stmts $stmts) {
