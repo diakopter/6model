@@ -27,23 +27,23 @@ function makeMultiDispatcher ()
         -- skip caching for now!
         
         local SortedCandidates = MultiDispatcher.Sort(TC, DispatchRoutine.Dispatchees);
-        table_desc(SortedCandidates);
+        
         local PossiblesList = List.new();
         
         local continuing = false;
         
-        for unused,Candidate in ipairs(SortedCandidates) do
-            table_desc(Candidate);
+        for j = 1, SortedCandidates.Count do
+            local Candidate = SortedCandidates[j];
             continuing = false;
             if (Candidate == nil) then
                 if (PossiblesList.Count == 1) then
                     return PossiblesList[1];
+                elseif (PossiblesList.Count > 1) then
+                    -- skip caching.
+                    error("Ambiguous dispatch: more than one candidate matches");
+                else
+                    continuing = true;
                 end
-            elseif (PossiblesList.Count > 1) then
-                -- skip caching.
-                error("Ambiguous dispatch: more than one candidate matches");
-            else
-                continuing = true;
             end
             if (not continuing) then
             
@@ -76,7 +76,7 @@ function makeMultiDispatcher ()
                 end -- breaking 
             end
             if (not TypeMismatch) then
-                PossiblesList.Add(Candidate);
+                PossiblesList:Add(Candidate);
             end
         end
         end end -- continuings
@@ -85,7 +85,7 @@ function makeMultiDispatcher ()
     
     function MultiDispatcher.Sort(TC, Unsorted)
         local NumCandidates = #Unsorted;
-        print(NumCandidates);
+        
         local Result = List.new(2 * NumCandidates + 1);
         
         local Graph = List.new(NumCandidates);

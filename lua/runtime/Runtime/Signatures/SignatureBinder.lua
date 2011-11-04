@@ -112,11 +112,11 @@ function makeSignatureBinder()
         
         for i = 1, Positionals.Count do
             if (FlattenSpec[i] == CaptureHelper.FLATTEN_NONE) then
-                NewPositionals.Add(Positionals[i]);
+                NewPositionals:Add(Positionals[i]);
             elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_POS) then
                 local Flattenee = Positionals[i];
                 for unused, Pos in ipairs(Flattenee.Storage) do
-                    NewPositionals.Add(Pos);
+                    NewPositionals:Add(Pos);
                 end
             elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_NAMED) then
                 local Flattenee = Positionals[i];
