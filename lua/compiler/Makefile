@@ -33,7 +33,8 @@ RakudoRuntime.lbc:	RakudoRuntime.lua
 	luajit -b RakudoRuntime.lua RakudoRuntime.lbc
 
 NQPSetting.lua: LocalsOptimizer.lua NQPSetting_pre.lua
-	luajit LocalsOptimizer.lua NQPSetting_pre.lua > NQPSetting.lua
+	$(CAT) NQPSetting_pre.lua > NQPSetting.lua
+#	 luajit LocalsOptimizer.lua NQPSetting_pre.lua > NQPSetting.lua
 
 NQPSetting_pre.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/NQPSetting.pm
 	parrot compile.pir ../../common/NQP/NQPSetting.pm --setting > NQPSetting_pre.lua
@@ -42,7 +43,8 @@ NQPSetting.lbc:	NQPSetting.lua
 	luajit -b NQPSetting.lua NQPSetting.lbc
 
 P6Objects.lua: LocalsOptimizer.lua P6Objects_pre.lua
-	luajit LocalsOptimizer.lua P6Objects_pre.lua > P6Objects.lua
+	$(CAT) P6Objects_pre.lua > P6Objects.lua
+#	luajit LocalsOptimizer.lua P6Objects_pre.lua > P6Objects.lua
 
 P6Objects_pre.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/P6Objects.pm
 	parrot compile.pir ../../common/NQP/P6Objects.pm --no-core-libs > P6Objects_pre.lua

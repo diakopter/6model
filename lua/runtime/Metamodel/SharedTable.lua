@@ -63,8 +63,8 @@ function makeSharedTable ()
             end
             return Ops.box_int(TC, 0, TC.DefaultBoolBoxType);
         else
-            local Checker = HOW.STable:FindMethod(TC, HOW, "type_check", Hints.NO_HINT);
-            local Cap = CaptureHelper.FormWith({ HOW, Obj, Checkee });
+            local Checker = self.HOW.STable:FindMethod(TC, self.HOW, "type_check", Hints.NO_HINT);
+            local Cap = CaptureHelper.FormWith({ self.HOW, Obj, Checkee });
             return Checker.STable:Invoke(TC, Checker, Cap);
         end
     end

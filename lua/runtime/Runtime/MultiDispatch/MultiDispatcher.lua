@@ -11,9 +11,10 @@ function makeMultiDispatcher ()
             this.Candidate = Candidate;
             this.Edges = Edges;
             this.EdgesIn = 0;
-            this.Edges.Out = 0;
+            this.EdgesOut = 0;
             return setmetatable(this, mt);
         end
+        return CandidateGraphNode;
     end
     local CandidateGraphNode = makeCandidateGraphNode();
     
@@ -26,12 +27,13 @@ function makeMultiDispatcher ()
         -- skip caching for now!
         
         local SortedCandidates = MultiDispatcher.Sort(TC, DispatchRoutine.Dispatchees);
-        
+        table_desc(SortedCandidates);
         local PossiblesList = List.new();
         
         local continuing = false;
         
         for unused,Candidate in ipairs(SortedCandidates) do
+            table_desc(Candidate);
             continuing = false;
             if (Candidate == nil) then
                 if (PossiblesList.Count == 1) then
@@ -43,46 +45,47 @@ function makeMultiDispatcher ()
             else
                 continuing = true;
             end
-        end
-        if (not continuing) then
-        
-        local NumArgs = NativeCapture.Positionals.Count;
-        if (NumArgs < Candidate.Sig.NumRequiredPositionals or NumArgs > Candidate.Sig.NumPositionals) then
-            continuing = true;
-        end
-        if (not continuing) then
-        
-        local TypeCheckCount = math.min(NumArgs, Candidate.Sig.NumPositionals);
-        local TypeMismatch = false;
-        for i = 1, TypeCheckCount do
-            local Arg = NativeCapture.Positionals[i];
-            local Type = Candidate.Sig.Parameters[i].Type;
-            if (Type ~= nil and Ops.unbox_int(TC, Type.STable:TypeCheck(TC, Arg.STable.WHAT, Type)) == 0) then
-                TypeMismatch = true;
-                i = TypeCheckCount + 1; -- fake breaking
-            end
-            if (not TypeMismatch) then
+            if (not continuing) then
             
-            local Definedness = Candidate.Sig.Parameters[i].Definedness;
-            if (Definedness ~= DefinednessConstraint.None) then
-                local ArgDefined = Arg.STable.REPR:defined(null, Arg);
-                if (Definedness == DefinednessConstraint.DefinedOnly and not ArgDefined or
-                        Definedness == DefinednessConstraint.UndefinedOnly and ArgDefined) then
+            local NumArgs = NativeCapture.Positionals.Count;
+            if (NumArgs < Candidate.Sig.NumRequiredPositionals or NumArgs > Candidate.Sig.NumPositionals) then
+                continuing = true;
+            end
+            if (not continuing) then
+            
+            local TypeCheckCount = math.min(NumArgs, Candidate.Sig.NumPositionals);
+            local TypeMismatch = false;
+            for i = 1, TypeCheckCount do
+                local Arg = NativeCapture.Positionals[i];
+                local Type = Candidate.Sig.Parameters[i].Type;
+                if (Type ~= nil and Ops.unbox_int(TC, Type.STable:TypeCheck(TC, Arg.STable.WHAT, Type)) == 0) then
                     TypeMismatch = true;
                     i = TypeCheckCount + 1; -- fake breaking
                 end
+                if (not TypeMismatch) then
+                
+                local Definedness = Candidate.Sig.Parameters[i].Definedness;
+                if (Definedness ~= DefinednessConstraint.None) then
+                    local ArgDefined = Arg.STable.REPR:defined(null, Arg);
+                    if (Definedness == DefinednessConstraint.DefinedOnly and not ArgDefined or
+                            Definedness == DefinednessConstraint.UndefinedOnly and ArgDefined) then
+                        TypeMismatch = true;
+                        i = TypeCheckCount + 1; -- fake breaking
+                    end
+                end
+                end -- breaking 
             end
-            end -- breaking 
-        end
-        if (not TypeMismatch) then
-            PossiblesList.Add(Candidate);
+            if (not TypeMismatch) then
+                PossiblesList.Add(Candidate);
+            end
         end
         end end -- continuings
         error("No candidates found to dispatch to");
     end
     
     function MultiDispatcher.Sort(TC, Unsorted)
-        local NumCandidates = Unsorted.Count;
+        local NumCandidates = #Unsorted;
+        print(NumCandidates);
         local Result = List.new(2 * NumCandidates + 1);
         
         local Graph = List.new(NumCandidates);
@@ -185,6 +188,8 @@ function makeMultiDispatcher ()
         
         return Ops.unbox_int(TC, Ops.type_check(TC, A, B)) ~= 0;
     end
+    return MultiDispatcher;
 end
-
+MultiDispatch = {};
 MultiDispatcher = makeMultiDispatcher();
+MultiDispatch.MultiDispatcher = MultiDispatcher;

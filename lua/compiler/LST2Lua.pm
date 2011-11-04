@@ -311,7 +311,7 @@ our multi sub cs_for(LST::Bind $bind) {
 
 our multi sub cs_for(LST::Literal $lit) {
     $*LAST_TEMP := $lit.escape ??
-        ('"' ~ pir::join__ssp('""', pir::split__pss('"', ~$lit.value)) ~ '"') !!
+        ('"' ~ pir::join__ssp('\\n', pir::split__pss("\n", pir::join__ssp('\\"', pir::split__pss('"', ~$lit.value)))) ~ '"') !!
         $lit.value;
     return '';
 }
