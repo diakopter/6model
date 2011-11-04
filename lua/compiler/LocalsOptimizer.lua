@@ -27,7 +27,7 @@ maxlocals = 53;
 for section, text in ipairs(strsplit(local_decl, input)) do
     header = "";
     if (section == 1) then
-        io.write(text .. local_decl);
+        io.write(text);
     else
         scan = 0;
         replace = 0;

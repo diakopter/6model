@@ -1,5 +1,4 @@
-@
-@nmake >NUL
+@nmake /nologo >NUL
 @echo dofile('RakudoRuntime.lua');> x.lua
 @rem @type RakudoRuntime.lua > x.lua
 @rem @type NQPSetting.lua >> x.lua
