@@ -11,7 +11,9 @@ dotnet/runtime/obj/*
 java/compiler/x.*
 java/compiler/NQPSetting.*
 java/compiler/RakudoOutput.*
-lua/compiler/*.lua
+lua/compiler/RakudoRuntime.lua
+lua/compiler/P6Objects.lua
+lua/compiler/x.lua
 lua/compiler/*.lbc
 lua/compiler/*.dll
 lua/compiler/icu
