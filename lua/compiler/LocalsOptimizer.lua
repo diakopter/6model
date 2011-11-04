@@ -49,6 +49,6 @@ for section, text in ipairs(strsplit(local_decl, input)) do
             scan = scan + 1;
         end
         if (replace > maxlocals) then io.write(local_decl) end
-        io.write(header .. ";" .. text);
+        io.write(header .. "" .. text);
     end
 end

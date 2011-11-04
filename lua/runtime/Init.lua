@@ -45,6 +45,7 @@ function makeInit ()
         else
             SettingContext = Init.LoadSetting(SettingName, KnowHOW, KnowHOWAttribute);
         end
+        
 
         -- Cache native capture and LLCode type object.
         CaptureHelper.CaptureTypeObject = SettingContext.LexPad:GetByName("capture");
@@ -114,12 +115,13 @@ function makeInit ()
     
     function Init.LoadSetting(Name, KnowHOW, KnowHOWAttribute)
         local success, SettingContext;
-        --success, SettingContext = pcall(function ()
+        --success = pcall(function ()
         --    dofile(Name .. '.lbc')
         --end);
         if not success then
-            SettingContext = dofile(Name .. '.lua');
+            dofile(Name .. '.lua');
         end
+        SettingContext = LastLoadSetting();
         SettingContext.LexPad:Extend(
             { "KnowHOW", "KnowHOWAttribute", "print", "say", "capture" });
         SettingContext.LexPad:SetByName("KnowHOW", KnowHOW);

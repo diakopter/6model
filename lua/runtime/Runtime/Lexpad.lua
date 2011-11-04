@@ -24,13 +24,13 @@ function makeLexpad ()
             SlotMapping[k] = v;
         end
         for k,v in ipairs(Names) do
-            SlotMapping[v] = self.SlotCount + k - 1;
+            SlotMapping[v] = self.Storage.Count + k - 1;
         end
         self.SlotMapping = SlotMapping;
-        local new = self.SlotCount + #Names;
+        local new = self.Storage.Count + #Names;
         local NewStorage = List.new(new);
-        for i = 1, self.SlotCount do
-            NewStorage[i] = this.Storage[i];
+        for i = 1, self.Storage.Count do
+            NewStorage[i] = self.Storage[i];
         end
         self.SlotCount = new;
         self.Storage = NewStorage;

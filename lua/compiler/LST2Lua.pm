@@ -35,11 +35,11 @@ our multi sub cs_for(LST::Using $using) {
 }
 
 our multi sub cs_for(LST::Class $class) {
-    my $code := "return (function ()\n";
+    my $code := "LastLoadSetting, LastMain, LastLoad = (function ()\n";
     for @($class) {
         $code := $code ~ cs_for($_);
     }
-    $code := $code ~ "return LoadSetting or Main;\nend)()();\n";
+    $code := $code ~ "return LoadSetting, Main, Load;\nend)();\n";
     #if $class.namespace {
     #    $code := $code ~ "}\n";
     #}

@@ -1,6 +1,12 @@
 function Ops.load_module(TC, Path)
-    local module = dofile(Ops.unbox_str(TC, Path));
-    -- This remains to be done correctly..
-    return module:Load(TC, TC.Domain.Setting);
+    local Name = Ops.unbox_str(TC, Path);
+    local success;
+    --success = pcall(function ()
+    --    dofile(Name .. '.lbc')
+    --end);
+    if not success then
+        dofile(Name .. '.lua');
+    end
+    return LastLoad(TC, TC.Domain.Setting);
 end
 

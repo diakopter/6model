@@ -9,7 +9,7 @@ function makeKnowHOWREPR ()
         function Instance.new(STable)
             local instance = {};
             instance.STable = STable;
-            instance.class = "KnowHOWREPR";
+            instance.class = "KnowHOW";
             return setmetatable(instance, mt);
         end
         return Instance;
