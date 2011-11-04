@@ -119,8 +119,9 @@ our multi sub cs_for(LST::Method $meth) {
                     pir::print__vPS($e, "s/locals[$scan]/l$replace/g ");
                     $body := subst($body, /locals\[$scan\]/, "l$replace", :global);
                 } else {
-                    pir::print__vPS($e, "s/locals[$scan]/locals[$replace]/g ");
-                    $body := subst($body, /locals\[$scan\]/, "locals[$replace]", :global);
+                    my $rep := $replace - 189;
+                    pir::print__vPS($e, "s/locals[$scan]/locals[$rep]/g ");
+                    $body := subst($body, /locals\[$scan\]/, "locals[$rep]", :global);
                 }
             }
             $scan := $scan + 1;
