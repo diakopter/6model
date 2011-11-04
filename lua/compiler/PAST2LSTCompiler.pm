@@ -271,7 +271,7 @@ sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
     #pir::say("--  " ~ $prefix ~ "  " ~ $*CUR_ID);
     if ($prefix ne 'block') {
-        return 'locals[' ~ $*CUR_ID ~ ']';
+        return 'l[' ~ $*CUR_ID ~ ']';
     }
     return 'blocks[' ~ $*CUR_ID ~ ']';
 }

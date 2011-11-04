@@ -11,7 +11,7 @@ sub get_unique_id($prefix) {
     $*CUR_ID := $*CUR_ID + 1;
     #pir::say("--  " ~ $prefix ~ "  " ~ $*CUR_ID);
     if ($prefix ne 'block') {
-        return 'locals[' ~ $*CUR_ID ~ ']';
+        return 'l[' ~ $*CUR_ID ~ ']';
     }
     return 'blocks[' ~ $*CUR_ID ~ ']';
 }
@@ -95,7 +95,7 @@ our multi sub cs_for(LST::Method $meth) {
     # Method header.
     my $code := '    ' ~ ($meth.name ~~ /\[/ ?? "" !! "local ") ~ $meth.name ~ ' = function (' ~
         pir::join(', ', $meth.params) ~
-        ")\n           local locals = \{\};\n";
+        ")\n           local l = \{\};\n";
     
     my $body := "";
 
@@ -104,44 +104,7 @@ our multi sub cs_for(LST::Method $meth) {
         $body := $body ~ cs_for($_);
     }
     
-    my $header := "";
-    
-    if 0 { # TODO XXX: make this a flag to compiler.pir
-        my $e := pir::getstderr__p();
-        # optimize locals array so it's not so stupidly sparse.
-        my $scan := 0;
-        my $replace := 0;
-        while $scan < 8000 { # unfortunately so high
-            pir::print__vPS($e, "$scan ") unless $scan % 100;
-            if $body ~~ /locals\[$scan\]/ {
-                $replace := $replace + 1;
-                if $replace < 190 { # lua allows only 200 locals per routine; gah
-                    pir::print__vPS($e, "s/locals[$scan]/l$replace/g ");
-                    $body := subst($body, /locals\[$scan\]/, "l$replace", :global);
-                } else {
-                    my $rep := $replace - 189;
-                    pir::print__vPS($e, "s/locals[$scan]/locals[$rep]/g ");
-                    $body := subst($body, /locals\[$scan\]/, "locals[$rep]", :global);
-                }
-            }
-            $scan := $scan + 1;
-        }
-        $header := $header ~ "local ";
-        my $first := 1;
-        while $replace {
-            if $first {
-                $first := 0;
-            } else {
-                $header := $header ~ ",";
-            }
-            $header := $header ~ "l" ~ $replace;
-            $replace := $replace - 1;
-        }
-        $header := $header ~ ";\n";
-        pir::print__vPS($e, "finished localizing " ~ $meth.name ~ "\n");
-    }
-    
-    $code := $code ~ $header ~ $body;
+    $code := $code ~ $body;
     
     # Return statement if needed, and block ending.
     unless $meth.return_type eq 'void' {
