@@ -7,20 +7,20 @@ function makeList ()
         return setmetatable(list, mt);
     end
     function List:Add(item)
-        -- stupid one-indexing
-        self[self.Count + 1] = item;
         self.Count = self.Count + 1;
+        self[self.Count] = item;
     end
-    List.Push = List.Add;
+    function List:Push(item)
+        self.Count = self.Count + 1;
+        self[self.Count] = item;
+    end
     function List:Pop()
         local idx = self.Count;
         if (idx < 1) then
             error("Cannot pop from an empty list");
         end
-        local item = self[idx];
-        table.remove(self, idx);
         self.Count = self.Count - 1;
-        return item;
+        return table.remove(self, idx);
     end
     function List:Peek()
         local idx = self.Count;
@@ -42,6 +42,7 @@ function makeList ()
     
     function List:Shift()
         local idx = self.Count;
+        self.Count = self.Count - 1;
         if (idx < 1) then
             error("Cannot shift from an empty list");
         end
@@ -54,10 +55,13 @@ function makeList ()
     end
 
     function List:Unshift(item)
-        for i = self.Count, 1, -1 do
-            store[i + 1] = store[i];
+        if (self.Count > 0) then
+            for i = self.Count, 1, -1 do
+                self[i + 1] = self[i];
+            end
         end
-        store[1] = item;
+        self[1] = item;
+        self.Count = self.Count + 1;
         return item;
     end
     return List;
