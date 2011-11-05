@@ -59,4 +59,4 @@ test-unixy: all
 	prove -r --exec ./try.sh ../../t/nqp
 
 clean:
-	$(RM_RF) gen_*.pir *.lua *.lbc
+	$(RM_RF) gen_*.pir RakudoRuntime.lua NQPSettin*.lua P6Object*.lua x.lua y.lua *.lbc
