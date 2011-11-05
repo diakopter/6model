@@ -3,8 +3,8 @@ function Ops.vivify(TC, Check, VivifyWith)
     return VivifyWith;
 end
 
-function leave_block(TC, Block, ReturnValue)
-    error(LeaveStackUnwinderException.new(Block, ReturnValue));
+function Ops.leave_block(TC, Block, ReturnValue)
+    error(Exceptions.LeaveStackUnwinderException.new(Block, ReturnValue));
 end
 
 function Ops.throw_dynamic(TC, ExceptionObject, ExceptionType)
@@ -14,7 +14,7 @@ function Ops.throw_dynamic(TC, ExceptionObject, ExceptionType)
         if (CurContext.StaticCodeObject ~= nil) then
             local Handlers = CurContext.StaticCodeObject.Handlers;
             if (Handlers ~= nil) then
-                for i = 1, Handlers.Count do
+                for i = 1, Handlers.Count or #Handlers do
                     if (Handlers[i].Type == WantType) then
                         return Exceptions.ExceptionDispatcher.CallHandler(TC,
                             Handlers[i].HandleBlock, ExceptionObject);
@@ -35,7 +35,7 @@ function Ops.throw_lexical(TC, ExceptionObject, ExceptionType)
         if (CurContext.StaticCodeObject ~= nil) then
             local Handlers = CurContext.StaticCodeObject.Handlers;
             if (Handlers ~= nil) then
-                for i = 1, Handlers.Count do
+                for i = 1, Handlers.Count or #Handlers do
                     if (Handlers[i].Type == WantType) then
                         return Exceptions.ExceptionDispatcher.CallHandler(TC,
                             Handlers[i].HandleBlock, ExceptionObject);

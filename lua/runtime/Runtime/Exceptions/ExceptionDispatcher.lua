@@ -1,6 +1,7 @@
 Exceptions = {};
+Exceptions.ExceptionDispatcher = {};
 
-function Exceptions.CallHandler(TC, Handler, ExceptionObject)
+function Exceptions.ExceptionDispatcher.CallHandler(TC, Handler, ExceptionObject)
     local Returned = Handler.STable:Invoke(TC, Handler, CaptureHelper.FormWith({ ExceptionObject }));
     
     local ResumableMeth = Returned.STable:FindMethod(TC, Returned, "resumable", Hints.NO_HINT);
@@ -12,7 +13,7 @@ function Exceptions.CallHandler(TC, Handler, ExceptionObject)
     end
 end
 
-function Exceptions.DieFromUnhandledException(TC, Exception)
+function Exceptions.ExceptionDispatcher.DieFromUnhandledException(TC, Exception)
     try {
         function ()
             local StrMeth = Exception.STable:FindMethod(TC, Exception, "Str", Hints.NO_HINT);
