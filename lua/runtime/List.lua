@@ -50,7 +50,7 @@ function makeList ()
         for i = 2, idx do
             self[i - 1] = self[i];
         end
-        self[idx] = nil;
+        table.remove(self, idx);
         return item;
     end
 
