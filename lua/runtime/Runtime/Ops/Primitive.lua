@@ -46,6 +46,14 @@ function Ops.bitwise_and_int(TC, x, y)
     return Ops.box_int(TC, bit.band(Ops.unbox_int(TC, x), Ops.unbox_int(TC, y)), TC.DefaultIntBoxType);
 end
 
+function Ops.bitwise_xor_int(TC, x, y)
+    return Ops.box_int(TC, bit.bxor(Ops.unbox_int(TC, x), Ops.unbox_int(TC, y)), TC.DefaultIntBoxType);
+end
+
+function Ops.concat(TC, x, y)
+    return Ops.box_str(TC, Ops.unbox_str(TC, x) .. Ops.unbox_str(TC, y), TC.DefaultStrBoxType);
+end
+
 -- skip num bitwise
 
 function Ops.substr(TC, x, y, z)
