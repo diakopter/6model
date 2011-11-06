@@ -35,7 +35,7 @@ function Ops.bind_attr_with_hint(TC, Object, Class, Name, Value, Hint)
     if (Name.Value ~= nil) then
         Name = Ops.unbox_str(TC, Name);
     end
-    Object.STable.REPR:bind_attribute_with_hint(TC, Object, Class, Name, Value);
+    Object.STable.REPR:bind_attribute_with_hint(TC, Object, Class, Name, Hint, Value);
     return Value;
 end
 

@@ -428,8 +428,9 @@ our multi sub lst_for(PAST::Block $block) {
             $stmts,
             LST::Stmts.new(
                 LST::If.new(
+					:bool(1),
                     LST::Literal.new(
-                        :value("(exc.TargetBlock ~= Block and 1 or 0)")
+                        :value("exc.TargetBlock ~= Block")
                     ),
                     LST::Throw.new()
                 ),

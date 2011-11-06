@@ -22,7 +22,7 @@ function makeKnowHOWREPR ()
         return setmetatable(this, mt);
     end
     function KnowHOWREPR:type_object_for(TC, MetaPackage)
-        local STable = SharedTable.new();
+		local STable = SharedTable.new();
         STable.HOW = MetaPackage;
         STable.REPR = self;
         STable.WHAT = Instance.new(STable);
