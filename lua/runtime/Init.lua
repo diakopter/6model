@@ -62,8 +62,9 @@ function makeInit ()
         
 
         -- Cache native capture and LLCode type object.
-        CaptureHelper.CaptureTypeObject = SettingContext.LexPad:GetByName("capture");
-        CodeObjectUtility.LLCodeTypeObject = SettingContext.LexPad:GetByName("NQPCode");
+        local lexpad = SettingContext.LexPad;
+        CaptureHelper.CaptureTypeObject = lexpad.GetByName(lexpad, "capture");
+        CodeObjectUtility.LLCodeTypeObject = lexpad.GetByName(lexpad, "NQPCode");
 
         -- Create an execution domain and a thread context for it.
         local ExecDom = ExecutionDomain.new();
@@ -71,13 +72,13 @@ function makeInit ()
         local Thread = ThreadContext.new();
         Thread.Domain = ExecDom;
         Thread.CurrentContext = SettingContext;
-        Thread.DefaultBoolBoxType = SettingContext.LexPad:GetByName("NQPInt");
-        Thread.DefaultIntBoxType = SettingContext.LexPad:GetByName("NQPInt");
-        Thread.DefaultNumBoxType = SettingContext.LexPad:GetByName("NQPNum");
-        Thread.DefaultStrBoxType = SettingContext.LexPad:GetByName("NQPStr");
-        Thread.DefaultListType = SettingContext.LexPad:GetByName("NQPList");
-        Thread.DefaultArrayType = SettingContext.LexPad:GetByName("NQPArray");
-        Thread.DefaultHashType = SettingContext.LexPad:GetByName("NQPHash");
+        Thread.DefaultBoolBoxType = lexpad.GetByName(lexpad, "NQPInt");
+        Thread.DefaultIntBoxType = lexpad.GetByName(lexpad, "NQPInt");
+        Thread.DefaultNumBoxType = lexpad.GetByName(lexpad, "NQPNum");
+        Thread.DefaultStrBoxType = lexpad.GetByName(lexpad, "NQPStr");
+        Thread.DefaultListType = lexpad.GetByName(lexpad, "NQPList");
+        Thread.DefaultArrayType = lexpad.GetByName(lexpad, "NQPArray");
+        Thread.DefaultHashType = lexpad.GetByName(lexpad, "NQPHash");
 
         return Thread;
     end
@@ -100,21 +101,29 @@ function makeInit ()
     
     function Init.BootstrapSetting(KnowHOW, KnowHOWAttribute)
         local SettingContext = Context.newplain();
+        local P6capture = REPRRegistry.get_REPR_by_name("P6capture");
+        local P6int = REPRRegistry.get_REPR_by_name("P6int");
+        local P6num = REPRRegistry.get_REPR_by_name("P6num");
+        local P6str = REPRRegistry.get_REPR_by_name("P6str");
+        local P6list = REPRRegistry.get_REPR_by_name("P6list");
+        local RakudoCodeRef = REPRRegistry.get_REPR_by_name("RakudoCodeRef");
+        local tmp1 = KnowHOW.STable.REPR;
         SettingContext.LexPad = Lexpad.new(
             { "KnowHOW", "KnowHOWAttribute", "capture", "NQPInt", "NQPNum", "NQPStr", "NQPList", "NQPCode", "list", "NQPArray", "NQPHash" });
         SettingContext.LexPad.Storage = 
             {
                 KnowHOW,
                 KnowHOWAttribute,
-                REPRRegistry.get_REPR_by_name("P6capture"):type_object_for(nil, nil),
-                REPRRegistry.get_REPR_by_name("P6int"):type_object_for(nil, nil),
-                REPRRegistry.get_REPR_by_name("P6num"):type_object_for(nil, nil),
-                REPRRegistry.get_REPR_by_name("P6str"):type_object_for(nil, nil),
-                REPRRegistry.get_REPR_by_name("P6list"):type_object_for(nil, nil),
-                REPRRegistry.get_REPR_by_name("RakudoCodeRef"):type_object_for(nil, KnowHOW.STable.REPR:instance_of(nil, KnowHOW)),
+                P6capture.type_object_for(P6capture, nil, nil),
+                P6int.type_object_for(P6int, nil, nil),
+                P6num.type_object_for(P6num, nil, nil),
+                P6str.type_object_for(P6str, nil, nil),
+                P6list.type_object_for(P6list, nil, nil),
+                RakudoCodeRef.type_object_for(RakudoCodeRef, nil, tmp1.instance_of(tmp1, nil, KnowHOW)),
                 CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
                     local NQPList = Ops.get_lex(TC, "NQPList");
-                    local List = NQPList.STable.REPR:instance_of(TC, NQPList);
+                    local tmp1 = NQPList.STable.REPR;
+                    local List = tmp1.instance_of(tmp1, TC, NQPList);
                     local NativeCapture = C;
                     for unused, Obj in ipairs(NativeCapture.Positionals) do
                         List.Storage:Add(Obj);
@@ -136,33 +145,39 @@ function makeInit ()
             dofile(Name .. '.lua');
         end
         SettingContext = LastLoadSetting();
-        SettingContext.LexPad:Extend(
+        local lexpad = SettingContext.LexPad;
+        lexpad.Extend(lexpad,
             { "KnowHOW", "KnowHOWAttribute", "print", "say", "capture" });
-        SettingContext.LexPad:SetByName("KnowHOW", KnowHOW);
-        SettingContext.LexPad:SetByName("KnowHOWAttribute", KnowHOWAttribute);
-        SettingContext.LexPad:SetByName("print",
+        lexpad.SetByName(lexpad, "KnowHOW", KnowHOW);
+        lexpad.SetByName(lexpad, "KnowHOWAttribute", KnowHOWAttribute);
+        lexpad.SetByName(lexpad, "print",
         CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
                 for i = 1, CaptureHelper.NumPositionals(C) do
                     local Value = CaptureHelper.GetPositional(C, i);
-                    local StrMeth = self.STable:FindMethod(TC, Value, "Str", 0);
-                    local StrVal = StrMeth.STable:Invoke(TC, StrMeth,
+                    local STable = self.STable;
+                    local StrMeth = STable.FindMethod(STable, TC, Value, "Str", 0);
+                    STable = StrMeth.STable;
+                    local StrVal = STable.Invoke(STable, TC, StrMeth,
                         CaptureHelper.FormWith( { Value }));
                     io.write(Ops.unbox_str(nil, StrVal));
                 end
                 return CaptureHelper.Nil(TC);
             end));
-        SettingContext.LexPad:SetByName("say",
+        lexpad.SetByName(lexpad, "say",
         CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
                 for i = 1, CaptureHelper.NumPositionals(C) do
                     local Value = CaptureHelper.GetPositional(C, i);
-                    local StrMeth = self.STable:FindMethod(TC, Value, "Str", 0);
-                    local StrVal = StrMeth.STable:Invoke(TC, StrMeth,
+                    local STable = self.STable;
+                    local StrMeth = STable.FindMethod(STable, TC, Value, "Str", 0);
+                    STable = StrMeth.STable;
+                    local StrVal = STable.Invoke(STable, TC, StrMeth,
                         CaptureHelper.FormWith( { Value }));
                     io.write(Ops.unbox_str(nil, StrVal), "\n");
                 end
                 return CaptureHelper.Nil(TC);
             end));
-        SettingContext.LexPad:SetByName("capture", REPRRegistry.get_REPR_by_name("P6capture"):type_object_for(nil, nil));
+        local REPR = REPRRegistry.get_REPR_by_name("P6capture");
+        lexpad.SetByName(lexpad, "capture", REPR.type_object_for(REPR, nil, nil));
         
         return SettingContext;
     end
