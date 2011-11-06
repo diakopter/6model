@@ -34,7 +34,7 @@ function makeSignatureBinder()
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
                 else
                     error("Not enough positional parameters; got " ..
-                        CurPositional .. " but needed " ..
+                        Positionals.Count .. " but needed " ..
                         SignatureBinder.NumRequiredPositionals(C.StaticCodeObject.Sig));
                 end
                 
