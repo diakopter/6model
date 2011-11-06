@@ -49,6 +49,7 @@ function try(fn, ...)
 	setmetatable(_G,_mtg)
 
 	local ok = {pcall(function() return fn(unpack(real_args)) end)}
+	--local ok = {true, fn(unpack(real_args))}
 
 	setmetatable(_G,_orig)
 	for k,__ in pairs(locals) do rawset(_G,k.."___macro",nil) end
