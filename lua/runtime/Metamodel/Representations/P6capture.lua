@@ -1,26 +1,24 @@
 
 function makeP6capture ()
-    local P6capture = {};
+    local P6capture = { ["class"] = "P6captureREPR" };
     local mt = { __index = P6capture };
     
     local makeInstance = function ()
-        local Instance = {};
+        local Instance = { ["class"] = "P6capture"};
         local mt = { __index = Instance };
         function Instance.new(STable)
-            local instance = {};
-            instance.STable = STable;
-            instance.class = "P6capture";
-            return setmetatable(instance, mt);
+            local this = {};
+            this.STable = STable;
+            return setmetatable(this, mt);
         end
         return Instance;
     end
     local Instance = makeInstance();
-    
     function P6capture.new()
         local this = {};
-        this.class = "P6captureREPR";
         return setmetatable(this, mt);
     end
+    P6capture[1] = P6capture.new;
     function P6capture:type_object_for(TC, MetaPackage)
         local STable = SharedTable.new();
         STable.HOW = MetaPackage;
@@ -28,19 +26,19 @@ function makeP6capture ()
         STable.WHAT = Instance.new(STable);
         return STable.WHAT;
     end
+    P6capture[2] = P6capture.type_object_for;
     function P6capture:instance_of(TC, WHAT)
         return Instance.new(WHAT.STable);
     end
+    P6capture[3] = P6capture.instance_of;
     function P6capture:defined(TC, Obj)
-        if (Obj.Positionals ~= nil or Obj.Nameds ~= nil) then
-            return true;
-        else
-            return false;
-        end
+        return Obj.Positionals ~= nil or Obj.Nameds ~= nil;
     end
+    P6capture[4] = P6capture.defined;
     function P6capture:hint_for(TC, ClassHandle, Name)
         return Hints.NO_HINT;
     end
+    P6capture[5] = P6capture.hint_for;
     return P6capture;
 end
 P6capture = makeP6capture();

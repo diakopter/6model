@@ -1,7 +1,5 @@
 -- originally from http://failboat.me/2010/lua-exception-handling/
 
--- TODO: extend to support multiple catch blocks and a finally block
-
 local _mtg = {}
 local _orig = getmetatable(_G)
 function _mtg.__index(self, k)

@@ -39,7 +39,6 @@ function makeList ()
         self.Count = length;
         return self;
     end
-    
     function List:Shift()
         local idx = self.Count;
         self.Count = self.Count - 1;
@@ -53,7 +52,6 @@ function makeList ()
         table.remove(self, idx);
         return item;
     end
-
     function List:Unshift(item)
         if (self.Count > 0) then
             for i = self.Count, 1, -1 do

@@ -2,29 +2,32 @@ KnowHOWBootstrapper = {};
 
 function KnowHOWBootstrapper.Bootstrap ()
     local REPR = REPRRegistry.get_REPR_by_name("KnowHOWREPR");
-    local KnowHOW = REPR:type_object_for(nil, nil);
+    local KnowHOW = REPR.type_object_for(REPR, nil, nil);
     
     local KnowHOWMeths = {};
     KnowHOWMeths.new_type = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
             local KnowHOWTypeObj = CaptureHelper.GetPositional(Cap, 1);
-            local HOW = KnowHOWTypeObj.STable.REPR:instance_of(TC, KnowHOWTypeObj.STable.WHAT);
+            local REPR = KnowHOWTypeObj.STable.REPR;
+            local HOW = REPR.instance_of(REPR, TC, KnowHOWTypeObj.STable.WHAT);
             
             local TypeName = CaptureHelper.GetNamed(Cap, "name");
             HOW.Name = TypeName or Ops.box_str(TC, "<anon>");
             
             local REPRName = CaptureHelper.GetNamed(Cap, "repr");
             if (REPRName ~= nil) then
-                return REPRRegistry.get_REPR_by_name(Ops.unbox_str(nil, REPRName)):type_object_for(nil, HOW);
+                REPR = REPRRegistry.get_REPR_by_name(Ops.unbox_str(nil, REPRName));
+                return REPR.type_object_for(REPR, nil, HOW);
             else
-                return REPRRegistry.get_REPR_by_name("P6opaque"):type_object_for(TC, HOW);
+                REPR = REPRRegistry.get_REPR_by_name("P6opaque");
+                return REPR.type_object_for(REPR, TC, HOW);
             end
         end);
     KnowHOWMeths.add_attribute = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
             local HOW = CaptureHelper.GetPositional(Cap, 1);
             local Attr = CaptureHelper.GetPositional(Cap, 3);
-            HOW.Attributes:Add(Attr);
+            List.Add(HOW.Attributes, Attr);
             return CaptureHelper.Nil(TC);
         end);
     KnowHOWMeths.add_method = CodeObjectUtility.WrapNativeMethod(
@@ -60,7 +63,8 @@ function KnowHOWBootstrapper.Bootstrap ()
         function (TC, Ignored, Cap)
             local HOW = CaptureHelper.GetPositional(Cap, 1);
             local ListType = KnowHOWBootstrapper.MostDefinedListType(TC);
-            local Result = ListType.STable.REPR:instance_of(TC, ListType);
+            local REPR = ListType.STable.REPR;
+            local Result = REPR.instance_of(REPR, TC, ListType);
             Result.Storage = HOW.Attributes;
             return Result;
         end);
@@ -68,16 +72,19 @@ function KnowHOWBootstrapper.Bootstrap ()
         function (TC, Ignored, Cap)
             local HOW = CaptureHelper.GetPositional(Cap, 1);
             local ListType = KnowHOWBootstrapper.MostDefinedListType(TC);
-            local Result = ListType.STable.REPR:instance_of(TC, ListType);
+            local REPR = ListType.STable.REPR;
+            local Result = REPR.instance_of(REPR, TC, ListType);
+            local store = Result.Storage;
             for key, value in pairs(HOW.Methods) do
-                Result.Storage:Add(value);
+                List.Add(store, value);
             end
             return Result;
         end);
     KnowHOWMeths.parents = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
             local ListType = KnowHOWBootstrapper.MostDefinedListType(TC);
-            return ListType.STable.REPR:instance_of(TC, ListType);
+            local REPR = ListType.STable.REPR;
+            return REPR.instance_of(REPR, TC, ListType);
         end);
     KnowHOWMeths.type_check = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
@@ -86,7 +93,7 @@ function KnowHOWBootstrapper.Bootstrap ()
             return Ops.box_int(TC, self.STable.WHAT == check.STable.WHAT and 1 or 0, TC.DefaultBoolBoxType);
         end);
     
-    local KnowHOWHOW = REPR:instance_of(nil, KnowHOW);
+    local KnowHOWHOW = REPR.instance_of(REPR, nil, KnowHOW);
     for key, value in pairs(KnowHOWMeths) do
         KnowHOWHOW.Methods[key] = value;
     end
@@ -111,9 +118,11 @@ function KnowHOWBootstrapper.Bootstrap ()
 end
 
 function KnowHOWBootstrapper.SetupKnowHOWAttribute (KnowHOW)
-    local HOW = KnowHOW.STable.REPR:instance_of(nil, KnowHOW);
+    local REPR = KnowHOW.STable.REPR;
+    local HOW = REPR.instance_of(REPR, nil, KnowHOW);
 
-    local KnowHOWAttribute = REPRRegistry.get_REPR_by_name("P6str"):type_object_for(null, HOW);
+    REPR = REPRRegistry.get_REPR_by_name("P6str");
+    local KnowHOWAttribute = REPR.type_object_for(REPR, null, HOW);
 
     HOW.Methods.new = CodeObjectUtility.WrapNativeMethod(
         function (TC, Code, Cap)

@@ -9,6 +9,7 @@ function makeSharedTable ()
         sharedTable.TypeCacheID = TypeCacheIDSource;
         return setmetatable(sharedTable, mt);
     end
+    SharedTable[1] = SharedTable.new;
     function SharedTable:FindMethod(TC, Obj, Name, Hint)
         local CachedMethod;
 
@@ -42,7 +43,7 @@ function makeSharedTable ()
             return Meth.STable:Invoke(TC, Meth, Cap);
         end
     end
-    
+    SharedTable[2] = SharedTable.FindMethod;
     function SharedTable:Invoke(TC, Obj, Cap)
         if (self.SpecialInvoke ~= nil) then
             return self.SpecialInvoke(TC, Obj, Cap);
@@ -53,7 +54,7 @@ function makeSharedTable ()
         end
         return STable.CachedInvoke.STable:Invoke(TC, Obj, Cap);
     end
-    
+    SharedTable[3] = SharedTable.Invoke;
     function SharedTable:TypeCheck(TC, Obj, Checkee)
         if (self.TypeCheckCache ~= nil) then
             for i = 1, self.TypeCheckCache.Count do
@@ -68,7 +69,7 @@ function makeSharedTable ()
             return Checker.STable:Invoke(TC, Checker, Cap);
         end
     end
-    
+    SharedTable[4] = SharedTable.TypeCheck;
     return SharedTable;
 end
 SharedTable = makeSharedTable();
