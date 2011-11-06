@@ -24,7 +24,7 @@ function makeLexpad ()
             SlotMapping[k] = v;
         end
         for k,v in ipairs(Names) do
-            SlotMapping[v] = self.Storage.Count + k - 1;
+            SlotMapping[v] = self.Storage.Count + k;
         end
         self.SlotMapping = SlotMapping;
         local new = self.Storage.Count + #Names;
