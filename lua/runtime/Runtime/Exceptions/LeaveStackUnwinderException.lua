@@ -4,7 +4,7 @@ function makeLeaveStackUnwinderException ()
     function LeaveStackUnwinderException.new(TargetBlock, PayLoad)
         local this = {};
         this.TargetBlock = TargetBlock;
-        this.HandleBlock = PayLoad;
+        this.PayLoad = PayLoad;
         this.class = "LeaveStackUnwinderException";
         return setmetatable(this, mt);
     end
