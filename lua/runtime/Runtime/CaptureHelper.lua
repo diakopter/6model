@@ -49,6 +49,7 @@ function CaptureHelper.GetPositionalAsString (Capture, Pos)
     return Ops.unbox_str(nil, CaptureHelper.GetPositional(Capture, Pos));
 end
 
-function CaptureHelper.Nil ()
-    return nil;
+-- only slightly less horrible.
+function CaptureHelper.Nil (TC)
+    return TC.DefaultListType.STable.REPR:instance_of(TC, TC.DefaultListType);
 end
