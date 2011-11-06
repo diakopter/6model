@@ -59,10 +59,10 @@ function makeSignatureBinder()
                 local SlurpyHolder = TC.DefaultArrayType.STable.REPR:instance_of(TC, TC.DefaultArrayType);
                 C.LexPad.Storage[Param.VariableLexpadPosition] = SlurpyHolder;
                 -- pretty sure this might be off-by-one. ;)
-                for j = CurPositional, Positionals.Length - 1 do
+                for j = CurPositional, Positionals.Count do
                     Ops.lllist_push(TC, SlurpyHolder, Positionals[j]);
                 end
-                CurPositional = j;
+                CurPositional = Positionals.Count;
             elseif (Param.Name ~= nil) then
                 local Value;
                 if (Nameds[Param.Name] ~= nil) then
