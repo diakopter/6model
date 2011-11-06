@@ -35,11 +35,7 @@ function makeP6opaque ()
         return Object;
     end
     function P6opaque:defined(TC, O)
-        if (Obj.Storage ~= nil) then
-            return true;
-        else
-            return false;
-        end
+        return O.Storage ~= nil;
     end
     function P6opaque:get_attribute(TC, I, ClassHandle, Name)
         if (I.Storage == nil or I.Storage[ClassHandle] == nil) then

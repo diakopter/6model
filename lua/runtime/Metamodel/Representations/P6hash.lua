@@ -35,11 +35,7 @@ function makeP6hash ()
         return Object;
     end
     function P6hash:defined(TC, O)
-        if (Obj.Storage ~= nil) then
-            return true;
-        else
-            return false;
-        end
+        return O.Storage ~= nil;
     end
     function P6hash:get_attribute(TC, I, ClassHandle, Name)
         if (I.Storage ~= nil or I.Storage[ClassHandle] == nil) then

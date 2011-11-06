@@ -43,7 +43,13 @@ function KnowHOWBootstrapper.Bootstrap ()
             if (HOW.Methods[name] ~= nil) then
                 return HOW.Methods[name];
             else
-                error("No method '"..name.."' found in knowhow '"..(HOW.Name or "(no name available)").."'");
+                local knowhowName;
+                if (type(HOW.Name) == "table") then
+                    knowhowName = Ops.unbox_str(TC, HOW.Name);
+                else
+                    knowhowName = HOW.Name or "(no name available)";
+                end
+                error("No method '"..name.."' found in knowhow '"..knowhowName.."'");
             end
         end);
     KnowHOWMeths.compose = CodeObjectUtility.WrapNativeMethod(
