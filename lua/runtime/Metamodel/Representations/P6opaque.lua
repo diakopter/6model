@@ -42,7 +42,7 @@ function makeP6opaque ()
         end
     end
     function P6opaque:get_attribute(TC, I, ClassHandle, Name)
-        if (I.Storage ~= nil or I.Storage[ClassHandle] == nil) then
+        if (I.Storage == nil or I.Storage[ClassHandle] == nil) then
             return nil;
         end
         return I.Storage[ClassHandle][Name];
