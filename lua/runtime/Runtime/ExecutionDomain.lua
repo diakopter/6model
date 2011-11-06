@@ -1,5 +1,5 @@
 function makeExecutionDomain ()
-    local ExecutionDomain = {};
+    local ExecutionDomain = { ["class"] = "ExecutionDomain" };
     local mt = { __index = ExecutionDomain };
     function ExecutionDomain.new()
         local this = {};

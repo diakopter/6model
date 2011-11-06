@@ -4,11 +4,12 @@ CaptureHelper.FLATTEN_POS = 1;
 CaptureHelper.FLATTEN_NAMED = 2;
 
 function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
-    local C = CaptureHelper.CaptureTypeObject.STable.REPR:instance_of(nil, CaptureHelper.CaptureTypeObject);
+    local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
+    local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
     if PosArgs ~= nil then
         C.Positionals = List.new();
         for k,v in ipairs(PosArgs) do
-            C.Positionals:Add(v);
+            List.Add(C.Positionals, v);
         end
     end;
     if NamedArgs ~= nil then C.Nameds = NamedArgs end;
@@ -17,12 +18,7 @@ function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
 end
 
 function CaptureHelper.GetPositional (Capture, Pos)
-    local Possies = Capture.Positionals;
-    if (Possies ~= nil and Pos <= #Possies) then
-        return Possies[Pos];
-    else
-        return nil;
-    end
+    return Capture.Positionals[Pos];
 end
 
 function CaptureHelper.NumPositionals (Capture)
@@ -37,12 +33,7 @@ function CaptureHelper.NumPositionals (Capture)
 end
 
 function CaptureHelper.GetNamed (Capture, Name)
-    local Nameds = Capture.Nameds;
-    if (Nameds ~= nil and Nameds[Name] ~= nil) then
-        return Nameds[Name];
-    else
-        return nil;
-    end
+    return Capture.Nameds and Capture.Nameds[Name] or nil;
 end
 
 function CaptureHelper.GetPositionalAsString (Capture, Pos)
@@ -51,5 +42,6 @@ end
 
 -- only slightly less horrible.
 function CaptureHelper.Nil (TC)
-    return TC.DefaultListType.STable.REPR:instance_of(TC, TC.DefaultListType);
+    local REPR = TC.DefaultListType.STable.REPR;
+    return REPR.instance_of(REPR, TC, TC.DefaultListType);
 end

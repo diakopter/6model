@@ -1,9 +1,8 @@
 function makeContext ()
-    local Context = {};
+    local Context = { ["class"] = "Context" };
     local mt = { __index = Context };
     function Context.newplain()
-        local this = {};
-        return setmetatable(this, mt);
+        return setmetatable({}, mt);
     end
     function Context.new(StaticCodeObject, Caller, Capture)
         local this = {};
@@ -40,6 +39,7 @@ function makeContext ()
         end
         return setmetatable(this, mt);
     end
+    Context[1] = Context.new;
     return Context;
 end
 Context = makeContext();

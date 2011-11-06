@@ -1,5 +1,5 @@
 function makeLexpad ()
-    local Lexpad = {};
+    local Lexpad = { ["class"] = "Lexpad" };
     local mt = { __index = Lexpad };
     function Lexpad.new(SlotNames)
         local this = {};
@@ -11,13 +11,15 @@ function makeLexpad ()
         this.Storage = List.new(this.SlotCount);
         return setmetatable(this, mt);
     end
-    
+    Lexpad[1] = Lexpad.new;
     function Lexpad:GetByName(Name)
         return self.Storage[self.SlotMapping[Name]];
     end
+    Lexpad[2] = Lexpad.GetByName;
     function Lexpad:SetByName(Name, Value)
         self.Storage[self.SlotMapping[Name]] = Value;
     end
+    Lexpad[3] = Lexpad.SetByName;
     function Lexpad:Extend(Names)
         local SlotMapping = {};
         for k,v in pairs(self.SlotMapping) do
@@ -35,6 +37,7 @@ function makeLexpad ()
         self.SlotCount = new;
         self.Storage = NewStorage;
     end
+    Lexpad[4] = Lexpad.Extend;
     return Lexpad;
 end
 Lexpad = makeLexpad();
