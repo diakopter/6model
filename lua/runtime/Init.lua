@@ -17,6 +17,20 @@ function table_clone (target)
     return dest;
 end
 
+function debug_get (var)
+    local i = 1
+    while true do
+        local j = 1
+        while true do
+            local k, v = debug.getlocal(i, j)
+            if k == nil then break end
+            if k == var then return v end
+            j = j + 1;
+        end
+        i = i + 1
+    end
+end
+
 function table_desc (target)
     if (type(target) == "nil") then
         print("table_desc target was nil");
