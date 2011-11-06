@@ -5,7 +5,14 @@ function Ops.lllist_get_at_pos(TC, LLList, Index)
 end
 
 function Ops.lllist_bind_at_pos(TC, LLList, IndexObj, Value)
-    LLList.Storage[Ops.unbox_int(TC, IndexObj) + 1] = Value;
+    local ix = Ops.unbox_int(TC, IndexObj) + 1;
+    if ix == LLList.Storage.Count + 1 then
+        -- the compiler likes to generate code to bind outside the range of
+        -- lists hoping to extend.. <double sigh>
+        LLList.Storage:Push(Value);
+    else
+        LLList.Storage[ix] = Value;
+    end
     return Value;
 end
 
