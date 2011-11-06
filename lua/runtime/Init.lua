@@ -149,7 +149,7 @@ function makeInit ()
                         CaptureHelper.FormWith( { Value }));
                     io.write(Ops.unbox_str(nil, StrVal));
                 end
-                return CaptureHelper.Nil();
+                return CaptureHelper.Nil(TC);
             end));
         SettingContext.LexPad:SetByName("say",
         CodeObjectUtility.WrapNativeMethod(function (TC, self, C)
@@ -160,7 +160,7 @@ function makeInit ()
                         CaptureHelper.FormWith( { Value }));
                     io.write(Ops.unbox_str(nil, StrVal), "\n");
                 end
-                return CaptureHelper.Nil();
+                return CaptureHelper.Nil(TC);
             end));
         SettingContext.LexPad:SetByName("capture", REPRRegistry.get_REPR_by_name("P6capture"):type_object_for(nil, nil));
         

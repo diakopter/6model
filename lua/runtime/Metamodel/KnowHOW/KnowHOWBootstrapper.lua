@@ -25,7 +25,7 @@ function KnowHOWBootstrapper.Bootstrap ()
             local HOW = CaptureHelper.GetPositional(Cap, 1);
             local Attr = CaptureHelper.GetPositional(Cap, 3);
             HOW.Attributes:Add(Attr);
-            return CaptureHelper.Nil();
+            return CaptureHelper.Nil(TC);
         end);
     KnowHOWMeths.add_method = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
@@ -33,7 +33,7 @@ function KnowHOWBootstrapper.Bootstrap ()
             local Name = CaptureHelper.GetPositionalAsString(Cap, 3);
             local Method = CaptureHelper.GetPositional(Cap, 4);
             HOW.Methods[Name] = Method;
-            return CaptureHelper.Nil();
+            return CaptureHelper.Nil(TC);
         end);
     KnowHOWMeths.find_method = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
