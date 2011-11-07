@@ -17,6 +17,7 @@ function table_clone (target)
     return dest;
 end
 
+-- say debug_get("l") in the repl to find the innermost "l" variable
 function debug_get (var)
     local i = 1
     while true do
@@ -31,6 +32,28 @@ function debug_get (var)
     end
 end
 
+function debug_flat (obj)
+    local out = {}
+    for k, v in pairs(obj) do
+        -- flatten Storage info into the result
+        if k == "Storage" then
+            for ks, vs in pairs(v) do
+                -- for P6opaque, merge all per-class attribute lists together
+                if type(ks) == "table" then
+                    for kss, vss in pairs(vs) do
+                        out[kss] = vss
+                    end
+                else
+                    out[ks] = vs
+                end
+            end
+        else
+            out[k] = v
+        end
+    end
+    return out
+end
+
 function table_desc (target)
     if (type(target) == "nil") then
         print("table_desc target was nil");
@@ -38,7 +61,10 @@ function table_desc (target)
         print("table_desc target wasn't a table; it was a " .. type(target));
     else
         print("table_desc : " .. tostring(target));
-        for k,v in pairs(target) do print(k .. " : " .. tostring(v)) end
+        keys = {}
+        for k,_ in pairs(target) do table.insert(keys, k) end
+        table.sort(keys, function (k1, k2) return tostring(k1) < tostring(k2) end)
+        for _,k in ipairs(keys) do print("   " .. tostring(k) .. " : " .. tostring(target[k])) end
     end
 end
 
