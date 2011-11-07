@@ -6,6 +6,13 @@ function makeList ()
         list.Count = count ~= nil and count or 0;
         return setmetatable(list, mt);
     end
+    function List:Clone()
+        local list = List.new(self.Count);
+        for i = 1, self.Count do
+            list[i] = self[i];
+        end
+        return list;
+    end
     function List:Add(item)
         self.Count = self.Count + 1;
         self[self.Count] = item;

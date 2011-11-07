@@ -24,7 +24,12 @@ function makeMultiDispatcher ()
     function MultiDispatcher.FindBestCandidate(TC, DispatchRoutine, Capture)
         local NativeCapture = Capture;
         
-        -- skip caching for now!
+        if (DispatchRoutine.MultiDispatchCache ~= nil and NativeCapture.Nameds == nil) then
+            local CacheResult = DispatchRoutine.MultiDispatchCache:Lookup(NativeCapture.Positionals);
+            if (CacheResult ~= nil) then
+                return CacheResult;
+            end
+        end
         
         local SortedCandidates = MultiDispatcher.Sort(TC, DispatchRoutine.Dispatchees);
         
@@ -37,9 +42,14 @@ function makeMultiDispatcher ()
             continuing = false;
             if (Candidate == nil) then
                 if (PossiblesList.Count == 1) then
+                    if (NativeCapture.Nameds == nil) then
+                        if (DispatchRoutine.MultiDispatchCache == nil) then
+                            DispatchRoutine.MultiDispatchCache = DispatchCache.new();
+                        end
+                        DispatchRoutine.MultiDispatchCache:Add(NativeCapture.Positionals, PossiblesList[1]);
+                    end
                     return PossiblesList[1];
                 elseif (PossiblesList.Count > 1) then
-                    -- skip caching.
                     error("Ambiguous dispatch: more than one candidate matches");
                 else
                     continuing = true;

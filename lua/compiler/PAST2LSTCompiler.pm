@@ -1731,7 +1731,7 @@ sub box($type, $arg) {
 # Emits the unboxing of a str/num/int.
 sub unbox($type, $arg) {
     LST::MethodCall.new(
-        :on('Ops'), :name("unbox_$type"),
+        :on('Ops'), :name($type eq 'str' ?? '[6]' !! $type eq 'int' ?? '[4]' !! '[5]'),
         :type(vm_type_for($type)),
         TC(), lst_for($arg)
     )
