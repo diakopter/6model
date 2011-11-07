@@ -72,7 +72,8 @@ Ops[86] = Ops.concat;
 
 function Ops.substr(TC, x, y, z)
     local str;
-    if (z ~= nil and z.STable.REPR:define(TC, z)) then
+    local REPR = z.STable.REPR;
+    if (z ~= nil and REPR.defined(REPR, TC, z)) then
         str = Ops.unbox_str(TC, x):sub(Ops.unbox_int(TC, y) + 1, Ops.unbox_int(TC, z) + 1);
     else
         str = Ops.unbox_str(TC, x):sub(Ops.unbox_int(TC, y) + 1);

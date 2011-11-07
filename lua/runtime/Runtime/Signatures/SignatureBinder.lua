@@ -23,6 +23,7 @@ function makeSignatureBinder()
         end
         
         local CurPositional = 1;
+        local STable, REPR;
         
         local Params = Sig.Parameters;
         local NumParams = Params.Count;
@@ -43,10 +44,12 @@ function makeSignatureBinder()
                 if (CurPositional <= Positionals.Count) then
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
                 else
-                    C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable:Invoke(TC, Param.DefaultValue, Capture);
+                    STable = Param.DefaultValue.STable;
+                    C.LexPad.Storage[Param.VariableLexpadPosition] = STable.Invoke(STable, TC, Param.DefaultValue, Capture);
                 end
             elseif (bit.band(Param.Flags, Parameter.NAMED_SLURPY_FLAG) ~= 0) then
-                local SlurpyHolder = TC.DefaultHashType.STable.REPR:instance_of(TC, TC.DefaultHashType);
+                REPR = TC.DefaultHashType.STable.REPR;
+                local SlurpyHolder = REPR.instance_of(REPR, TC, TC.DefaultHashType);
                 C.LexPad.Storage[Param.VariableLexpadPosition] = SlurpyHolder;
                 for Name, unused in pairs(Nameds) do
                     if (SeenNames == nil or SeenNames[Name] == nil) then
@@ -56,7 +59,8 @@ function makeSignatureBinder()
                     end
                 end
             elseif (bit.band(Param.Flags, Parameter.POS_SLURPY_FLAG) ~= 0) then
-                local SlurpyHolder = TC.DefaultArrayType.STable.REPR:instance_of(TC, TC.DefaultArrayType);
+                REPR = TC.DefaultArrayType.STable.REPR;
+                local SlurpyHolder = REPR.instance_of(REPR, TC, TC.DefaultArrayType);
                 C.LexPad.Storage[Param.VariableLexpadPosition] = SlurpyHolder;
                 -- pretty sure this might be off-by-one. ;)
                 for j = CurPositional, Positionals.Count do
@@ -75,7 +79,8 @@ function makeSignatureBinder()
                     if (bit.band(Param.Flags, Parameter.OPTIONAL_FLAG) == 0) then
                         error("Required named parameter " .. Param.Name .. " missing");
                     else
-                        C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable:Invoke(TC, Param.DefaultValue, Capture);
+                        STable = Param.DefaultValue.STable;
+                        C.LexPad.Storage[Param.VariableLexpadPosition] = STable.Invoke(STable, TC, Param.DefaultValue, Capture);
                     end
                 end
             else
@@ -112,11 +117,11 @@ function makeSignatureBinder()
         
         for i = 1, Positionals.Count do
             if (FlattenSpec[i] == CaptureHelper.FLATTEN_NONE) then
-                NewPositionals:Add(Positionals[i]);
+                List.Add(NewPositionals, Positionals[i]);
             elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_POS) then
                 local Flattenee = Positionals[i];
                 for unused, Pos in ipairs(Flattenee.Storage) do
-                    NewPositionals:Add(Pos);
+                    List.Add(NewPositionals, Pos);
                 end
             elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_NAMED) then
                 local Flattenee = Positionals[i];

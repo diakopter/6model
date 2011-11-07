@@ -5,7 +5,7 @@ function makeSignature ()
         local this = {};
         this.Parameters = List.new();
         for k,v in ipairs(Parameters) do
-            this.Parameters:Add(v);
+            List.Add(this.Parameters, v);
         end
         this.NumRequiredPositionals = 0;
         this.NumPositionals = 0;
