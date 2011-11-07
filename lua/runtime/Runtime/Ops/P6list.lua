@@ -23,27 +23,27 @@ end
 Ops[64] = Ops.lllist_elems;
 
 function Ops.lllist_push(TC, LLList, item)
-    LLList.Storage:Push(item);
+    List.Push(LLList.Storage, item);
 end
 Ops[65] = Ops.lllist_push;
 
 function Ops.lllist_pop(TC, LLList)
-    return LLList.Storage:Pop();
+    return List.Pop(LLList.Storage);
 end
 Ops[66] = Ops.lllist_pop;
 
 function Ops.lllist_truncate_to(TC, LLList, Length)
-    LLList.Storage:Truncate(Ops.unbox_int(TC, Length));
+    List.Truncate(LLList.Storage, Ops.unbox_int(TC, Length));
     return LLList;
 end
 Ops[67] = Ops.lllist_truncate_to;
 
 function Ops.lllist_shift(TC, LLList)
-    return LLList.Storage:Shift();
+    return List.Shift(LLList.Storage);
 end
 Ops[68] = Ops.lllist_shift;
 
 function Ops.lllist_unshift(TC, LLList, item)
-    return LLList.Storage:Unshift(item);
+    return List.Unshift(LLList.Storage, item);
 end
 Ops[69] = Ops.lllist_unshift;

@@ -32,15 +32,17 @@ function makeSharedTable ()
             -- Find the find_method method.
             local HOW = Obj.STable.HOW;
             local Meth = Obj.STable.CachedFindMethod;
+            local STable = HOW.STable;
             if (Meth == nil) then
-                Meth = HOW.STable:FindMethod(
+                Meth = STable.FindMethod(STable, 
                     TC, HOW, "find_method", Hints.NO_HINT);
                 Obj.STable.CachedFindMethod = Meth;
             end
 
             -- Call it.
             local Cap = CaptureHelper.FormWith({ HOW, Obj, Ops.box_str(TC, Name, TC.DefaultStrBoxType) });
-            return Meth.STable:Invoke(TC, Meth, Cap);
+            STable = Meth.STable;
+            return STable.Invoke(STable, TC, Meth, Cap);
         end
     end
     SharedTable[2] = SharedTable.FindMethod;
@@ -50,9 +52,10 @@ function makeSharedTable ()
         end
         local STable = Obj.STable;
         if (STable.CachedInvoke == nil) then
-            STable.CachedInvoke = Obj.STable:FindMethod(TC, Obj, "postcircumfix:<( )>", Hints.NO_HINT);
+            STable.CachedInvoke = STable.FindMethod(STable, TC, Obj, "postcircumfix:<( )>", Hints.NO_HINT);
         end
-        return STable.CachedInvoke.STable:Invoke(TC, Obj, Cap);
+        STable = STable.CachedInvoke.STable;
+        return STable.Invoke(STable, TC, Obj, Cap);
     end
     SharedTable[3] = SharedTable.Invoke;
     function SharedTable:TypeCheck(TC, Obj, Checkee)
@@ -64,9 +67,11 @@ function makeSharedTable ()
             end
             return Ops.box_int(TC, 0, TC.DefaultBoolBoxType);
         else
-            local Checker = self.HOW.STable:FindMethod(TC, self.HOW, "type_check", Hints.NO_HINT);
+            local STable = self.HOW.STable;
+            local Checker = STable.FindMethod(STable, TC, self.HOW, "type_check", Hints.NO_HINT);
             local Cap = CaptureHelper.FormWith({ self.HOW, Obj, Checkee });
-            return Checker.STable:Invoke(TC, Checker, Cap);
+            STable = Checker.STable;
+            return STable.Invoke(STable, TC, Checker, Cap);
         end
     end
     SharedTable[4] = SharedTable.TypeCheck;
