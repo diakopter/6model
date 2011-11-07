@@ -1,26 +1,32 @@
 function Ops.box_int (TC, Value, To)
+    local REPR;
     if To ~= nil then
-        local REPR = To.STable.REPR;
-        local Result = REPR:instance_of(TC, To);
-        REPR:set_int(TC, Result, Value);
+        REPR = To.STable.REPR;
+        local Result = REPR.instance_of(REPR, TC, To);
+        REPR.set_int(REPR, TC, Result, Value);
         return Result;
     else
-        local Result = TC.DefaultIntBoxType.STable.REPR:instance_of(TC, TC.DefaultIntBoxType);
-        TC.DefaultIntBoxType.STable.REPR:set_int(TC, Result, Value);
+        REPR = TC.DefaultIntBoxType.STable.REPR;
+        local Result = REPR.instance_of(REPR, TC, TC.DefaultIntBoxType);
+        REPR = TC.DefaultIntBoxType.STable.REPR;
+        REPR.set_int(REPR, TC, Result, Value);
         return Result;
     end
 end
 Ops[1] = Ops.box_int;
 
 function Ops.box_num (TC, Value, To)
+    local REPR;
     if To ~= nil then
-        local REPR = To.STable.REPR;
-        local Result = REPR:instance_of(TC, To);
-        REPR:set_num(TC, Result, Value);
+        REPR = To.STable.REPR;
+        local Result = REPR.instance_of(REPR, TC, To);
+        REPR.set_num(REPR, TC, Result, Value);
         return Result;
     else
-        local Result = TC.DefaultNumBoxType.STable.REPR:instance_of(TC, TC.DefaultNumBoxType);
-        TC.DefaultNumBoxType.STable.REPR:set_num(TC, Result, Value);
+        REPR = TC.DefaultNumBoxType.STable.REPR;
+        local Result = REPR.instance_of(REPR, TC, TC.DefaultNumBoxType);
+        REPR = TC.DefaultNumBoxType.STable.REPR;
+        REPR.set_num(REPR, TC, Result, Value);
         return Result;
     end
 end

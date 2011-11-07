@@ -48,7 +48,7 @@ function makeP6opaque ()
     end
     P6opaque[6] = P6opaque.get_attribute;
     function P6opaque:get_attribute_with_hint(TC, I, ClassHandle, Name, Hint)
-        return self:get_attribute(TC, Object, ClassHandle, Name);
+        return self.get_attribute(self, TC, Object, ClassHandle, Name);
     end
     P6opaque[7] = P6opaque.get_attribute_with_hint;
     function P6opaque:bind_attribute(TC, Object, ClassHandle, Name, Value)
@@ -59,7 +59,7 @@ function makeP6opaque ()
     end
     P6opaque[8] = P6opaque.bind_attribute;
     function P6opaque:bind_attribute_with_hint(TC, Object, ClassHandle, Name, Hint, Value)
-        self:bind_attribute(TC, Object, ClassHandle, Name, Value);
+        self.bind_attribute(self, TC, Object, ClassHandle, Name, Value);
     end
     P6opaque[9] = P6opaque.bind_attribute_with_hint;
     return P6opaque;

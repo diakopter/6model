@@ -49,7 +49,7 @@ function makeP6hash ()
     end
     P6hash[6] = P6hash.get_attribute;
     function P6hash:get_attribute_with_hint(TC, I, ClassHandle, Name, Hint)
-        return self:get_attribute(TC, Object, ClassHandle, Name);
+        return self.get_attribute(self, TC, Object, ClassHandle, Name);
     end
     P6hash[7] = P6hash.get_attribute_with_hint;
     function P6hash:bind_attribute(TC, Object, ClassHandle, Name, Value)
@@ -60,7 +60,7 @@ function makeP6hash ()
     end
     P6hash[8] = P6hash.bind_attribute;
     function P6hash:bind_attribute_with_hint(TC, Object, ClassHandle, Name, Hint, Value)
-        self:bind_attribute(TC, Object, ClassHandle, Name, Value);
+        self.bind_attribute(self, TC, Object, ClassHandle, Name, Value);
     end
     P6hash[9] = P6hash.bind_attribute_with_hint;
     return P6hash;

@@ -99,7 +99,8 @@ function makeDispatchCache ()
         local Result = List.new(Positionals.Count);
         for i = 1, Positionals.Count do
             local STable = Positionals[i].STable;
-            Result[i] = bit.bor(STable.TypeCacheID, STable.REPR:defined(nil, Positionals[i]) and 1 or 0);
+            local REPR = STable.REPR;
+            Result[i] = bit.bor(STable.TypeCacheID, REPR.defined(REPR, nil, Positionals[i]) and 1 or 0);
         end
         return Result;
     end
