@@ -26,14 +26,17 @@ gen_past2lst.pir: PAST2LSTCompiler.pm
 gen_lst2lua.pir: LST2Lua.pm
 	parrot-nqp --target=pir LST2Lua.pm > gen_lst2lua.pir
 
-RakudoRuntime.lua: $(RT_SRC)
-	$(CAT) $(RT_SRC) > RakudoRuntime.lua
+RakudoRuntime_pre.lua: $(RT_SRC)
+	$(CAT) $(RT_SRC) > RakudoRuntime_pre.lua
+
+RakudoRuntime.lua: RakudoRuntime_pre.lua IndexersOptimizer.lua IndexersReplacements.txt
+	luajit IndexersOptimizer.lua IndexersReplacements.txt RakudoRuntime_pre.lua RakudoRuntime.lua
 
 RakudoRuntime.lbc:	RakudoRuntime.lua
 	luajit -b RakudoRuntime.lua RakudoRuntime.lbc
 
 NQPSetting.lua: LocalsOptimizer.lua NQPSetting_pre.lua
-	$(CAT) NQPSetting_pre.lua > NQPSetting.lua
+    $(CAT) NQPSetting_pre.lua > NQPSetting.lua
 #	 luajit LocalsOptimizer.lua NQPSetting_pre.lua > NQPSetting.lua
 
 NQPSetting_pre.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/NQPSetting.pm

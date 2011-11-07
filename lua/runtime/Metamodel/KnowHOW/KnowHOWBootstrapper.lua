@@ -104,7 +104,7 @@ function KnowHOWBootstrapper.Bootstrap ()
     STableCopy.REPR = KnowHOW.STable.REPR;
     KnowHOWHOW.STable = STableCopy;
     
-    function KnowHOWHOW.STable.SpecialFindMethod (TC, Obj, Name, Hint)
+    KnowHOWHOW.STable.SpecialFindMethod = function (TC, Obj, Name, Hint)
         local MTable = Obj.Methods;
         if (MTable[Name] ~= null) then
             return MTable[Name];

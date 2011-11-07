@@ -3,16 +3,16 @@ function makeREPRRegistry ()
     local REPRRegistry = {};
     local mt = { __index = REPRRegistry };
     local Registry = List.new();
-    local NamedToIDMapper = Dictionary.new();
+    local NamedToIDMapper = {};
     function REPRRegistry.new()
         return setmetatable({}, mt);
     end
     REPRRegistry[1] = REPRRegistry.new;
     function REPRRegistry.register_REPR(Name, REPR)
-        Registry:Add(REPR);
-        REPR.class = Name;
+        List.Add(Registry, REPR);
+        REPR.Name = Name;
         local ID = Registry.Count;
-        NamedToIDMapper:Add(Name, ID);
+        NamedToIDMapper[Name] = ID;
         return ID;
     end
     REPRRegistry[2] = REPRRegistry.register_REPR;

@@ -102,7 +102,7 @@ method compile(PAST::Node $node) {
             :return_type('Context'),
             LST::Local.new( :name('TC'), :isdecl(1), :type('ThreadContext'),
                 LST::MethodCall.new(
-                    :on('Init'), :name('Initialize'),
+                    :on('Init'), :name('[1]'),
                     :type('ThreadContext'),
                     LST::Null.new()
                 )
@@ -114,7 +114,7 @@ method compile(PAST::Node $node) {
             LST::MethodCall.new(
                 :on('StaticBlockInfo[1].StaticLexPad'), :name('SetByName'), :void(1), :type('RakudoObject'),
                 LST::Literal.new( :value('NQPStr'), :escape(1) ),
-                'REPRRegistry.get_REPR_by_name("P6str"):type_object_for(nil, nil)'
+                'REPRRegistry[4]("P6str"):type_object_for(nil, nil)'
             ),
 
             # We do the loadinit calls before building the constants, as we
@@ -484,7 +484,7 @@ our multi sub lst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('STable:Invoke'), :type('RakudoObject'),
+            :name('[1]:Invoke'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
@@ -590,7 +590,7 @@ our multi sub lst_for(PAST::Op $op) {
         my $callee := LST::Local.new(
             :name(get_unique_id('callee')), :isdecl(1), :type('RakudoObject'),
             LST::MethodCall.new(
-                :on($inv.name), :name('STable:FindMethod'), :type('RakudoObject'),
+                :on($inv.name), :name('[1]:FindMethod'), :type('RakudoObject'),
                 TC(),
                 $inv.name,
                 $name,
@@ -602,7 +602,7 @@ our multi sub lst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('STable:Invoke'), :type('RakudoObject'),
+                :name('[1]:Invoke'), :type('RakudoObject'),
                 $callee,
                 TC(),
                 $callee.name,
@@ -629,7 +629,7 @@ our multi sub lst_for(PAST::Op $op) {
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('STable:Invoke'), :type('RakudoObject'),
+            :name('[1]:Invoke'), :type('RakudoObject'),
             $callee,
             TC(),
             $callee.name,

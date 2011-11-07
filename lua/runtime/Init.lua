@@ -82,6 +82,7 @@ function makeInit ()
 
         return Thread;
     end
+    Init[1] = Init.Initialize;
     
     function Init.RegisterRepresentations()
     if not REPRS_Registered then
@@ -98,6 +99,7 @@ function makeInit ()
         REPRS_Registered = true;
         end
     end
+    Init[2] = Init.RegisterRepresentations;
     
     function Init.BootstrapSetting(KnowHOW, KnowHOWAttribute)
         local SettingContext = Context.newplain();
@@ -135,6 +137,7 @@ function makeInit ()
             };
         return SettingContext;
     end
+    Init[3] = Init.BootstrapSetting;
     
     function Init.LoadSetting(Name, KnowHOW, KnowHOWAttribute)
         local success, SettingContext;
@@ -181,6 +184,7 @@ function makeInit ()
         
         return SettingContext;
     end
+    Init[4] = Init.LoadSetting;
     
     return Init;
 end

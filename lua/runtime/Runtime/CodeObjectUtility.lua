@@ -10,9 +10,9 @@ end
 function CodeObjectUtility.BuildStaticBlockInfo (Code, Outer, LexNames, BlockName)
     local REPR = CodeObjectUtility.LLCodeTypeObject.STable.REPR;
     local Result = REPR.instance_of(REPR, nil, CodeObjectUtility.LLCodeTypeObject);
-    Result.Body = Code;
-    Result.OuterBlock = Outer;
-    Result.BlockName = BlockName;
-    Result.StaticLexPad = Lexpad.new(LexNames);
+    Result.Body = Code; -- 1
+    Result.OuterBlock = Outer; -- 2
+    Result.BlockName = BlockName; -- 3
+    Result.StaticLexPad = Lexpad.new(LexNames); -- 4
     return Result;
 end
