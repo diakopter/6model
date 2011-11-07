@@ -8,6 +8,7 @@ function Ops.llcap_get_at_pos(TC, Capture, Index)
     if (result ~= nil) then return result end
     return Ops.get_lex(TC, "Mu");
 end
+Ops[58] = Ops.llcap_get_at_pos;
 
 function Ops.llcap_bind_at_pos(TC, Capture, IndexObj, Value)
     local Cap = Capture;
@@ -20,6 +21,7 @@ function Ops.llcap_bind_at_pos(TC, Capture, IndexObj, Value)
     Storage[Index] = Value;
     return Value;
 end
+Ops[59] = Ops.llcap_bind_at_pos;
 
 function Ops.llcap_get_at_key(TC, Capture, Key)
     local Storage = Capture.Nameds;
@@ -34,6 +36,7 @@ function Ops.llcap_get_at_key(TC, Capture, Key)
         return Ops.get_lex(TC, "Mu");
     end
 end
+Ops[60] = Ops.llcap_get_at_key;
 
 function Ops.llcap_bind_at_key(TC, Capture, Key, Value)
     local Storage = Capture.Nameds;
@@ -45,4 +48,4 @@ function Ops.llcap_bind_at_key(TC, Capture, Key, Value)
     Storage[StrKey] = Value;
     return Value;
 end
-
+Ops[61] = Ops.llcap_bind_at_key;

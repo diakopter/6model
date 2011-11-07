@@ -10,6 +10,7 @@ function Ops.get_caller_sub(TC, Level)
     end
     return Context.StaticCodeObject;
 end
+Ops[40] = Ops.get_caller_sub;
 
 function Ops.get_outer_sub(TC, Level)
     local ToLevel = Ops.unbox_int(TC, Level);
@@ -23,3 +24,4 @@ function Ops.get_outer_sub(TC, Level)
     end
     return Context.StaticCodeObject;
 end
+Ops[41] = Ops.get_outer_sub;

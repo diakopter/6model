@@ -2,10 +2,13 @@ Exceptions = {};
 Exceptions.ExceptionDispatcher = {};
 
 function Exceptions.ExceptionDispatcher.CallHandler(TC, Handler, ExceptionObject)
-    local Returned = Handler.STable:Invoke(TC, Handler, CaptureHelper.FormWith({ ExceptionObject }));
+    local STable = Handler.STable;
+    local Returned = STable.Invoke(STable, TC, Handler, CaptureHelper.FormWith({ ExceptionObject }));
     
-    local ResumableMeth = Returned.STable:FindMethod(TC, Returned, "resumable", Hints.NO_HINT);
-    local Resumable = ResumableMeth.STable:Invoke(TC, ResumableMeth, CaptureHelper.FormWith({ Returned }));
+    STable = Returned.STable;
+    local ResumableMeth = STable.FindMethod(STable, TC, Returned, "resumable", Hints.NO_HINT);
+    STable = ResumableMeth.STable;
+    local Resumable = STable.Invoke(STable, TC, ResumableMeth, CaptureHelper.FormWith({ Returned }));
     if (Ops.unbox_int(TC, Resumable) ~= 0) then
         return Returned;
     else
@@ -16,8 +19,9 @@ end
 function Exceptions.ExceptionDispatcher.DieFromUnhandledException(TC, Exception)
     try {
         function ()
-            local StrMeth = Exception.STable:FindMethod(TC, Exception, "Str", Hints.NO_HINT);
-            local Stringified = StrMeth.STable:Invoke(TC, StrMeth, CaptureHelper.FormWith({ Exception }));
+            local STable = Exception.STable;
+            local StrMeth = STable.FindMethod(STable, TC, Exception, "Str", Hints.NO_HINT);
+            local Stringified = STable.Invoke(STable, TC, StrMeth, CaptureHelper.FormWith({ Exception }));
             print(Ops.unbox_str(TC, Stringified));
         end
     }.except(){ -- catch GenericError (any error)

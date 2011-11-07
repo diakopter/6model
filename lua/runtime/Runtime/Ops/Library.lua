@@ -9,4 +9,4 @@ function Ops.load_module(TC, Path)
     end
     return LastLoad(TC, TC.Domain.Setting);
 end
-
+Ops[42] = Ops.load_module;

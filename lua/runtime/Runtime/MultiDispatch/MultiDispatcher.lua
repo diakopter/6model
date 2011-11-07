@@ -58,7 +58,8 @@ function makeMultiDispatcher ()
             for i = 1, TypeCheckCount do
                 local Arg = NativeCapture.Positionals[i];
                 local Type = Candidate.Sig.Parameters[i].Type;
-                if (Type ~= nil and Ops.unbox_int(TC, Type.STable:TypeCheck(TC, Arg.STable.WHAT, Type)) == 0) then
+                local REPR = Type and Type.STable or nil;
+                if (Type ~= nil and Ops.unbox_int(TC, REPR.TypeCheck(REPR, TC, Arg.STable.WHAT, Type)) == 0) then
                     TypeMismatch = true;
                     i = TypeCheckCount + 1; -- fake breaking
                 end
@@ -66,7 +67,8 @@ function makeMultiDispatcher ()
                 
                 local Definedness = Candidate.Sig.Parameters[i].Definedness;
                 if (Definedness ~= DefinednessConstraint.None) then
-                    local ArgDefined = Arg.STable.REPR:defined(null, Arg);
+                    REPR = Arg.STable.REPR;
+                    local ArgDefined = REPR.defined(REPR, null, Arg);
                     if (Definedness == DefinednessConstraint.DefinedOnly and not ArgDefined or
                             Definedness == DefinednessConstraint.UndefinedOnly and ArgDefined) then
                         TypeMismatch = true;
@@ -76,7 +78,7 @@ function makeMultiDispatcher ()
                 end -- breaking 
             end
             if (not TypeMismatch) then
-                PossiblesList:Add(Candidate);
+                List.Add(PossiblesList, Candidate);
             end
         end
         end end -- continuings

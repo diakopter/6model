@@ -9,6 +9,7 @@ function Ops.get_lex(TC, Name)
     end
     error("No variable " .. Name .. " found in the lexical scope");
 end
+Ops[90] = Ops.get_lex;
 
 function Ops.get_lex_skip_current(TC, Name)
     local CurContext = TC.CurrentContext.Outer;
@@ -21,6 +22,7 @@ function Ops.get_lex_skip_current(TC, Name)
     end
     error("No variable " .. Name .. " found in the lexical scope");
 end
+Ops[91] = Ops.get_lex_skip_current;
 
 function Ops.bind_lex(TC, Name, Value)
     local CurContext = TC.CurrentContext;
@@ -34,6 +36,7 @@ function Ops.bind_lex(TC, Name, Value)
     end
     error("No variable " .. Name .. " found in the lexical scope");
 end
+Ops[92] = Ops.bind_lex;
 
 function Ops.get_dynamic(TC, Name)
     local CurContext = TC.CurrentContext;
@@ -46,6 +49,7 @@ function Ops.get_dynamic(TC, Name)
     end
     error("No variable " .. Name .. " found in the dynamic scope");
 end
+Ops[93] = Ops.get_dynamic;
 
 function Ops.bind_dynamic(TC, Name, Value)
     local CurContext = TC.CurrentContext;
@@ -59,3 +63,4 @@ function Ops.bind_dynamic(TC, Name, Value)
     end
     error("No variable " .. Name .. " found in the dynamic scope");
 end
+Ops[94] = Ops.bind_dynamic;

@@ -7,6 +7,7 @@ function Ops.llmapping_get_at_key(TC, LLMapping, Key)
         error("Cannot use llmapping_get_at_key if representation is not P6mapping");
     end
 end
+Ops[70] = Ops.llmapping_get_at_key;
 
 function Ops.llmapping_bind_at_key(TC, LLMapping, Key, Value)
     if (LLMapping.class == "P6mapping") then
@@ -18,6 +19,7 @@ function Ops.llmapping_bind_at_key(TC, LLMapping, Key, Value)
         error("Cannot use llmapping_bind_at_key if representation is not P6mapping");
     end
 end
+Ops[71] = Ops.llmapping_bind_at_key;
 
 function Ops.llmapping_elems(TC, LLMapping)
     if (LLMapping.class == "P6mapping") then
@@ -26,3 +28,4 @@ function Ops.llmapping_elems(TC, LLMapping)
         error("Cannot use llmapping_elems if representation is not P6mapping");
     end
 end
+Ops[72] = Ops.llmapping_elems;

@@ -1,5 +1,5 @@
 function makeHandler ()
-    local Handler = {};
+    local Handler = { ["class"] = "Handler" };
     local mt = { __index = Handler };
     function Handler.new(Type, HandleBlock)
         local this = {};
@@ -7,6 +7,7 @@ function makeHandler ()
         this.HandleBlock = HandleBlock;
         return setmetatable(this, mt);
     end
+    Handler[1] = Handler.new;
     return Handler;
 end
 Exceptions.Handler = makeHandler();

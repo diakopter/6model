@@ -11,11 +11,13 @@ function Ops.multi_dispatch_over_lexical_candidates(TC)
     end
     error("Could not find dispatchee list!");
 end
+Ops[35] = Ops.multi_dispatch_over_lexical_candidates;
 
 function Ops.set_dispatchees(TC, CodeObject, Dispatchees)
     CodeObject.Dispatchees = Dispatchees.Storage;
     return CodeObject;
 end
+Ops[36] = Ops.set_dispatchees;
 
 function Ops.create_dispatch_and_add_candidates(TC, ToInstantiate, ExtraDispatchees)
     -- Make sure we got the right things.
@@ -46,6 +48,7 @@ function Ops.create_dispatch_and_add_candidates(TC, ToInstantiate, ExtraDispatch
     end
     return NewDispatch;
 end
+Ops[37] = Ops.create_dispatch_and_add_candidates;
 
 function Ops.push_dispatchee(TC, Dispatcher, Dispatchee)
     local Target = Dispatcher;
@@ -56,6 +59,7 @@ function Ops.push_dispatchee(TC, Dispatcher, Dispatchee)
     
     return Target;
 end
+Ops[38] = Ops.push_dispatchee;
 
 function Ops.is_dispatcher(TC, Check)
     local Checkee = Check;
@@ -65,3 +69,4 @@ function Ops.is_dispatcher(TC, Check)
         return Ops.box_int(TC, 0, TC.DefaultBoolBoxType);
     end
 end
+Ops[39] = Ops.is_dispatcher;
