@@ -217,7 +217,7 @@ our multi sub cs_for(LST::New $new) {
     # Code-gen the constructor call.
     $*LAST_TEMP := get_unique_id('new');
     $code := $code ~ "        $*LAST_TEMP = " ~
-        $new.type ~ ".new(" ~ pir::join(', ', @arg_names) ~ ");\n";
+        $new.type ~ "[1](" ~ pir::join(', ', @arg_names) ~ ");\n";
 
     return $code;
 }

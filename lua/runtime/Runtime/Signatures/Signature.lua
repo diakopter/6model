@@ -1,5 +1,5 @@
 function makeSignature ()
-    local Signature = {};
+    local Signature = { ["class"] = "Signature" };
     local mt = { __index = Signature };
     function Signature.new(Parameters)
         local this = {};
@@ -22,6 +22,7 @@ function makeSignature ()
         end
         return setmetatable(this, mt);
     end
+    Signature[1] = Signature.new;
     
     function Signature:HasSlurpyPositional()
         for i = 1, self.Parameters.Count do
@@ -31,6 +32,7 @@ function makeSignature ()
         end
         return false;
     end
+    Signature[2] = Signature.HasSlurpyPositional;
     return Signature;
 end
 Signature = makeSignature();

@@ -1,5 +1,5 @@
 function makeParameter ()
-    local Parameter = {};
+    local Parameter = { ["class"] = "Parameter" };
     local mt = { __index = Parameter };
     function Parameter.new(Type, VariableName, VariableLexpadPosition, Name, Flags, Definedness, DefaultValue)
         local this = {};
@@ -12,6 +12,7 @@ function makeParameter ()
         this.Definedness = Definedness;
         return setmetatable(this, mt);
     end
+    Parameter[1] = Parameter.new;
     
     Parameter.POS_FLAG = 0;
     Parameter.OPTIONAL_FLAG = 1;
@@ -27,6 +28,7 @@ function makeParameter ()
         end
         return false;
     end
+    Parameter[2] = Parameter.HasSlurpyPositional;
     return Parameter;
 end
 Parameter = makeParameter();

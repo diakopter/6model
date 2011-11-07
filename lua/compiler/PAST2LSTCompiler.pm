@@ -490,7 +490,7 @@ our multi sub lst_for(PAST::Block $block) {
             "StaticBlockInfo[$our_sbi]",
             LST::MethodCall.new(
                 :on('CaptureHelper'),
-                :name('FormWith'),
+                :name('[1]'),
                 :type('RakudoObject')
             )
         );
@@ -688,7 +688,7 @@ our multi sub lst_for(PAST::Op $op) {
             ),
             LST::If.new(
                 LST::MethodCall.new(
-                    :on('Ops'), :name('unbox_int'), :type('int'),
+                    :on('Ops'), :name('[4]'), :type('int'),
                     TC(), $cond_evaluated
                 ),
                 LST::Bind.new(lit($temp.name), lst_for((@($op))[1])),
@@ -817,7 +817,7 @@ our multi sub lst_for(PAST::Op $op) {
 sub form_capture(@args, $inv?) {
     # Create the various parts we might put into the capture.
     my $capture := LST::MethodCall.new(
-        :on('CaptureHelper'), :name('FormWith'), :type('RakudoObject')
+        :on('CaptureHelper'), :name('[1]'), :type('RakudoObject')
     );
     my $pos_part := LST::ArrayLiteral.new( :type('RakudoObject') );
     my $named_part := LST::DictionaryLiteral.new(
@@ -1665,7 +1665,7 @@ sub cursorop($name, *@args) {
 
 # Emits a lookup of a lexical.
 sub emit_lexical_lookup($name) {
-    my $lookup := emit_op(($*BIND_CONTEXT ?? 'bind_lex' !! 'get_lex'),
+    my $lookup := emit_op(($*BIND_CONTEXT ?? '[92]' !! '[90]'),
         LST::Literal.new( :value($name), :escape(1) )
     );
     if $*BIND_CONTEXT {
