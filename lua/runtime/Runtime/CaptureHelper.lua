@@ -7,7 +7,7 @@ function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
     local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
     local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
     if PosArgs ~= nil then
-        C.Positionals = List.new();
+        C.Positionals = List.create();
         for k,v in ipairs(PosArgs) do
             List.Add(C.Positionals, v);
         end

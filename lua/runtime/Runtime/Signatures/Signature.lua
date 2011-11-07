@@ -1,9 +1,9 @@
 function makeSignature ()
     local Signature = { ["class"] = "Signature" };
     local mt = { __index = Signature };
-    function Signature.new(Parameters)
+    function Signature.new (Parameters)
         local this = {};
-        this.Parameters = List.new();
+        this.Parameters = List.create();
         for k,v in ipairs(Parameters) do
             List.Add(this.Parameters, v);
         end
@@ -24,7 +24,7 @@ function makeSignature ()
     end
     Signature[1] = Signature.new;
     
-    function Signature:HasSlurpyPositional()
+    function Signature:HasSlurpyPositional ()
         for i = 1, self.Parameters.Count do
             if (self.Parameters[i].Flags == Parameter.POS_SLURPY_FLAG) then
                 return true;

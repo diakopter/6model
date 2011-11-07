@@ -1,7 +1,7 @@
 function makeThreadContext ()
     local ThreadContext = { ["class"] = "ThreadContext" };
     local mt = { __index = ThreadContext };
-    function ThreadContext.new()
+    function ThreadContext.new ()
         return setmetatable({}, mt);
     end
     ThreadContext[1] = ThreadContext.new;

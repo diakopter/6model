@@ -3,19 +3,19 @@ function makeSharedTable ()
     local SharedTable = {};
     local mt = { __index = SharedTable };
     local TypeCacheIDSource = 4;
-    function SharedTable.new()
+    function SharedTable.new ()
         local sharedTable = {};
         TypeCacheIDSource = TypeCacheIDSource + 4;
         sharedTable.TypeCacheID = TypeCacheIDSource;
         return setmetatable(sharedTable, mt);
     end
     SharedTable[1] = SharedTable.new;
-    function SharedTable:FindMethod(TC, Obj, Name, Hint)
+    function SharedTable:FindMethod (TC, Obj, Name, Hint)
         local CachedMethod;
 
         -- Does this s-table have a special overridden finder?
         if (self.SpecialFindMethod ~= nil) then
-            return self.SpecialFindMethod(TC, Obj, Name, Hint);
+            return self.SpecialFindMethod (TC, Obj, Name, Hint);
         end
 
         -- See if we can find it by hint.
@@ -46,7 +46,7 @@ function makeSharedTable ()
         end
     end
     SharedTable[2] = SharedTable.FindMethod;
-    function SharedTable:Invoke(TC, Obj, Cap)
+    function SharedTable:Invoke (TC, Obj, Cap)
         if (self.SpecialInvoke ~= nil) then
             return self.SpecialInvoke(TC, Obj, Cap);
         end
@@ -58,7 +58,7 @@ function makeSharedTable ()
         return STable.Invoke(STable, TC, Obj, Cap);
     end
     SharedTable[3] = SharedTable.Invoke;
-    function SharedTable:TypeCheck(TC, Obj, Checkee)
+    function SharedTable:TypeCheck (TC, Obj, Checkee)
         if (self.TypeCheckCache ~= nil) then
             for i = 1, self.TypeCheckCache.Count do
                 if (self.TypeCheckCache[i] == Checkee) then

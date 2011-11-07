@@ -249,7 +249,7 @@ sub make_constants_init_method($name) {
         # Create array for storing these.
         LST::Bind.new(
             loc('ConstantsTable', 'RakudoObject[]'),
-            'List.new(' ~ +@*CONSTANTS ~ ')'
+            'List.create(' ~ +@*CONSTANTS ~ ')'
         )
     );
 
@@ -1723,7 +1723,7 @@ sub temp_str($arg?, :$name) {
 # Emits a boxing operation to an int/num/str.
 sub box($type, $arg) {
     LST::MethodCall.new(
-        :on('Ops'), :name("box_$type"), :type('RakudoObject'),
+        :on('Ops'), :name($type eq 'str' ?? '[3]' !! $type eq 'int' ?? '[1]' !! '[2]'), :type('RakudoObject'),
         TC(), lst_for($arg)
     )
 }

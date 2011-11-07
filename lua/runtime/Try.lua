@@ -134,7 +134,7 @@ __exceptions = {
 	},
 	["(a .+ value)"] = {
 			E.TypeError,
-			E.ValueError,
+			E._ValueError,
 	},
 	["(a function value)"] = {
 			E.FunctionError,
@@ -160,7 +160,7 @@ __exceptions = {
 	},
 	["assertion"] = {
 			E.AssertionError,
-			E.ValueError,
+			E._ValueError,
 	},
 	["no function environment"] = {
 			E.EnvironmentError,

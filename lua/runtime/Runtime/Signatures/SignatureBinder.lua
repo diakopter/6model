@@ -1,10 +1,10 @@
 function makeSignatureBinder()
     local SignatureBinder = {};
     
-    local EmptyPos = List.new(0);
+    local EmptyPos = List.create(0);
     local EmptyNamed = {};
     
-    function SignatureBinder.Bind(TC, C, Capture)
+    function SignatureBinder.Bind (TC, C, Capture)
         local NativeCapture = Capture;
         if (NativeCapture == nil) then
             error("Can only deal with native captures at the moment");
@@ -95,8 +95,9 @@ function makeSignatureBinder()
                 " but got " + PossiesInCapture);
         end
     end
+    SignatureBinder[2] = SignatureBinder.Bind;
     
-    function SignatureBinder.NumRequiredPositionals(Sig)
+    function SignatureBinder.NumRequiredPositionals (Sig)
         local Num = 0;
         local breaking = false;
         for unused, Param in ipairs(Sig.Parameters) do
@@ -110,9 +111,10 @@ function makeSignatureBinder()
         end
         return Num;
     end
+    SignatureBinder[3] = SignatureBinder.NumRequiredPositionals;
     
-    function SignatureBinder.Flatten(FlattenSpec, Positionals, Nameds)
-        local NewPositionals = List.new();
+    function SignatureBinder.Flatten (FlattenSpec, Positionals, Nameds)
+        local NewPositionals = List.create();
         local NewNameds = {};
         
         for i = 1, Positionals.Count do
@@ -132,6 +134,7 @@ function makeSignatureBinder()
         end
         return NewPositionals, NewNameds;
     end
+    SignatureBinder[4] = SignatureBinder.Flatten;
     
     return SignatureBinder;
 end

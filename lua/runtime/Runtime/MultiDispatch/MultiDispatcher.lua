@@ -6,7 +6,7 @@ function makeMultiDispatcher ()
     local makeCandidateGraphNode = function ()
         local CandidateGraphNode = {};
         local mt = { __index = CandidateGraphNode };
-        function CandidateGraphNode.new(Candidate, Edges)
+        function CandidateGraphNode.new (Candidate, Edges)
             local this = {};
             this.Candidate = Candidate;
             this.Edges = Edges;
@@ -14,6 +14,7 @@ function makeMultiDispatcher ()
             this.EdgesOut = 0;
             return setmetatable(this, mt);
         end
+        CandidateGraphNode[1] = CandidateGraphNode.new;
         return CandidateGraphNode;
     end
     local CandidateGraphNode = makeCandidateGraphNode();
@@ -21,7 +22,7 @@ function makeMultiDispatcher ()
     local EDGE_REMOVAL_TODO = -1;
     local EDGE_REMOVED = -2;
     
-    function MultiDispatcher.FindBestCandidate(TC, DispatchRoutine, Capture)
+    function MultiDispatcher.FindBestCandidate (TC, DispatchRoutine, Capture)
         local NativeCapture = Capture;
         
         if (DispatchRoutine.MultiDispatchCache ~= nil and NativeCapture.Nameds == nil) then
@@ -33,7 +34,7 @@ function makeMultiDispatcher ()
         
         local SortedCandidates = MultiDispatcher.Sort(TC, DispatchRoutine.Dispatchees);
         
-        local PossiblesList = List.new();
+        local PossiblesList = List.create();
         
         local continuing = false;
         
@@ -94,18 +95,19 @@ function makeMultiDispatcher ()
         end end -- continuings
         error("No candidates found to dispatch to");
     end
+    MultiDispatcher[2] = MultiDispatcher.FindBestCandidate;
     
-    function MultiDispatcher.Sort(TC, Unsorted)
+    function MultiDispatcher.Sort (TC, Unsorted)
         local NumCandidates = #Unsorted;
         
-        local Result = List.new(2 * NumCandidates + 1);
+        local Result = List.create(2 * NumCandidates + 1);
         
-        local Graph = List.new(NumCandidates);
+        local Graph = List.create(NumCandidates);
         
         for i = 1, NumCandidates do
             Graph[i] = CandidateGraphNode.new(
                 Unsorted[i],
-                List.new(NumCandidates)
+                List.create(NumCandidates)
             );
         end
         
@@ -154,8 +156,9 @@ function makeMultiDispatcher ()
         
         return Result;
     end
+    MultiDispatcher[3] = MultiDispatcher.Sort;
     
-    function MultiDispatcher.IsNarrower(TC, a, b)
+    function MultiDispatcher.IsNarrower (TC, a, b)
         local Narrower = 0;
         local Tied = 0;
         local i, TypesToCheck;
@@ -191,7 +194,7 @@ function makeMultiDispatcher ()
         return not a.Sig:HasSlurpyPositional() and b.Sig:HasSlurpyPositional() and 1 or 0;
     end
     
-    function MultiDispatcher.IsNarrowerType(TC, A, B)
+    function MultiDispatcher.IsNarrowerType (TC, A, B)
         if (B == nil and A ~= nil) then
             return true;
         elseif (A == nil or B == nil) then

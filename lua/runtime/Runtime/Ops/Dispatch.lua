@@ -37,7 +37,7 @@ function Ops.create_dispatch_and_add_candidates(TC, ToInstantiate, ExtraDispatch
     NewDispatch.StaticLexPad = Source.StaticLexPad;
 
     -- Take existing candidates and add new ones.
-    NewDispatch.Dispatchees = List.new(Source.Dispatchees.Count);
+    NewDispatch.Dispatchees = List.create(Source.Dispatchees.Count);
     local i = 1;
     for j = 1, Source.Dispatchees.Count do
         NewDispatch.Dispatchees[i] = Source.Dispatchees[j];

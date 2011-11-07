@@ -1,27 +1,27 @@
 function makeList ()
-    local List = {};
+    local List = { ["class"] = "List" };
     local mt = { __index = List };
-    function List.new(count)
+    function List.create (count)
         local list = {};
         list.Count = count ~= nil and count or 0;
         return setmetatable(list, mt);
     end
-    function List:Clone()
-        local list = List.new(self.Count);
+    function List:Clone ()
+        local list = List.create(self.Count);
         for i = 1, self.Count do
             list[i] = self[i];
         end
         return list;
     end
-    function List:Add(item)
+    function List:Add (item)
         self.Count = self.Count + 1;
         self[self.Count] = item;
     end
-    function List:Push(item)
+    function List:Push (item)
         self.Count = self.Count + 1;
         self[self.Count] = item;
     end
-    function List:Pop()
+    function List:Pop ()
         local idx = self.Count;
         if (idx < 1) then
             error("Cannot pop from an empty list");
@@ -29,14 +29,14 @@ function makeList ()
         self.Count = self.Count - 1;
         return table.remove(self, idx);
     end
-    function List:Peek()
+    function List:Peek ()
         local idx = self.Count;
         if (idx < 1) then
             error("Cannot peek into an empty list");
         end
         return self[idx];
     end
-    function List:Truncate(length)
+    function List:Truncate (length)
         local count = self.Count;
         if (length < count) then
             for i = length + 1, count do
@@ -46,7 +46,7 @@ function makeList ()
         self.Count = length;
         return self;
     end
-    function List:Shift()
+    function List:Shift ()
         local idx = self.Count;
         self.Count = self.Count - 1;
         if (idx < 1) then
@@ -59,7 +59,7 @@ function makeList ()
         table.remove(self, idx);
         return item;
     end
-    function List:Unshift(item)
+    function List:Unshift (item)
         if (self.Count > 0) then
             for i = self.Count, 1, -1 do
                 self[i + 1] = self[i];
