@@ -94,7 +94,9 @@ namespace Rakudo.Metamodel.KnowHOW
             }));
             KnowHOWMeths.Add("compose", CodeObjectUtility.WrapNativeMethod((TC, Ignored, Cap) =>
                 {
+                    var HOW = CaptureHelper.GetPositional(Cap, 0) as KnowHOWREPR.KnowHOWInstance;
                     var Obj = CaptureHelper.GetPositional(Cap, 1);
+                    Obj.STable.MethodCache = HOW.Methods;
                     return Obj;
                 }));
             KnowHOWMeths.Add("attributes", CodeObjectUtility.WrapNativeMethod((TC, Ignored, Cap) =>
