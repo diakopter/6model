@@ -28,4 +28,4 @@ function makeREPRRegistry ()
 end
 REPRRegistry = makeREPRRegistry();
 Hints = {};
-Hints.NO_HINT = -1;
+Hints.NO_HINT=-1;
