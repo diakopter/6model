@@ -36,21 +36,42 @@ local getlocals = function(func)
      return locals
 end
 
+function try_catch_finally(try, exception_class, catch, finally)
+    local ok = {pcall(fn)}
+    local exception = nil
+    if not ok[1] then
+        exception = ok[2]
+    end
+    if catch ~= nil and exception ~= nil then
+        local exps = E.resolve(exception)
+        if exps[exception_class] then
+			catch(exception_class, exps, exception)
+		else
+            error(exception)
+        end
+    end
+    if finally ~= nil then
+        finally()
+    end
+end
+
 function try(fn, ...)
 	local real_args = {...}
-	if type(fn) == "table" then fn = fn[1] end
-	if type(fn) == "string" then fn = loadstring(fn) end
-	if type(fn) ~= "function" then return nil end
-	local locals = getlocals(2)
+    fn = fn[1]
+	--if type(fn) == "table" then fn = fn[1] end
+	--if type(fn) == "string" then fn = loadstring(fn) end
+	--if type(fn) ~= "function" then return nil end
+	--local locals = getlocals(2)
 
-	for _,obj in pairs(locals) do rawset(_G,_.."___macro",obj) end
-	setmetatable(_G,_mtg)
+	--for _,obj in pairs(locals) do rawset(_G,_.."___macro",obj) end
+	--setmetatable(_G,_mtg)
 
-	local ok = {pcall(function() return fn(unpack(real_args)) end)}
+	--local ok = {pcall(function() return fn(unpack(real_args)) end)}
+	local ok = {pcall(fn)}
 	--local ok = {true, fn(unpack(real_args))}
 
-	setmetatable(_G,_orig)
-	for k,__ in pairs(locals) do rawset(_G,k.."___macro",nil) end
+	--setmetatable(_G,_orig)
+	--for k,__ in pairs(locals) do rawset(_G,k.."___macro",nil) end
 
 	local returns = {}
 	local exception = nil
@@ -68,13 +89,13 @@ function try(fn, ...)
 		if type(_fn) == "table" then _fn = _fn[1] end
 		if not (_fn and type(_fn) == "function") then return end
 		local exps = E.resolve(exception)
-		setmetatable(exps, {__tostring = function(self)
-							local _r = "{";
-							for k,_ in pairs(exps) do
-								_r = _r .. k .. ", "
-							end;
-							return _r:sub(0,#_r-2).."}";
-						end})
+		--setmetatable(exps, {__tostring = function(self)
+		--					local _r = "{";
+		--					for k,_ in pairs(exps) do
+		--						_r = _r .. k .. ", "
+		--					end;
+		--					return _r:sub(0,#_r-2).."}";
+		--				end})
 		if exps[catch] or (type(catch) ~= "string" and exception) then
 			return _fn(catch, exps, exception)
 		elseif exception then
@@ -94,13 +115,13 @@ function try(fn, ...)
 		if type(_fn) == "table" then _fn = _fn[1] end
 		if not (_fn and type(_fn) == "function") then return end
 		local exps = E.resolve(exception)
-		setmetatable(exps, {__tostring = function(self)
-							local _r = "{";
-							for k,_ in pairs(exps) do
-								_r = _r .. k .. ", "
-							end;
-							return _r:sub(0,#_r-2).."}";
-						end})
+		--setmetatable(exps, {__tostring = function(self)
+		--					local _r = "{";
+		--					for k,_ in pairs(exps) do
+		--						_r = _r .. k .. ", "
+		--					end;
+		--					return _r:sub(0,#_r-2).."}";
+		--				end})
 		_fn(catch, exps, exception)
 		if exception then
 			error(exception)
