@@ -125,13 +125,13 @@ our multi sub cs_for(LST::Stmts $stmts) {
 our multi sub cs_for(LST::TryFinally $tf) {
     unless +@($tf) == 2 { pir::die('LST::TryFinally nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        try\{\n" ~
+    my $code := "        try_catch_finally(\n" ~
                 "            function ()\n" ~
                 cs_for((@($tf))[0]);
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
-                "            end\n" ~
-                "        }.finally(\"\",\n" ~
+                "            end,\n" ~
+                "        \"\",nil,\n" ~
                 "            function (catchClass, exceptions, exc)\n" ~
                 cs_for((@($tf))[1]) ~
                 "            end\n" ~
@@ -143,13 +143,13 @@ our multi sub cs_for(LST::TryFinally $tf) {
 our multi sub cs_for(LST::TryCatch $tc) {
     unless +@($tc) == 2 { pir::die('LST::TryCatch nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        try\{\n" ~
+    my $code := "        try_catch_finally(\n" ~
                 "            function ()\n" ~
                 cs_for((@($tc))[0]);
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
-                "            end\n" ~
-                "        }.except(\"" ~ $tc.exception_type ~ "\",\n" ~
+                "            end,\n" ~
+                "        \"" ~ $tc.exception_type ~ "\",\n" ~
                 "            function (catchClass, exceptions, exc)\n" ~
                 cs_for((@($tc))[1]) ~
                 "        $try_result = $*LAST_TEMP;\n" ~
