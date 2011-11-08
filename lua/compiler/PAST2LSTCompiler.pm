@@ -484,8 +484,9 @@ our multi sub lst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('[1]:Invoke'), :type('RakudoObject'),
+            :name('[1][3]'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
+            "StaticBlockInfo[$our_sbi][1]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
             LST::MethodCall.new(
@@ -590,11 +591,12 @@ our multi sub lst_for(PAST::Op $op) {
         my $callee := LST::Local.new(
             :name(get_unique_id('callee')), :isdecl(1), :type('RakudoObject'),
             LST::MethodCall.new(
-                :on($inv.name), :name('[1]:FindMethod'), :type('RakudoObject'),
+                :on($inv.name ~ '[1]'), :name('[2]'), :type('RakudoObject'),
+                $inv.name ~ '[1]',
                 TC(),
                 $inv.name,
                 $name,
-                'Hints.NO_HINT'
+                '-1'
             )
         );
 
@@ -602,8 +604,9 @@ our multi sub lst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('[1]:Invoke'), :type('RakudoObject'),
+                :name('[1][3]'), :type('RakudoObject'),
                 $callee,
+                $callee.name ~ '[1]',
                 TC(),
                 $callee.name,
                 form_capture(@args, $inv)
@@ -629,8 +632,9 @@ our multi sub lst_for(PAST::Op $op) {
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('[1]:Invoke'), :type('RakudoObject'),
+            :name('[1][3]'), :type('RakudoObject'),
             $callee,
+            $callee.name ~ '[1]',
             TC(),
             $callee.name,
             form_capture(@args)
