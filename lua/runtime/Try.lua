@@ -1,11 +1,5 @@
 -- originally from http://failboat.me/2010/lua-exception-handling/
 
-local _mtg = {}
-local _orig = getmetatable(_G)
-function _mtg.__index(self, k)
-	return rawget(self,k.."___macro")
-end
-
 E = {}
 setmetatable(E, {__index = function(self,k) return k end})
 E.resolve = function(exception)

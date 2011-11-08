@@ -262,6 +262,29 @@ class LST::TryCatch is LST::Node {
     }
 }
 
+class LST::TryCatchFinally is LST::Node {
+    has $!exception_type;
+    has $!exception_var;
+
+    method exception_type($set?) {
+        if $set { $!exception_type := $set }
+        $!exception_type
+    }
+
+    method exception_var($set?) {
+        if $set { $!exception_var := $set }
+        $!exception_var
+    }
+
+    method new(*@children, :$exception_type!, :$exception_var!) {
+        my $obj := self.CREATE;
+        $obj.exception_type($exception_type);
+        $obj.exception_var($exception_var);
+        $obj.set_children(@children);
+        $obj;
+    }
+}
+
 class LST::Throw is LST::Node {
     method new() {
         my $obj := self.CREATE;
