@@ -11,7 +11,8 @@ function makeP6num ()
             this.STable = STable;
             this.Undefined = false;
             this.Value = 0.0;
-            return setmetatable(this, mt);
+            return this;
+            --return setmetatable(this, mt);
         end
         Instance[1] = Instance.new;
         return Instance;

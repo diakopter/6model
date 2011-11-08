@@ -7,9 +7,10 @@ function makeRakudoCodeRef ()
         local Instance = { ["class"] = "RakudoCodeRef" };
         local mt = { __index = Instance };
         function Instance.new (STable)
-            local instance = {};
-            instance.STable = STable;
-            return setmetatable(instance, mt);
+            local this = {};
+            this.STable = STable;
+            return this;
+            --return setmetatable(instance, mt);
         end
         Instance[1] = Instance.new;
         return Instance;

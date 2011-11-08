@@ -122,7 +122,7 @@ method compile(PAST::Node $node) {
             $loadinit_calls,
             LST::Call.new( :name('constants_init'), :void(1), TC() ),
             $main_block_call,
-            "TC.CurrentContext"
+            "TC[0]"
         ));
     }
     else {
@@ -210,7 +210,7 @@ sub make_blocks_init_method($name) {
             )
         ),
         LST::Bind.new(
-            'StaticBlockInfo[0].CurrentContext',
+            'StaticBlockInfo[0][0]',
             'TC.Domain.Setting'
         ),
 
@@ -241,7 +241,7 @@ sub make_constants_init_method($name) {
                     'StaticBlockInfo[1]',
                     LST::ArrayLiteral.new( :type('string') )
                 ),
-                'TC.CurrentContext',
+                'TC[0]',
                 LST::Null.new()
             )
         ),
@@ -362,7 +362,7 @@ our multi sub lst_for(PAST::Block $block) {
         %handler<code> := lst_for(PAST::Block.new(PAST::Stmts.new(
             PAST::Var.new( :name('$!'), :scope('parameter') ),
             emit_op('leave_block',
-                LST::Literal.new( :value('TC.CurrentContext.Outer.StaticCodeObject') ),
+                LST::Literal.new( :value('TC[0].Outer.StaticCodeObject') ),
                 lst_for(PAST::Var.new( :name('$!'), :scope('lexical') ))
             )
         )));
@@ -395,17 +395,17 @@ our multi sub lst_for(PAST::Block $block) {
                     "StaticBlockInfo[$our_sbi]",
                     LST::ArrayLiteral.new( :type('string') ),
                 ),
-                'TC.CurrentContext',
+                'TC[0]',
                 LST::Null.new()
             )
         ),
-        LST::Bind.new( 'TC.CurrentContext', loc('C', 'Context') ),
+        LST::Bind.new( 'TC[0]', loc('C', 'Context') ),
         LST::Bind.new(
             "StaticBlockInfo[$our_sbi].Sig",
             compile_signature(@*PARAMS)
         ),
         $handlers_setup_placeholder,
-        LST::Bind.new( 'TC.CurrentContext', 'C.Caller' )
+        LST::Bind.new( 'TC[0]', 'C.Caller' )
     ));
     @*SIGINITS.push(LST::Call.new( :name($sig_setup_block), :void(1), TC() ));
 
@@ -418,9 +418,9 @@ our multi sub lst_for(PAST::Block $block) {
     # Wrap in block prelude/postlude.
     $result.push(LST::Local.new(
         :name('local C'), :isdecl(1), :type('Context'),
-        LST::New.new( :type('Context'), "Block", "TC.CurrentContext", loc("Capture") )
+        LST::New.new( :type('Context'), "Block", "TC[0]", loc("Capture") )
     ));
-    $result.push(LST::Bind.new( 'TC.CurrentContext', loc('C', 'Context') ));
+    $result.push(LST::Bind.new( 'TC[0]', loc('C', 'Context') ));
     $result.push(LST::TryFinally.new(
         LST::TryCatch.new(
             :exception_type('LeaveStackUnwinderException'),
@@ -437,7 +437,7 @@ our multi sub lst_for(PAST::Block $block) {
                 "exc.PayLoad"
             )
         ),
-        LST::Bind.new( 'TC.CurrentContext', 'C.Caller' )
+        LST::Bind.new( 'TC[0]', 'C.Caller' )
     ));
     
     # Add nested inner blocks after it (.Net does not support
