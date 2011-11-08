@@ -14,8 +14,9 @@ function makeList ()
         return list;
     end
     function List:Add (item)
-        self.Count = self.Count + 1;
-        self[self.Count] = item;
+        local count = self.Count + 1;
+        self.Count = count
+        self[count] = item;
     end
     function List:Push (item)
         self.Count = self.Count + 1;

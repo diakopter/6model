@@ -39,7 +39,7 @@ function makeP6int ()
     function P6int:defined (TC, O)
         return not O.Undefined;
     end
-    P6int[4] = P6int.new;
+    P6int[4] = P6int.defined;
     function P6int:hint_for (TC, ClassHandle, Name)
         return Hints.NO_HINT;
     end

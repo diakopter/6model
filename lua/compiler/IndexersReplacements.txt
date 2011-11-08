@@ -19,10 +19,10 @@ Ops%.type_object_for%( Ops[43](
 Ops%.instance_of%( Ops[44](
 %.STable [1]                    # on every RakudoObject impl (inner classes of the repr classes)
 %.Value [2]                     # some RakudoObject impl
-%.type_object_for%( [2](        # all RakudoObject impl
-%.instance_of%( [3](            # all RakudoObject impl
-%.defined%( [4](                # all RakudoObject impl
-%.hint_for%( [5](               # all RakudoObject impl
+%.type_object_for%( [2](        # all REPR impl
+%.instance_of%( [3](            # all REPR impl
+%.defined%( [4](                # all REPR impl
+%.hint_for%( [5](               # all REPR impl
 Hints%.NO_HINT=%-1 unused=0
 Hints%.NO_HINT -1
 %.DefaultStrBoxType [2]         # on ThreadContext
