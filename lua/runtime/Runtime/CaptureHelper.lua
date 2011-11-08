@@ -7,13 +7,10 @@ function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
     local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
     local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
     if PosArgs ~= nil then
-        C.Positionals = List.create();
-        for k,v in ipairs(PosArgs) do
-            List.Add(C.Positionals, v);
-        end
+        C.Positionals = List.createFrom(PosArgs);
     end;
-    if NamedArgs ~= nil then C.Nameds = NamedArgs end;
-    if FlattenSpec ~= nil then C.FlattenSpec = FlattenSpec; end;
+    C.Nameds = NamedArgs;
+    C.FlattenSpec = FlattenSpec;
     return C;
 end
 CaptureHelper[1] = CaptureHelper.FormWith;

@@ -9,6 +9,7 @@
 %.CachedInvoke [9]              # on SharedTable
 %.TypeCheckCache [10]           # on SharedTable
 %.new%( [1](                    # all classes with constructors named new
+%.CurrentContext [0]            # dual purpose (ThreadContext and RakudoCodeRef instance)
 Ops%.box_int%( Ops[1](
 Ops%.box_num%( Ops[2](
 Ops%.box_str%( Ops[3](

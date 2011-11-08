@@ -10,7 +10,8 @@ function makeP6hash ()
         function Instance.new (STable)
             local this = {};
             this.STable = STable;
-            return setmetatable(this, mt);
+            return this;
+            --return setmetatable(this, mt);
         end
         Instance[1] = Instance.new;
         return Instance;
