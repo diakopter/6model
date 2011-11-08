@@ -131,11 +131,11 @@ our multi sub cs_for(LST::TryFinally $tf) {
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
-                "        }.finally()\{\n" ~
+                "        }.finally(\"\",\n" ~
                 "            function (catchClass, exceptions, exc)\n" ~
                 cs_for((@($tf))[1]) ~
                 "            end\n" ~
-                "        }\n";
+                "        );\n";
     $*LAST_TEMP := $try_result;
     return $code;
 }
@@ -149,12 +149,12 @@ our multi sub cs_for(LST::TryCatch $tc) {
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
-                "        }.except(\"" ~ $tc.exception_type ~ "\")\{\n" ~
+                "        }.except(\"" ~ $tc.exception_type ~ "\",\n" ~
                 "            function (catchClass, exceptions, exc)\n" ~
                 cs_for((@($tc))[1]) ~
                 "        $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
-                "        }\n";
+                "        );\n";
     $*LAST_TEMP := $try_result;
     return $code;
 }
