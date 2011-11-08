@@ -57,7 +57,10 @@ function KnowHOWBootstrapper.Bootstrap ()
         end);
     KnowHOWMeths.compose = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
-            return CaptureHelper.GetPositional(Cap, 2);
+            local HOW = CaptureHelper.GetPositional(Cap, 1);
+            local Obj = CaptureHelper.GetPositional(Cap, 2);
+            Obj.STable.MethodCache = HOW.Methods;
+            return Obj;
         end);
     KnowHOWMeths.attributes = CodeObjectUtility.WrapNativeMethod(
         function (TC, Ignored, Cap)
