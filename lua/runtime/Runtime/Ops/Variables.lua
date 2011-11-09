@@ -1,5 +1,5 @@
 
-function Ops.get_lex(TC, Name)
+function Ops.get_lex (TC, Name)
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
         local Index;
@@ -13,7 +13,7 @@ function Ops.get_lex(TC, Name)
 end
 Ops[90] = Ops.get_lex;
 
-function Ops.get_lex_skip_current(TC, Name)
+function Ops.get_lex_skip_current (TC, Name)
     local CurContext = TC.CurrentContext.Outer;
     while (CurContext ~= nil) do
         local Index;
@@ -26,7 +26,7 @@ function Ops.get_lex_skip_current(TC, Name)
 end
 Ops[91] = Ops.get_lex_skip_current;
 
-function Ops.bind_lex(TC, Name, Value)
+function Ops.bind_lex (TC, Name, Value)
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
         local Index;
@@ -40,7 +40,7 @@ function Ops.bind_lex(TC, Name, Value)
 end
 Ops[92] = Ops.bind_lex;
 
-function Ops.get_dynamic(TC, Name)
+function Ops.get_dynamic (TC, Name)
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
         local Index;
@@ -53,7 +53,7 @@ function Ops.get_dynamic(TC, Name)
 end
 Ops[93] = Ops.get_dynamic;
 
-function Ops.bind_dynamic(TC, Name, Value)
+function Ops.bind_dynamic (TC, Name, Value)
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
         local Index;

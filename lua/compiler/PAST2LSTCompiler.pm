@@ -112,7 +112,7 @@ method compile(PAST::Node $node) {
             # We fudge in a fake NQPStr, for the :repr('P6Str'). Bit hacky,
             # but best I can think of for now. :-)
             LST::MethodCall.new(
-                :on('StaticBlockInfo[1].StaticLexPad'), :name('SetByName'), :void(1), :type('RakudoObject'),
+                :on('StaticBlockInfo[1][20]'), :name('SetByName'), :void(1), :type('RakudoObject'),
                 LST::Literal.new( :value('NQPStr'), :escape(1) ),
                 'REPRRegistry[4]("P6str"):type_object_for(nil, nil)'
             ),

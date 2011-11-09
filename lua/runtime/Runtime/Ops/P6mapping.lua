@@ -1,4 +1,4 @@
-function Ops.llmapping_get_at_key(TC, LLMapping, Key)
+function Ops.llmapping_get_at_key (TC, LLMapping, Key)
     --if (LLMapping.class == "P6mapping") then
         local Storage = LLMapping.Storage;
         local StrKey = Ops.unbox_str(TC, Key);
@@ -9,7 +9,7 @@ function Ops.llmapping_get_at_key(TC, LLMapping, Key)
 end
 Ops[70] = Ops.llmapping_get_at_key;
 
-function Ops.llmapping_bind_at_key(TC, LLMapping, Key, Value)
+function Ops.llmapping_bind_at_key (TC, LLMapping, Key, Value)
     --if (LLMapping.class == "P6mapping") then
         local Storage = LLMapping.Storage;
         local StrKey = Ops.unbox_str(TC, Key);
@@ -21,7 +21,7 @@ function Ops.llmapping_bind_at_key(TC, LLMapping, Key, Value)
 end
 Ops[71] = Ops.llmapping_bind_at_key;
 
-function Ops.llmapping_elems(TC, LLMapping)
+function Ops.llmapping_elems (TC, LLMapping)
     --if (LLMapping.class == "P6mapping") then
         return Ops.box_int(TC, LLMapping.Storage.Count, TC.DefaultIntBoxType);
     --else

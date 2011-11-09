@@ -1,4 +1,4 @@
-function Ops.multi_dispatch_over_lexical_candidates(TC)
+function Ops.multi_dispatch_over_lexical_candidates (TC)
     local CurOuter = TC.CurrentContext;
     while (CurOuter ~= nil) do
         local CodeObj = CurOuter.StaticCodeObject;
@@ -14,13 +14,13 @@ function Ops.multi_dispatch_over_lexical_candidates(TC)
 end
 Ops[35] = Ops.multi_dispatch_over_lexical_candidates;
 
-function Ops.set_dispatchees(TC, CodeObject, Dispatchees)
+function Ops.set_dispatchees (TC, CodeObject, Dispatchees)
     CodeObject.Dispatchees = Dispatchees.Storage;
     return CodeObject;
 end
 Ops[36] = Ops.set_dispatchees;
 
-function Ops.create_dispatch_and_add_candidates(TC, ToInstantiate, ExtraDispatchees)
+function Ops.create_dispatch_and_add_candidates (TC, ToInstantiate, ExtraDispatchees)
     -- Make sure we got the right things.
     local Source = ToInstantiate;
     local AdditionalDispatchList = ExtraDispatchees;
@@ -51,7 +51,7 @@ function Ops.create_dispatch_and_add_candidates(TC, ToInstantiate, ExtraDispatch
 end
 Ops[37] = Ops.create_dispatch_and_add_candidates;
 
-function Ops.push_dispatchee(TC, Dispatcher, Dispatchee)
+function Ops.push_dispatchee (TC, Dispatcher, Dispatchee)
     local Target = Dispatcher;
     if (Target.Dispatchees == nil) then
         error("push_dispatchee passed something that is not a dispatcher");
@@ -62,7 +62,7 @@ function Ops.push_dispatchee(TC, Dispatcher, Dispatchee)
 end
 Ops[38] = Ops.push_dispatchee;
 
-function Ops.is_dispatcher(TC, Check)
+function Ops.is_dispatcher (TC, Check)
     local Checkee = Check;
     if (Checkee ~= nil and Checkee.Dispatchees ~= nil) then
         return Ops.box_int(TC, 1, TC.DefaultBoolBoxType);

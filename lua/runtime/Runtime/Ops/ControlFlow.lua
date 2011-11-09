@@ -4,12 +4,12 @@ function Ops.vivify(TC, Check, VivifyWith)
 end
 Ops[29] = Ops.vivify;
 
-function Ops.leave_block(TC, Block, ReturnValue)
+function Ops.leave_block (TC, Block, ReturnValue)
     error(Exceptions.LeaveStackUnwinderException.new(Block, ReturnValue));
 end
 Ops[30] = Ops.leave_block;
 
-function Ops.throw_dynamic(TC, ExceptionObject, ExceptionType)
+function Ops.throw_dynamic (TC, ExceptionObject, ExceptionType)
     local WantType = Ops.unbox_int(TC, ExceptionType);
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
@@ -31,7 +31,7 @@ function Ops.throw_dynamic(TC, ExceptionObject, ExceptionType)
 end
 Ops[31] = Ops.throw_dynamic;
 
-function Ops.throw_lexical(TC, ExceptionObject, ExceptionType)
+function Ops.throw_lexical (TC, ExceptionObject, ExceptionType)
     local WantType = Ops.unbox_int(TC, ExceptionType);
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
@@ -53,13 +53,13 @@ function Ops.throw_lexical(TC, ExceptionObject, ExceptionType)
 end
 Ops[32] = Ops.throw_lexical;
 
-function Ops.capture_outer(TC, Block)
+function Ops.capture_outer (TC, Block)
     Block.OuterForNextInvocation = TC.CurrentContext;
     return Block;
 end
 Ops[33] = Ops.capture_outer;
 
-function Ops.new_closure(TC, Block)
+function Ops.new_closure (TC, Block)
     local NewBlock = RakudoCodeRef.Instance.new(Block.STable);
     NewBlock.Body = Block.Body;
     NewBlock.CurrentContext = Block.CurrentContext;
