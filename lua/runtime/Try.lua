@@ -6,7 +6,7 @@ setmetatable(E, {__index = function(self,k) return k end})
 function try_catch_finally(try, exception_class, catch, finally)
     local ok, exception = pcall(try)
     local caught = false
-    if catch ~= nil and exception ~= nil then
+    if catch ~= nil and not ok then
         local is_table = type(exception) == "table"
         if is_table and exception.class == exception_class or not is_table then
             caught = true
