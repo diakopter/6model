@@ -48,11 +48,11 @@ function makeP6int ()
     function P6int:set_int (TC, Object, Value)
         Object.Value = Value;
     end
-    P6int[10] = P6int.set_hint;
+    P6int[10] = P6int.set_int;
     function P6int:get_int (TC, Object)
         return Object.Value;
     end
-    P6int[11] = P6int.set_hint;
+    P6int[11] = P6int.get_int;
     return P6int;
 end
 P6int = makeP6int();

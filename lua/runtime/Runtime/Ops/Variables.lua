@@ -1,9 +1,11 @@
+
 function Ops.get_lex(TC, Name)
     local CurContext = TC.CurrentContext;
     while (CurContext ~= nil) do
         local Index;
-        if (CurContext.LexPad.SlotMapping[Name] ~= nil) then
-            return CurContext.LexPad.Storage[CurContext.LexPad.SlotMapping[Name]];
+        local LexPad = CurContext.LexPad;
+        if (LexPad.SlotMapping[Name] ~= nil) then
+            return LexPad.Storage[LexPad.SlotMapping[Name]];
         end
         CurContext = CurContext.Outer;
     end
