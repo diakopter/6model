@@ -1,4 +1,4 @@
-# This compiles a .Net Syntax Tree down to C#.
+# This compiles a Lua Syntax Tree down to Lua.
 class LST2LuaCompiler;
 
 method compile(LST::Node $node) {
