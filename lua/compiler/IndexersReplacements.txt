@@ -35,6 +35,8 @@ DefinednessConstraint%.UndefinedOnly 2
 %.instance_of%( [3](            # all REPR impl
 %.defined%( [4](                # all REPR impl
 %.hint_for%( [5](               # all REPR impl
+%.set_int%( [10](               # P6int
+%.get_int%( [11](               # P6int
 Hints%.NO_HINT=%-1 unused=0
 Hints%.NO_HINT -1
 %.DefaultStrBoxType [2]         # on ThreadContext

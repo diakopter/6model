@@ -14,40 +14,40 @@ function makeP6int ()
         return Instance;
     end
     local Instance = makeInstance();
-    function P6int.new ()
-        return setmetatable({}, mt);
-    end
-    P6int[1] = P6int.new;
-    function P6int:type_object_for (TC, MetaPackage)
+    local type_object_for = function (self, TC, MetaPackage)
         local STable = SharedTable.new();
         STable.HOW = MetaPackage;
         STable.REPR = self;
-        local WHAT = Instance.new(STable);
+        local WHAT = { STable, nil };
         STable.WHAT = WHAT;
         WHAT.Undefined = true;
         return STable.WHAT;
     end
-    P6int[2] = P6int.type_object_for;
-    function P6int:instance_of (TC, WHAT)
+    P6int[2] = type_object_for;
+    local instance_of = function (self, TC, WHAT)
         return { WHAT.STable, nil };
     end
-    P6int[3] = P6int.instance_of;
-    function P6int:defined (TC, O)
+    P6int[3] = instance_of;
+    local defined = function (self, TC, O)
         return O.Value ~= nil;
     end
-    P6int[4] = P6int.defined;
-    function P6int:hint_for (TC, ClassHandle, Name)
+    P6int[4] = defined;
+    local hint_for = function (self, TC, ClassHandle, Name)
         return Hints.NO_HINT;
     end
-    P6int[5] = P6int.hint_for;
-    function P6int:set_int (TC, Object, Value)
+    P6int[5] = hint_for;
+    local set_int = function (self, TC, Object, Value)
         Object.Value = Value;
     end
-    P6int[10] = P6int.set_int;
-    function P6int:get_int (TC, Object)
+    P6int[10] = set_int;
+    local get_int = function (self, TC, Object)
         return Object.Value;
     end
-    P6int[11] = P6int.get_int;
+    P6int[11] = get_int;
+    function P6int.new ()
+        return { nil, type_object_for, instance_of, defined, hint_for, nil, nil, nil, nil, set_int, get_int };
+    end
+    P6int[1] = P6int.new;
     return P6int;
 end
 P6int = makeP6int();

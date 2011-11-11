@@ -8,7 +8,6 @@ function Ops.box_int (TC, Value, To)
     else
         REPR = TC.DefaultIntBoxType.STable.REPR;
         local Result = REPR.instance_of(REPR, TC, TC.DefaultIntBoxType);
-        REPR = TC.DefaultIntBoxType.STable.REPR;
         REPR.set_int(REPR, TC, Result, Value);
         return Result;
     end
