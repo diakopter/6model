@@ -74,6 +74,7 @@ function getline (filename, lineno)
 end
 local SortedResults = {}
 local index = 1
+local total = 0
 for marker, count in pairs(Results) do
     local splitted = strsplit(":", marker)
     local filename = splitted[1]
@@ -86,13 +87,15 @@ for marker, count in pairs(Results) do
         SortedResults[index] = { marker, count, line }
         index = index + 1
     end
+    total = total + count
 end
 
 table.sort(SortedResults, function (l, r)
     return l[2] > r[2]
 end)
-
+local running = 0
 for _,v in ipairs(SortedResults) do
-    print(v[1], v[2], "\n", v[3], "\n")
-    --print(v[1], v[2], "\n")
+    running = running + v[2]
+    print(v[1], v[2], running, "\n", v[3])
 end
+print("total: " .. total)

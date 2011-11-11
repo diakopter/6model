@@ -7,11 +7,7 @@ function makeP6capture ()
         local Instance = { ["class"] = "P6capture"};
         local mt = { __index = Instance };
         function Instance.new (STable)
-            --return { ["STable"] = STable };
-            local this = {};
-            this.STable = STable;
-            return this;
-            --return setmetatable(this, mt);
+            return { STable, nil, nil };
         end
         Instance[1] = Instance.new;
         return Instance;

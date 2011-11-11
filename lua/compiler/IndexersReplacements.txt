@@ -8,6 +8,8 @@
 %.SpecialInvoke [8]             # on SharedTable
 %.CachedInvoke [9]              # on SharedTable
 %.TypeCheckCache [10]           # on SharedTable
+%.CachedFindMethod [11]         # on SharedTable
+%.TypeCacheID [12]              # on SharedTable
 %.new%( [1](                    # all classes with constructors named new
 %.CurrentContext [0]            # dual purpose (ThreadContext and RakudoCodeRef instance)
 %.OuterForNextInvocation [18]   # on RakudoCodeRef
@@ -21,8 +23,14 @@ Ops%.unbox_num%( Ops[5](
 Ops%.unbox_str%( Ops[6](
 Ops%.type_object_for%( Ops[43](
 Ops%.instance_of%( Ops[44](
+DefinednessConstraint%.None 0
+DefinednessConstraint%.DefinedOnly 1
+DefinednessConstraint%.UndefinedOnly 2
 %.STable [1]                    # on every RakudoObject impl (inner classes of the repr classes)
 %.Value [2]                     # some RakudoObject impl
+%.Undefined [3]                 # some RakudoObject impl
+%.Positionals [2]               # on P6capture
+%.Nameds [3]                     # on P6capture
 %.type_object_for%( [2](        # all REPR impl
 %.instance_of%( [3](            # all REPR impl
 %.defined%( [4](                # all REPR impl

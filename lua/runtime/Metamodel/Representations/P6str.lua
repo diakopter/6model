@@ -7,10 +7,7 @@ function makeP6str ()
         local Instance = { ["class"] = "P6str" };
         local mt = { __index = Instance };
         function Instance.new (STable)
-            local this = {};
-            this.STable = STable;
-            return this;
-            --return setmetatable(this, mt);
+            return { STable, nil };
         end
         Instance[1] = Instance.new;
         return Instance;
@@ -31,9 +28,7 @@ function makeP6str ()
     end
     P6str[2] = P6str.type_object_for;
     function P6str:instance_of (TC, WHAT)
-        local instance = Instance.new(WHAT.STable);
-        instance.Value = "";
-        return instance;
+        return { WHAT.STable, nil };
     end
     P6str[3] = P6str.instance_of;
     function P6str:defined (TC, O)

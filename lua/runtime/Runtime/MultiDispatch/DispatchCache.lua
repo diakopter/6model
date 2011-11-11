@@ -22,12 +22,13 @@ function makeDispatchCache ()
         this.ArityCaches = List.create(MAX_ARITY + 1);
         return setmetatable(this, mt);
     end
+    local PositionalsToTypeCacheIDs;
     DispatchCache[1] = DispatchCache.new;
     function DispatchCache:Lookup (Positionals)
         if (Positionals.Count <= MAX_ARITY) then
             local Cache = self.ArityCaches[Positionals.Count];
             if (Cache ~= nil and Cache.NumEntries ~= 0) then
-                local Seeking = DispatchCache.PositionalsToTypeCacheIDs(Positionals);
+                local Seeking = PositionalsToTypeCacheIDs(Positionals);
                 
                 local ci = 1;
                 for ri = 1, Cache.NumEntries do
@@ -50,7 +51,8 @@ function makeDispatchCache ()
     DispatchCache[2] = DispatchCache.Lookup;
     function DispatchCache:Add (Positionals, Result)
         if (Positionals.Count <= MAX_ARITY) then
-            local ToAdd = DispatchCache.PositionalsToTypeCacheIDs(Positionals);
+            local ToAdd = PositionalsToTypeCacheIDs(Positionals);
+            local ToAddCount = ToAdd.Count;
             
             local Previous = self.ArityCaches[Positionals.Count];
             
@@ -71,7 +73,7 @@ function makeDispatchCache ()
                 if (New.NumEntries <= MAX_ENTRIES) then
                     local i = 1;
                     local j = New.NumEntries * ToAdd.Count;
-                    while (i <= ToAdd.Count) do
+                    while (i <= ToAddCount) do
                         New.TypeIDs[j] = ToAdd[i];
                         i = i + 1;
                         j = j + 1;
@@ -81,8 +83,8 @@ function makeDispatchCache ()
                 else
                     local Evictee = math.random(MAX_ENTRIES + 1);
                     local i = 1;
-                    local j = Evictee * ToAdd.Count;
-                    while (i <= ToAdd.Count) do
+                    local j = Evictee * ToAddCount;
+                    while (i <= ToAddCount) do
                         New.TypeIDs[j] = ToAdd[i];
                         i = i + 1;
                         j = j + 1;
@@ -91,12 +93,12 @@ function makeDispatchCache ()
                 end
             end
             
-            if (self.ArityCaches[ToAdd.Count] == Previous) then
-                self.ArityCaches[ToAdd.Count] = New;
+            if (self.ArityCaches[ToAddCount] == Previous) then
+                self.ArityCaches[ToAddCount] = New;
             end
         end
     end
-    function DispatchCache.PositionalsToTypeCacheIDs (Positionals)
+    PositionalsToTypeCacheIDs = function (Positionals)
         local Result = List.create(Positionals.Count);
         for i = 1, Positionals.Count do
             local STable = Positionals[i].STable;

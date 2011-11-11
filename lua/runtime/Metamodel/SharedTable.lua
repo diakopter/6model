@@ -1,16 +1,9 @@
 
 function makeSharedTable ()
     local SharedTable = {};
-    local mt = { __index = SharedTable };
+    --local mt = { __index = SharedTable };
     local TypeCacheIDSource = 4;
-    function SharedTable.new ()
-        local sharedTable = {};
-        TypeCacheIDSource = TypeCacheIDSource + 4;
-        sharedTable.TypeCacheID = TypeCacheIDSource;
-        return setmetatable(sharedTable, mt);
-    end
-    SharedTable[1] = SharedTable.new;
-    function SharedTable:FindMethod (TC, Obj, Name, Hint)
+    local FindMethod = function (self, TC, Obj, Name, Hint)
         local CachedMethod;
 
         -- Does this s-table have a special overridden finder?
@@ -45,20 +38,25 @@ function makeSharedTable ()
             return STable.Invoke(STable, TC, Meth, Cap);
         end
     end
-    SharedTable[2] = SharedTable.FindMethod;
-    function SharedTable:Invoke (TC, Obj, Cap)
-        if (self.SpecialInvoke ~= nil) then
-            return self.SpecialInvoke(TC, Obj, Cap);
+    --SharedTable.FindMethod = FindMethod
+    --SharedTable[2] = FindMethod;
+    local Invoke = function (self, TC, Obj, Cap)
+        local specialInvoke = self.SpecialInvoke;
+        if (specialInvoke ~= nil) then
+            return specialInvoke(TC, Obj, Cap);
         end
         local STable = Obj.STable;
-        if (STable.CachedInvoke == nil) then
-            STable.CachedInvoke = STable.FindMethod(STable, TC, Obj, "postcircumfix:<( )>", Hints.NO_HINT);
+        local CachedInvoke = STable.CachedInvoke;
+        if (CachedInvoke == nil) then
+            CachedInvoke = STable.FindMethod(STable, TC, Obj, "postcircumfix:<( )>", Hints.NO_HINT);
+            STable.CachedInvoke = CachedInvoke;
         end
-        STable = STable.CachedInvoke.STable;
+        STable = CachedInvoke.STable;
         return STable.Invoke(STable, TC, Obj, Cap);
     end
-    SharedTable[3] = SharedTable.Invoke;
-    function SharedTable:TypeCheck (TC, Obj, Checkee)
+    --SharedTable.Invoke = Invoke;
+    --SharedTable[3] = Invoke;
+    local TypeCheck = function (self, TC, Obj, Checkee)
         if (self.TypeCheckCache ~= nil) then
             for i = 1, self.TypeCheckCache.Count do
                 if (self.TypeCheckCache[i] == Checkee) then
@@ -74,7 +72,13 @@ function makeSharedTable ()
             return STable.Invoke(STable, TC, Checker, Cap);
         end
     end
-    SharedTable[4] = SharedTable.TypeCheck;
+    --SharedTable.TypeCheck = TypeCheck;
+    --SharedTable[4] = TypeCheck;
+    function SharedTable.new ()
+        TypeCacheIDSource = TypeCacheIDSource + 4;
+        return { nil, FindMethod, Invoke, TypeCheck, nil, nil, nil, nil, nil, nil, nil, TypeCacheIDSource };
+    end
+    SharedTable[1] = SharedTable.new;
     return SharedTable;
 end
 SharedTable = makeSharedTable();

@@ -8,12 +8,7 @@ function makeP6int ()
         local Instance = { ["class"] = "P6int" };
         local mt = { __index = Instance };
         function Instance.new (STable)
-            local this = {};
-            this.STable = STable;
-            this.Undefined = false;
-            this.Value = 0;
-            return this;
-            --return setmetatable(this, mt);
+            return { STable, 0, false };
         end
         Instance[1] = Instance.new;
         return Instance;
@@ -34,11 +29,11 @@ function makeP6int ()
     end
     P6int[2] = P6int.type_object_for;
     function P6int:instance_of (TC, WHAT)
-        return Instance.new(WHAT.STable);
+        return { WHAT.STable, nil };
     end
     P6int[3] = P6int.instance_of;
     function P6int:defined (TC, O)
-        return not O.Undefined;
+        return O.Value ~= nil;
     end
     P6int[4] = P6int.defined;
     function P6int:hint_for (TC, ClassHandle, Name)
