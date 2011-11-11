@@ -67,8 +67,8 @@ function makeDispatchCache ()
                 New.Results[1] = Result;
             else
                 New.NumEntries = Previous.NumEntries;
-                New.TypeIDs = Previous.TypeIDs:Clone();
-                New.Results = Previous.Results:Clone();
+                New.TypeIDs = List.Clone(Previous.TypeIDs);
+                New.Results = List.Clone(Previous.Results);
                 
                 if (New.NumEntries <= MAX_ENTRIES) then
                     local i = 1;

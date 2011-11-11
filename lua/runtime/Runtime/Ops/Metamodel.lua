@@ -87,7 +87,7 @@ end
 Ops[55] = Ops.type_check;
 
 function Ops.publish_type_check_cache (TC, WHAT, TypeList)
-    WHAT.STable.TypeCheckCache = TypeList.Storage:Clone();
+    WHAT.STable.TypeCheckCache = List.Clone(TypeList.Storage);
 end
 Ops[56] = Ops.publish_type_check_cache;
 
