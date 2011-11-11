@@ -36,7 +36,7 @@ RakudoRuntime.lbc:	RakudoRuntime.lua
 	luajit -b RakudoRuntime.lua RakudoRuntime.lbc
 
 NQPSetting.lua: LocalsOptimizer.lua NQPSetting_pre.lua
-    $(CAT) NQPSetting_pre.lua > NQPSetting.lua
+	$(CAT) NQPSetting_pre.lua > NQPSetting.lua
 #	 luajit LocalsOptimizer.lua NQPSetting_pre.lua > NQPSetting.lua
 
 NQPSetting_pre.lua: compile.pir gen_actions.pir gen_grammar.pir gen_nqpoptimizer.pir gen_lst.pir gen_past2lst.pir gen_lst2lua.pir ../../common/NQP/NQPSetting.pm
