@@ -162,21 +162,25 @@ our multi sub cs_for(LST::TryCatch $tc) {
 our multi sub cs_for(LST::TryCatchFinally $tc) {
     unless +@($tc) == 3 { pir::die('LST::TryCatchFinally nodes must have 3 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        try_catch_finally(\n" ~
+    my $code := "        local ok, exc = pcall(\n" ~
                 "            function ()\n" ~
                 cs_for((@($tc))[0]);
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
-                "            end,\n" ~
-                "        \"" ~ $tc.exception_type ~ "\",\n" ~
-                "            function (catchClass, exceptions, exc)\n" ~
-                cs_for((@($tc))[1]) ~
-                "        $try_result = $*LAST_TEMP;\n" ~
-                "            end,\n" ~
-                "            function ()\n" ~
-                cs_for((@($tc))[2]) ~
+                "            end);\n" ~
+                "        local caught = false;\n" ~
+                "        if not ok then\n" ~
+                "            local is_table = type(exc) == \"table\"\n" ~ 
+                "            if is_table and exc.class == \"" ~ $tc.exception_type ~ "\" or not is_table then\n" ~
+                cs_for((@($tc))[1]);
+    $code := $code ~
+                "                $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
-                "        );\n";
+                "        end\n" ~
+                cs_for((@($tc))[2]) ~
+                "        if exc ~= nil and not caught then\n" ~
+                "            error(exc);\n" ~
+                "        end\n";
     $*LAST_TEMP := $try_result;
     return $code;
 }

@@ -421,8 +421,8 @@ our multi sub lst_for(PAST::Block $block) {
         LST::New.new( :type('Context'), "Block", "TC[0]", loc("Capture") )
     ));
     $result.push(LST::Bind.new( 'TC[0]', loc('C', 'Context') ));
-    $result.push(LST::TryFinally.new(
-        LST::TryCatch.new(
+    $result.push(LST::TryCatchFinally.new(
+        #LST::TryCatch.new(
             :exception_type('LeaveStackUnwinderException'),
             :exception_var('exc'),
             $stmts,
@@ -435,7 +435,7 @@ our multi sub lst_for(PAST::Block $block) {
                     LST::Throw.new()
                 ),
                 "exc.PayLoad"
-            )
+        #    )
         ),
         LST::Bind.new( 'TC[0]', 'C.Caller' )
     ));
