@@ -174,6 +174,7 @@ our multi sub cs_for(LST::TryCatchFinally $tc) {
                 "            if is_table and exc.class == \"" ~ $tc.exception_type ~ "\" or not is_table then\n" ~
                 cs_for((@($tc))[1]);
     $code := $code ~
+                "                caught = true\n" ~
                 "                $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
                 "        end\n" ~
