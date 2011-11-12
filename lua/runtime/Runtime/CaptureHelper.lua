@@ -4,8 +4,9 @@ CaptureHelper.FLATTEN_POS = 1;
 CaptureHelper.FLATTEN_NAMED = 2;
 
 function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
-    local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
-    local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
+    --local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
+    --local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
+    local C = { CaptureHelper.CaptureTypeObject.STable, nil, nil }
     if PosArgs ~= nil then
         C.Positionals = List.createFrom(PosArgs);
     end;

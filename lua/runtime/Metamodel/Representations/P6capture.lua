@@ -27,7 +27,7 @@ function makeP6capture ()
     end
     P6capture[2] = P6capture.type_object_for;
     function P6capture:instance_of (TC, WHAT)
-        return Instance.new(WHAT.STable);
+        return { WHAT.STable, nil, nil };
     end
     P6capture[3] = P6capture.instance_of;
     function P6capture:defined (TC, Obj)

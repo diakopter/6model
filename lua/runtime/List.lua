@@ -4,11 +4,13 @@ function makeList ()
     function List.create (count)
         local list = {};
         list.Count = count ~= nil and count or 0;
-        return setmetatable(list, mt);
+        return list;
+        --return setmetatable(list, mt);
     end
     function List.createFrom (list)
         list.Count = #list;
-        return setmetatable(list, mt);
+        return list;
+        --return setmetatable(list, mt);
     end
     function List:Clone ()
         local list = List.create(self.Count);
