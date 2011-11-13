@@ -1,4 +1,4 @@
-function Ops.llcap_get_at_pos (TC, Capture, Index)
+function Ops.llcap_get_at_pos(TC, Capture, Index)
     local Cap = Capture;
     if (Cap.Positionals == nil) then
         Cap.Positionals = {};
@@ -10,7 +10,7 @@ function Ops.llcap_get_at_pos (TC, Capture, Index)
 end
 Ops[58] = Ops.llcap_get_at_pos;
 
-function Ops.llcap_bind_at_pos (TC, Capture, IndexObj, Value)
+function Ops.llcap_bind_at_pos(TC, Capture, IndexObj, Value)
     local Cap = Capture;
     local Storage = Cap.Positionals;
     local Index = Ops.unbox_int(TC, IndexObj);
@@ -23,7 +23,7 @@ function Ops.llcap_bind_at_pos (TC, Capture, IndexObj, Value)
 end
 Ops[59] = Ops.llcap_bind_at_pos;
 
-function Ops.llcap_get_at_key (TC, Capture, Key)
+function Ops.llcap_get_at_key(TC, Capture, Key)
     local Storage = Capture.Nameds;
     if (Storage == nil) then
         Capture.Nameds = {};
@@ -38,7 +38,7 @@ function Ops.llcap_get_at_key (TC, Capture, Key)
 end
 Ops[60] = Ops.llcap_get_at_key;
 
-function Ops.llcap_bind_at_key (TC, Capture, Key, Value)
+function Ops.llcap_bind_at_key(TC, Capture, Key, Value)
     local Storage = Capture.Nameds;
     if (Storage == nil) then
         Capture.Nameds = {};

@@ -1,4 +1,4 @@
-function Ops.load_module (TC, Path)
+function Ops.load_module(TC, Path)
     local Name = Ops.unbox_str(TC, Path);
     local success;
     --success = pcall(function ()

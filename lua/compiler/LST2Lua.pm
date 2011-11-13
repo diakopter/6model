@@ -1,4 +1,4 @@
-# This compiles a Lua Syntax Tree down to Lua.
+# This compiles a .Net Syntax Tree down to C#.
 class LST2LuaCompiler;
 
 method compile(LST::Node $node) {
@@ -125,26 +125,17 @@ our multi sub cs_for(LST::Stmts $stmts) {
 our multi sub cs_for(LST::TryFinally $tf) {
     unless +@($tf) == 2 { pir::die('LST::TryFinally nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        local ok2, exc2 = pcall(\n" ~
+    my $code := "        try\{\n" ~
                 "            function ()\n" ~
                 cs_for((@($tf))[0]);
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
-                "            end);\n";
-#                "        local caught = false;\n" ~
-#                "        if not ok then\n" ~
-#                "            local is_table = type(exc) == \"table\"\n" ~ 
-#                "            if is_table and exc.class == \"" ~ $tc.exception_type ~ "\" then\n" ~
-#                cs_for((@($tc))[1]);
-    $code := $code ~
-#                "                caught = true\n" ~
-#                "                $try_result = $*LAST_TEMP;\n" ~
-#                "            end\n" ~
-#                "        end\n" ~
+                "            end\n" ~
+                "        }.finally()\{\n" ~
+                "            function (catchClass, exceptions, exc)\n" ~
                 cs_for((@($tf))[1]) ~
-                "        if not ok2 then\n" ~
-                "            error(exc2);\n" ~
-                "        end\n";
+                "            end\n" ~
+                "        }\n";
     $*LAST_TEMP := $try_result;
     return $code;
 }
@@ -152,53 +143,18 @@ our multi sub cs_for(LST::TryFinally $tf) {
 our multi sub cs_for(LST::TryCatch $tc) {
     unless +@($tc) == 2 { pir::die('LST::TryCatch nodes must have 2 children') }
     my $try_result := get_unique_id('try_result');
-    my $code := "        local ok, exc = pcall(\n" ~
+    my $code := "        try\{\n" ~
                 "            function ()\n" ~
                 cs_for((@($tc))[0]);
     $code := $code ~
                 "        $try_result = $*LAST_TEMP;\n" ~
-                "            end);\n" ~
-                "        local caught = false;\n" ~
-                "        if not ok then\n" ~
-                "            local is_table = type(exc) == \"table\"\n" ~ 
-                "            if is_table and exc.class == \"" ~ $tc.exception_type ~ "\" then\n" ~
-                cs_for((@($tc))[1]);
-    $code := $code ~
-                "                caught = true\n" ~
-                "                $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
-                "        end\n" ~
-#                cs_for((@($tc))[2]) ~
-                "        if exc ~= nil and not caught then\n" ~
-                "            error(exc);\n" ~
-                "        end\n";
-    $*LAST_TEMP := $try_result;
-    return $code;
-}
-
-our multi sub cs_for(LST::TryCatchFinally $tc) {
-    unless +@($tc) == 3 { pir::die('LST::TryCatchFinally nodes must have 3 children') }
-    my $try_result := get_unique_id('try_result');
-    my $code := "        local ok, exc = pcall(\n" ~
-                "            function ()\n" ~
-                cs_for((@($tc))[0]);
-    $code := $code ~
+                "        }.except(\"" ~ $tc.exception_type ~ "\")\{\n" ~
+                "            function (catchClass, exceptions, exc)\n" ~
+                cs_for((@($tc))[1]) ~
                 "        $try_result = $*LAST_TEMP;\n" ~
-                "            end);\n" ~
-                "        local caught = false;\n" ~
-                "        if not ok then\n" ~
-                "            local is_table = type(exc) == \"table\"\n" ~ 
-                "            if is_table and exc.class == \"" ~ $tc.exception_type ~ "\" then\n" ~
-                cs_for((@($tc))[1]);
-    $code := $code ~
-                "                caught = true\n" ~
-                "                $try_result = $*LAST_TEMP;\n" ~
                 "            end\n" ~
-                "        end\n" ~
-                cs_for((@($tc))[2]) ~
-                "        if exc ~= nil and not caught then\n" ~
-                "            error(exc);\n" ~
-                "        end\n";
+                "        }\n";
     $*LAST_TEMP := $try_result;
     return $code;
 }

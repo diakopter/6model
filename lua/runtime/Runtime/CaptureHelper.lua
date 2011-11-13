@@ -4,14 +4,16 @@ CaptureHelper.FLATTEN_POS = 1;
 CaptureHelper.FLATTEN_NAMED = 2;
 
 function CaptureHelper.FormWith (PosArgs, NamedArgs, FlattenSpec)
-    --local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
-    --local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
-    local C = { CaptureHelper.CaptureTypeObject.STable, nil, nil }
+    local REPR = CaptureHelper.CaptureTypeObject.STable.REPR;
+    local C = REPR.instance_of(REPR, nil, CaptureHelper.CaptureTypeObject);
     if PosArgs ~= nil then
-        C.Positionals = List.createFrom(PosArgs);
+        C.Positionals = List.new();
+        for k,v in ipairs(PosArgs) do
+            List.Add(C.Positionals, v);
+        end
     end;
-    C.Nameds = NamedArgs;
-    C.FlattenSpec = FlattenSpec;
+    if NamedArgs ~= nil then C.Nameds = NamedArgs end;
+    if FlattenSpec ~= nil then C.FlattenSpec = FlattenSpec; end;
     return C;
 end
 CaptureHelper[1] = CaptureHelper.FormWith;

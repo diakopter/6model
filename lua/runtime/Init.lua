@@ -154,7 +154,7 @@ function makeInit ()
                     local List = tmp1.instance_of(tmp1, TC, NQPList);
                     local NativeCapture = C;
                     for unused, Obj in ipairs(NativeCapture.Positionals) do
-                        List.Add(List.Storage, Obj);
+                        List.Storage:Add(Obj);
                     end
                     return List;
                 end),

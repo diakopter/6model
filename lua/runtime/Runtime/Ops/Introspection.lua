@@ -1,4 +1,4 @@
-function Ops.get_caller_sub (TC, Level)
+function Ops.get_caller_sub(TC, Level)
     local ToLevel = Ops.unbox_int(TC, Level);
     local Context = TC.CurrentContext;
     while (ToLevel >= 0) do
@@ -12,7 +12,7 @@ function Ops.get_caller_sub (TC, Level)
 end
 Ops[40] = Ops.get_caller_sub;
 
-function Ops.get_outer_sub (TC, Level)
+function Ops.get_outer_sub(TC, Level)
     local ToLevel = Ops.unbox_int(TC, Level);
     local Context = TC.CurrentContext;
     while (ToLevel >= 0) do

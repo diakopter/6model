@@ -1,10 +1,10 @@
 function makeSignatureBinder()
     local SignatureBinder = {};
     
-    local EmptyPos = List.create(0);
+    local EmptyPos = List.new(0);
     local EmptyNamed = {};
     
-    function SignatureBinder.Bind (TC, C, Capture)
+    function SignatureBinder.Bind(TC, C, Capture)
         local NativeCapture = Capture;
         if (NativeCapture == nil) then
             error("Can only deal with native captures at the moment");
@@ -23,7 +23,6 @@ function makeSignatureBinder()
         end
         
         local CurPositional = 1;
-        local STable, REPR;
         
         local Params = Sig.Parameters;
         local NumParams = Params.Count;
@@ -44,12 +43,10 @@ function makeSignatureBinder()
                 if (CurPositional <= Positionals.Count) then
                     C.LexPad.Storage[Param.VariableLexpadPosition] = Positionals[CurPositional];
                 else
-                    STable = Param.DefaultValue.STable;
-                    C.LexPad.Storage[Param.VariableLexpadPosition] = STable.Invoke(STable, TC, Param.DefaultValue, Capture);
+                    C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable:Invoke(TC, Param.DefaultValue, Capture);
                 end
             elseif (bit.band(Param.Flags, Parameter.NAMED_SLURPY_FLAG) ~= 0) then
-                REPR = TC.DefaultHashType.STable.REPR;
-                local SlurpyHolder = REPR.instance_of(REPR, TC, TC.DefaultHashType);
+                local SlurpyHolder = TC.DefaultHashType.STable.REPR:instance_of(TC, TC.DefaultHashType);
                 C.LexPad.Storage[Param.VariableLexpadPosition] = SlurpyHolder;
                 for Name, unused in pairs(Nameds) do
                     if (SeenNames == nil or SeenNames[Name] == nil) then
@@ -59,8 +56,7 @@ function makeSignatureBinder()
                     end
                 end
             elseif (bit.band(Param.Flags, Parameter.POS_SLURPY_FLAG) ~= 0) then
-                REPR = TC.DefaultArrayType.STable.REPR;
-                local SlurpyHolder = REPR.instance_of(REPR, TC, TC.DefaultArrayType);
+                local SlurpyHolder = TC.DefaultArrayType.STable.REPR:instance_of(TC, TC.DefaultArrayType);
                 C.LexPad.Storage[Param.VariableLexpadPosition] = SlurpyHolder;
                 -- pretty sure this might be off-by-one. ;)
                 for j = CurPositional, Positionals.Count do
@@ -79,8 +75,7 @@ function makeSignatureBinder()
                     if (bit.band(Param.Flags, Parameter.OPTIONAL_FLAG) == 0) then
                         error("Required named parameter " .. Param.Name .. " missing");
                     else
-                        STable = Param.DefaultValue.STable;
-                        C.LexPad.Storage[Param.VariableLexpadPosition] = STable.Invoke(STable, TC, Param.DefaultValue, Capture);
+                        C.LexPad.Storage[Param.VariableLexpadPosition] = Param.DefaultValue.STable:Invoke(TC, Param.DefaultValue, Capture);
                     end
                 end
             else
@@ -95,9 +90,8 @@ function makeSignatureBinder()
                 " but got " + PossiesInCapture);
         end
     end
-    SignatureBinder[2] = SignatureBinder.Bind;
     
-    function SignatureBinder.NumRequiredPositionals (Sig)
+    function SignatureBinder.NumRequiredPositionals(Sig)
         local Num = 0;
         local breaking = false;
         for unused, Param in ipairs(Sig.Parameters) do
@@ -111,19 +105,18 @@ function makeSignatureBinder()
         end
         return Num;
     end
-    SignatureBinder[3] = SignatureBinder.NumRequiredPositionals;
     
-    function SignatureBinder.Flatten (FlattenSpec, Positionals, Nameds)
-        local NewPositionals = List.create();
+    function SignatureBinder.Flatten(FlattenSpec, Positionals, Nameds)
+        local NewPositionals = List.new();
         local NewNameds = {};
         
         for i = 1, Positionals.Count do
             if (FlattenSpec[i] == CaptureHelper.FLATTEN_NONE) then
-                List.Add(NewPositionals, Positionals[i]);
+                NewPositionals:Add(Positionals[i]);
             elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_POS) then
                 local Flattenee = Positionals[i];
                 for unused, Pos in ipairs(Flattenee.Storage) do
-                    List.Add(NewPositionals, Pos);
+                    NewPositionals:Add(Pos);
                 end
             elseif (FlattenSpec[i] == CaptureHelper.FLATTEN_NAMED) then
                 local Flattenee = Positionals[i];
@@ -134,7 +127,6 @@ function makeSignatureBinder()
         end
         return NewPositionals, NewNameds;
     end
-    SignatureBinder[4] = SignatureBinder.Flatten;
     
     return SignatureBinder;
 end

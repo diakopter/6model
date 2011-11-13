@@ -112,7 +112,7 @@ method compile(PAST::Node $node) {
             # We fudge in a fake NQPStr, for the :repr('P6Str'). Bit hacky,
             # but best I can think of for now. :-)
             LST::MethodCall.new(
-                :on('StaticBlockInfo[1][20]'), :name('SetByName'), :void(1), :type('RakudoObject'),
+                :on('StaticBlockInfo[1].StaticLexPad'), :name('SetByName'), :void(1), :type('RakudoObject'),
                 LST::Literal.new( :value('NQPStr'), :escape(1) ),
                 'REPRRegistry[4]("P6str"):type_object_for(nil, nil)'
             ),
@@ -122,7 +122,7 @@ method compile(PAST::Node $node) {
             $loadinit_calls,
             LST::Call.new( :name('constants_init'), :void(1), TC() ),
             $main_block_call,
-            "TC[0]"
+            "TC.CurrentContext"
         ));
     }
     else {
@@ -210,7 +210,7 @@ sub make_blocks_init_method($name) {
             )
         ),
         LST::Bind.new(
-            'StaticBlockInfo[0][0]',
+            'StaticBlockInfo[0].CurrentContext',
             'TC.Domain.Setting'
         ),
 
@@ -241,7 +241,7 @@ sub make_constants_init_method($name) {
                     'StaticBlockInfo[1]',
                     LST::ArrayLiteral.new( :type('string') )
                 ),
-                'TC[0]',
+                'TC.CurrentContext',
                 LST::Null.new()
             )
         ),
@@ -249,7 +249,7 @@ sub make_constants_init_method($name) {
         # Create array for storing these.
         LST::Bind.new(
             loc('ConstantsTable', 'RakudoObject[]'),
-            'List.create(' ~ +@*CONSTANTS ~ ')'
+            'List.new(' ~ +@*CONSTANTS ~ ')'
         )
     );
 
@@ -362,7 +362,7 @@ our multi sub lst_for(PAST::Block $block) {
         %handler<code> := lst_for(PAST::Block.new(PAST::Stmts.new(
             PAST::Var.new( :name('$!'), :scope('parameter') ),
             emit_op('leave_block',
-                LST::Literal.new( :value('TC[0].Outer.StaticCodeObject') ),
+                LST::Literal.new( :value('TC.CurrentContext.Outer.StaticCodeObject') ),
                 lst_for(PAST::Var.new( :name('$!'), :scope('lexical') ))
             )
         )));
@@ -395,17 +395,17 @@ our multi sub lst_for(PAST::Block $block) {
                     "StaticBlockInfo[$our_sbi]",
                     LST::ArrayLiteral.new( :type('string') ),
                 ),
-                'TC[0]',
+                'TC.CurrentContext',
                 LST::Null.new()
             )
         ),
-        LST::Bind.new( 'TC[0]', loc('C', 'Context') ),
+        LST::Bind.new( 'TC.CurrentContext', loc('C', 'Context') ),
         LST::Bind.new(
             "StaticBlockInfo[$our_sbi].Sig",
             compile_signature(@*PARAMS)
         ),
         $handlers_setup_placeholder,
-        LST::Bind.new( 'TC[0]', 'C.Caller' )
+        LST::Bind.new( 'TC.CurrentContext', 'C.Caller' )
     ));
     @*SIGINITS.push(LST::Call.new( :name($sig_setup_block), :void(1), TC() ));
 
@@ -418,9 +418,9 @@ our multi sub lst_for(PAST::Block $block) {
     # Wrap in block prelude/postlude.
     $result.push(LST::Local.new(
         :name('local C'), :isdecl(1), :type('Context'),
-        LST::New.new( :type('Context'), "Block", "TC[0]", loc("Capture") )
+        LST::New.new( :type('Context'), "Block", "TC.CurrentContext", loc("Capture") )
     ));
-    $result.push(LST::Bind.new( 'TC[0]', loc('C', 'Context') ));
+    $result.push(LST::Bind.new( 'TC.CurrentContext', loc('C', 'Context') ));
     $result.push(LST::TryFinally.new(
         LST::TryCatch.new(
             :exception_type('LeaveStackUnwinderException'),
@@ -437,7 +437,7 @@ our multi sub lst_for(PAST::Block $block) {
                 "exc.PayLoad"
             )
         ),
-        LST::Bind.new( 'TC[0]', 'C.Caller' )
+        LST::Bind.new( 'TC.CurrentContext', 'C.Caller' )
     ));
     
     # Add nested inner blocks after it (.Net does not support
@@ -484,9 +484,8 @@ our multi sub lst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('[1][3]'), :type('RakudoObject'),
+            :name('[1]:Invoke'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
-            "StaticBlockInfo[$our_sbi][1]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
             LST::MethodCall.new(
@@ -591,12 +590,11 @@ our multi sub lst_for(PAST::Op $op) {
         my $callee := LST::Local.new(
             :name(get_unique_id('callee')), :isdecl(1), :type('RakudoObject'),
             LST::MethodCall.new(
-                :on($inv.name ~ '[1]'), :name('[2]'), :type('RakudoObject'),
-                $inv.name ~ '[1]',
+                :on($inv.name), :name('[1]:FindMethod'), :type('RakudoObject'),
                 TC(),
                 $inv.name,
                 $name,
-                '-1'
+                'Hints.NO_HINT'
             )
         );
 
@@ -604,9 +602,8 @@ our multi sub lst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('[1][3]'), :type('RakudoObject'),
+                :name('[1]:Invoke'), :type('RakudoObject'),
                 $callee,
-                $callee.name ~ '[1]',
                 TC(),
                 $callee.name,
                 form_capture(@args, $inv)
@@ -632,9 +629,8 @@ our multi sub lst_for(PAST::Op $op) {
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('[1][3]'), :type('RakudoObject'),
+            :name('[1]:Invoke'), :type('RakudoObject'),
             $callee,
-            $callee.name ~ '[1]',
             TC(),
             $callee.name,
             form_capture(@args)
@@ -1727,7 +1723,7 @@ sub temp_str($arg?, :$name) {
 # Emits a boxing operation to an int/num/str.
 sub box($type, $arg) {
     LST::MethodCall.new(
-        :on('Ops'), :name($type eq 'str' ?? '[3]' !! $type eq 'int' ?? '[1]' !! '[2]'), :type('RakudoObject'),
+        :on('Ops'), :name("box_$type"), :type('RakudoObject'),
         TC(), lst_for($arg)
     )
 }

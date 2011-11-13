@@ -1,7 +1,10 @@
 function makeContext ()
     local Context = { ["class"] = "Context" };
     local mt = { __index = Context };
-    function Context.new (StaticCodeObject, Caller, Capture)
+    function Context.newplain()
+        return setmetatable({}, mt);
+    end
+    function Context.new(StaticCodeObject, Caller, Capture)
         local this = {};
         this.StaticCodeObject = StaticCodeObject;
         this.Caller = Caller;
@@ -9,44 +12,34 @@ function makeContext ()
         
         StaticCodeObject.CurrentContext = this;
         
-        local lexpad = Lexpad.new({});
-        this.LexPad  = lexpad;
-        local staticCodeObject = StaticCodeObject.StaticLexPad;
-        lexpad.SlotMapping = staticCodeObject.SlotMapping;
-        lexpad.Storage = table_clone(staticCodeObject.Storage);
+        this.LexPad = Lexpad.new({});
+        this.LexPad.SlotMapping = StaticCodeObject.StaticLexPad.SlotMapping;
+        this.LexPad.Storage = table_clone(StaticCodeObject.StaticLexPad.Storage);
         
-        local outer = StaticCodeObject.OuterForNextInvocation;
-        if (outer ~= nil) then
-            this.Outer = outer;
+        if (StaticCodeObject.OuterForNextInvocation ~= nil) then
+            this.Outer = StaticCodeObject.OuterForNextInvocation;
+        elseif (StaticCodeObject.OuterBlock.CurrentContext ~= nil) then
+            this.Outer = StaticCodeObject.OuterBlock.CurrentContext;
         else
-            local cur = StaticCodeObject.OuterBlock.CurrentContext;
-            if (cur ~= nil) then
-                this.Outer = cur;
-            else
-                local CurContext = this;
-                local OuterBlock = StaticCodeObject.OuterBlock;
-                while (OuterBlock ~= nil) do
-                    if (OuterBlock.CurrentContext ~= nil) then
-                        CurContext.Outer = OuterBlock.CurrentContext;
-                        break;
-                    end
-                    
-                    local OuterContext = Context.newplain();
-                    OuterContext.StaticCodeObject = OuterBlock;
-                    OuterContext.LexPad = OuterBlock.StaticLexPad;
-                    CurContext.Outer = OuterContext;
-                    CurContext = OuterContext;
-                    OuterBlock = OuterBlock.OuterBlock;
+            local CurContext = this;
+            local OuterBlock = StaticCodeObject.OuterBlock;
+            while (OuterBlock ~= nil) do
+                if (OuterBlock.CurrentContext ~= nil) then
+                    CurContext.Outer = OuterBlock.CurrentContext;
+                    break;
                 end
+                
+                local OuterContext = Context.newplain();
+                OuterContext.StaticCodeObject = OuterBlock;
+                OuterContext.LexPad = OuterBlock.StaticLexPad;
+                CurContext.Outer = OuterContext;
+                CurContext = OuterContext;
+                OuterBlock = OuterBlock.OuterBlock;
             end
         end
         return setmetatable(this, mt);
     end
     Context[1] = Context.new;
-    function Context.newplain ()
-        return setmetatable({}, mt);
-    end
-    Context[2] = Context.newplain;
     return Context;
 end
 Context = makeContext();

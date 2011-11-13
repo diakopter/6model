@@ -1,7 +1,7 @@
 function makeParameter ()
     local Parameter = { ["class"] = "Parameter" };
     local mt = { __index = Parameter };
-    function Parameter.new (Type, VariableName, VariableLexpadPosition, Name, Flags, Definedness, DefaultValue)
+    function Parameter.new(Type, VariableName, VariableLexpadPosition, Name, Flags, Definedness, DefaultValue)
         local this = {};
         this.Type = Type;
         this.VariableName = VariableName;
@@ -20,7 +20,7 @@ function makeParameter ()
     Parameter.NAMED_SLURPY_FLAG = 4;
     Parameter.NAMED_FLAG = 8;
     
-    function Parameter:HasSlurpyPositional ()
+    function Parameter:HasSlurpyPositional()
         for i = 1, self.Parameters.Count do
             if (self.Parameters[i].Flags == Parameter.POS_SLURPY_FLAG) then
                 return true;
