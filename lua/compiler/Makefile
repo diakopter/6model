@@ -56,7 +56,7 @@ P6Objects.lbc:	P6Objects.lua
 	luajit -b P6Objects.lua P6Objects.lbc
 
 test: all
-	prove -r --exec try ..\..\t\nqp
+	prove -r --exec try.bat ..\..\t\nqp
 
 test-unixy: all
 	prove -r --exec ./try.sh ../../t/nqp
