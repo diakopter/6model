@@ -28,7 +28,7 @@ function makeDispatchCache ()
             if (Cache ~= nil and Cache.NumEntries ~= 0) then
                 local Seeking = DispatchCache.PositionalsToTypeCacheIDs(Positionals);
                 
-                local ci = 0;
+                local ci = 1;
                 for ri = 1, Cache.NumEntries do
                     local Matched = true;
                     for j = 1, Positionals.Count do
