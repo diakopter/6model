@@ -102,7 +102,7 @@ method compile(PAST::Node $node) {
             :return_type('Context'),
             LST::Local.new( :name('TC'), :isdecl(1), :type('ThreadContext'),
                 LST::MethodCall.new(
-                    :on('Init'), :name('[1]'),
+                    :on('Init'), :name('Initialize'),
                     :type('ThreadContext'),
                     LST::Null.new()
                 )
@@ -484,13 +484,13 @@ our multi sub lst_for(PAST::Block $block) {
     # low level code object.
     if $block.blocktype eq 'immediate' {
         return LST::MethodCall.new(
-            :name('[1]:Invoke'), :type('RakudoObject'),
+            :name('STable:Invoke'), :type('RakudoObject'),
             "StaticBlockInfo[$our_sbi]",
             TC(),
             "StaticBlockInfo[$our_sbi]",
             LST::MethodCall.new(
                 :on('CaptureHelper'),
-                :name('[1]'),
+                :name('FormWith'),
                 :type('RakudoObject')
             )
         );
@@ -590,7 +590,7 @@ our multi sub lst_for(PAST::Op $op) {
         my $callee := LST::Local.new(
             :name(get_unique_id('callee')), :isdecl(1), :type('RakudoObject'),
             LST::MethodCall.new(
-                :on($inv.name), :name('[1]:FindMethod'), :type('RakudoObject'),
+                :on($inv.name), :name('STable:FindMethod'), :type('RakudoObject'),
                 TC(),
                 $inv.name,
                 $name,
@@ -602,7 +602,7 @@ our multi sub lst_for(PAST::Op $op) {
         return LST::Stmts.new(
             $inv,
             LST::MethodCall.new(
-                :name('[1]:Invoke'), :type('RakudoObject'),
+                :name('STable:Invoke'), :type('RakudoObject'),
                 $callee,
                 TC(),
                 $callee.name,
@@ -629,7 +629,7 @@ our multi sub lst_for(PAST::Op $op) {
 
         # Emit call.
         return LST::MethodCall.new(
-            :name('[1]:Invoke'), :type('RakudoObject'),
+            :name('STable:Invoke'), :type('RakudoObject'),
             $callee,
             TC(),
             $callee.name,
@@ -817,7 +817,7 @@ our multi sub lst_for(PAST::Op $op) {
 sub form_capture(@args, $inv?) {
     # Create the various parts we might put into the capture.
     my $capture := LST::MethodCall.new(
-        :on('CaptureHelper'), :name('[1]'), :type('RakudoObject')
+        :on('CaptureHelper'), :name('FormWith'), :type('RakudoObject')
     );
     my $pos_part := LST::ArrayLiteral.new( :type('RakudoObject') );
     my $named_part := LST::DictionaryLiteral.new(
